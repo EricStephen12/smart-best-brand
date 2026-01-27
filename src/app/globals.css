@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Crimson+Text:wght@400;600&family=Montserrat:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --font-playfair: 'Playfair Display', serif;
+  --font-inter: 'Inter', sans-serif;
+  --font-crimson: 'Crimson Text', serif;
+  --font-montserrat: 'Montserrat', sans-serif;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-inter);
+    font-feature-settings: 'liga' 1, 'kern' 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-playfair);
+    font-feature-settings: 'liga' 1, 'kern' 1;
+    letter-spacing: -0.025em;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-blue-950 hover:bg-sky-700 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-xl shadow-blue-900/10 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-sky-50 hover:bg-sky-100 text-sky-950 font-bold py-4 px-8 rounded-2xl transition-all duration-300;
+  }
+
+  .bg-deep-blue {
+    @apply bg-blue-950;
+  }
+
+  .text-sky {
+    @apply text-sky-600;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0f172a;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1e293b;
+}
