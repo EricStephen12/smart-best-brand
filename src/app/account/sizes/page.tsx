@@ -2,6 +2,8 @@ import React from 'react';
 import { getAllSizes } from '@/actions/sizes';
 import SizesList from '@/components/admin/SizesList';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminSizesPage() {
     const result = await getAllSizes();
     const sizes = result.success ? result.data : [];

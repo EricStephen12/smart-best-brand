@@ -4,6 +4,8 @@ import { Plus } from 'lucide-react';
 import PromotionsList from '@/components/admin/PromotionsList';
 import { getAllPromotions } from '@/actions/promotions';
 
+export const dynamic = 'force-dynamic';
+
 export default async function PromotionsPage() {
     const result = await getAllPromotions();
     const promotions = result.success ? result.data : [];

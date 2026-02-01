@@ -4,6 +4,8 @@ import { Plus } from 'lucide-react';
 import BrandsList from '@/components/admin/BrandsList';
 import { getAllBrands } from '@/actions/brands';
 
+export const dynamic = 'force-dynamic';
+
 export default async function BrandsPage() {
     const result = await getAllBrands();
     const brands = result.success ? result.data : [];

@@ -4,6 +4,8 @@ import { Plus } from 'lucide-react';
 import ProductsList from '@/components/admin/ProductsList';
 import { getAllProducts } from '@/actions/products';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminProductsPage() {
   const result = await getAllProducts();
   const products = result.success ? result.data : [];

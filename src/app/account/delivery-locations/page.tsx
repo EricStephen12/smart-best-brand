@@ -2,6 +2,8 @@ import React from 'react';
 import DeliveryLocationsList from '@/components/admin/DeliveryLocationsList';
 import { getAllDeliveryLocations } from '@/actions/delivery-locations';
 
+export const dynamic = 'force-dynamic';
+
 export default async function DeliveryLocationsPage() {
     const result = await getAllDeliveryLocations();
     const locations = result.success ? result.data : [];

@@ -2,6 +2,8 @@ import React from 'react';
 import CategoriesList from '@/components/admin/CategoriesList';
 import { getAllCategories } from '@/actions/categories';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminCategoriesPage() {
     const result = await getAllCategories();
     const categories = result.success ? result.data : [];

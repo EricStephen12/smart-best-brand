@@ -8,7 +8,13 @@ import { getAllSizes } from '@/actions/sizes';
 import ProductForm from '@/components/admin/ProductForm';
 import { notFound } from 'next/navigation';
 
-export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+interface PageProps {
+    params: Promise<{ id: string }>;
+}
+
+export const dynamic = 'force-dynamic';
+
+export default async function EditProductPage({ params }: PageProps) {
     const { id } = await params;
 
     const [productResult, brandsResult, categoriesResult, sizesResult] = await Promise.all([

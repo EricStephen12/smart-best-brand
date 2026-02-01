@@ -6,6 +6,8 @@ import { getAllOrders } from '@/actions/orders';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2, Package } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function OrdersPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);

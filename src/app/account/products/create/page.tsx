@@ -6,6 +6,8 @@ import { getAllCategories } from '@/actions/categories';
 import { getAllSizes } from '@/actions/sizes';
 import ProductForm from '@/components/admin/ProductForm';
 
+export const dynamic = 'force-dynamic';
+
 export default async function CreateProductPage() {
     const [brandsResult, categoriesResult, sizesResult] = await Promise.all([
         getAllBrands(),
