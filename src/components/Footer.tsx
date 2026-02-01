@@ -80,7 +80,7 @@ export default function Footer() {
                   <span className="text-[10px] font-black uppercase tracking-widest">Correspondence</span>
                 </div>
                 <a href="mailto:concierge@smartbest.com" className="text-white text-xs font-black pl-7 underline decoration-sky-600 underline-offset-4 tracking-[0.05em] overflow-visible">
-                  concierge@smartbest.com
+                  smartbestbrands@gmail.com
                 </a>
               </div>
             </div>
