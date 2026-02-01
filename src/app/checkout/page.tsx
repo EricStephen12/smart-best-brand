@@ -2,6 +2,8 @@ import React from 'react';
 import { getAllDeliveryLocations } from '@/actions/delivery-locations';
 import CheckoutForm from '@/components/CheckoutForm';
 
+export const dynamic = 'force-dynamic';
+
 export default async function CheckoutPage() {
   const result = await getAllDeliveryLocations();
   const zones = result.success ? result.data : [];
