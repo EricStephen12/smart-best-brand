@@ -3,6 +3,8 @@ import StorySection from '@/components/StorySection';
 import { Truck, ShieldCheck, Heart, Award } from 'lucide-react';
 import { getAllBrands } from '@/actions/brands';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AboutPage() {
     const brandsResult = await getAllBrands();
     const brands = brandsResult.success ? brandsResult.data : [];

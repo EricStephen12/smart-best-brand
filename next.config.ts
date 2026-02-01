@@ -17,10 +17,6 @@ const nextConfig = {
       }
     ],
   },
-  // Disable ESLint and TypeScript checks during build
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
