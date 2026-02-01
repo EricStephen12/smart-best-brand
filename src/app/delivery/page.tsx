@@ -1,223 +1,183 @@
-'use client'
+'use client';
 
-import { motion } from 'framer-motion'
-import { TruckIcon, ClockIcon, ShieldCheckIcon, PhoneIcon, MapPinIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
+import React from 'react';
+import { motion } from 'framer-motion';
+import {
+  Truck,
+  ShieldCheck,
+  MapPin,
+  Clock,
+  Package,
+  ArrowRight,
+  HeadphonesIcon
+} from 'lucide-react';
+
+const deliverySteps = [
+  {
+    number: "01",
+    title: "Quality Curation",
+    description: "Every order undergoes a rigorous quality inspection at our central hub before being meticulously packaged for transit.",
+    icon: Package
+  },
+  {
+    number: "02",
+    title: "Elite Handling",
+    description: "Our specialized logistics partners treat your furniture with the utmost care, ensuring safe passage to your doorstep.",
+    icon: ShieldCheck
+  },
+  {
+    number: "03",
+    title: "Precise Delivery",
+    description: "Scheduled delivery windows that respect your time, with real-time updates as your collection approaches.",
+    icon: Truck
+  }
+];
+
+const zones = [
+  { city: "Abuja", price: "₦5,000 - ₦15,000", time: "24-48 Hours", note: "Priority white-glove service available." },
+  { city: "Benin City", price: "₦5,000 - ₦12,000", time: "24-48 Hours", note: "Local hub fulfillment." },
+  { city: "Lagos", price: "₦15,000 - ₦35,000", time: "3-5 Business Days", note: "Inter-state logistics." },
+  { city: "Other Locations", price: "Calculated at Checkout", time: "5-7 Business Days", note: "National coverage via partners." }
+];
 
 export default function DeliveryPage() {
   return (
-    <div className="pt-16 min-h-screen bg-amber-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
-        >
-          <h1 className="text-5xl font-serif font-bold text-amber-900 mb-6">
-            Delivery & Shipping
-          </h1>
-          <p className="text-xl text-amber-800 max-w-3xl mx-auto">
-            We ensure your luxury furniture arrives safely and on time.
-            Our professional delivery team handles everything with care.
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Delivery Information */}
+    <div className="bg-white min-h-screen">
+      {/* Header Section */}
+      <div className="pt-32 pb-20 sm:pt-48 sm:pb-32 bg-blue-950 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="space-y-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-3xl"
           >
-            {/* Delivery Options */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg">
-              <div className="flex items-center mb-6">
-                <TruckIcon className="h-8 w-8 text-amber-600 mr-3" />
-                <h2 className="text-2xl font-serif font-semibold text-amber-900">
-                  Delivery Options
-                </h2>
-              </div>
-
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <CheckCircleIcon className="h-6 w-6 text-green-600 mt-1 flex-shrink-0" />
-                  <div>
-                    <h3 className="font-semibold text-amber-900 mb-2">Standard Delivery</h3>
-                    <p className="text-amber-700">Free delivery on orders over $1,000. Estimated 7-14 business days.</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <CheckCircleIcon className="h-6 w-6 text-green-600 mt-1 flex-shrink-0" />
-                  <div>
-                    <h3 className="font-semibold text-amber-900 mb-2">Express Delivery</h3>
-                    <p className="text-amber-700">$150 fee. Estimated 3-7 business days for most items.</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <CheckCircleIcon className="h-6 w-6 text-green-600 mt-1 flex-shrink-0" />
-                  <div>
-                    <h3 className="font-semibold text-amber-900 mb-2">White Glove Delivery</h3>
-                    <p className="text-amber-700">$250 fee. Includes assembly, placement, and debris removal.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Shipping Areas */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg">
-              <div className="flex items-center mb-6">
-                <MapPinIcon className="h-8 w-8 text-amber-600 mr-3" />
-                <h2 className="text-2xl font-serif font-semibold text-amber-900">
-                  Shipping Areas
-                </h2>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <CheckCircleIcon className="h-5 w-5 text-green-600" />
-                  <span className="text-amber-700">Continental United States</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <CheckCircleIcon className="h-5 w-5 text-green-600" />
-                  <span className="text-amber-700">Canada (additional fees may apply)</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <ClockIcon className="h-5 w-5 text-amber-600" />
-                  <span className="text-amber-700">International shipping available upon request</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Delivery Process & Policies */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="space-y-8"
-          >
-            {/* Delivery Process */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg">
-              <div className="flex items-center mb-6">
-                <ClockIcon className="h-8 w-8 text-amber-600 mr-3" />
-                <h2 className="text-2xl font-serif font-semibold text-amber-900">
-                  Delivery Process
-                </h2>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-start space-x-4">
-                  <div className="bg-amber-100 text-amber-800 rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm">
-                    1
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-amber-900 mb-1">Order Processing</h3>
-                    <p className="text-amber-700 text-sm">We verify your order and prepare it for shipment within 1-2 business days.</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="bg-amber-100 text-amber-800 rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm">
-                    2
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-amber-900 mb-1">Quality Check</h3>
-                    <p className="text-amber-700 text-sm">Every item undergoes final inspection before packaging.</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="bg-amber-100 text-amber-800 rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm">
-                    3
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-amber-900 mb-1">Secure Packaging</h3>
-                    <p className="text-amber-700 text-sm">Professional packaging to ensure safe transit of your luxury items.</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="bg-amber-100 text-amber-800 rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm">
-                    4
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-amber-900 mb-1">Delivery & Setup</h3>
-                    <p className="text-amber-700 text-sm">Professional delivery team handles transportation and placement.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Contact Information */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg">
-              <div className="flex items-center mb-6">
-                <PhoneIcon className="h-8 w-8 text-amber-600 mr-3" />
-                <h2 className="text-2xl font-serif font-semibold text-amber-900">
-                  Need Help?
-                </h2>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <PhoneIcon className="h-5 w-5 text-amber-600" />
-                  <span className="text-amber-700">Call us: +1 (555) 123-4567</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <ShieldCheckIcon className="h-5 w-5 text-amber-600" />
-                  <span className="text-amber-700">Email: delivery@interiors.com</span>
-                </div>
-              </div>
-
-              <div className="mt-6 p-4 bg-amber-50 rounded-lg">
-                <p className="text-sm text-amber-800">
-                  <span className="font-semibold">Note:</span> For large furniture items, we recommend scheduling delivery during business hours when someone can be present to receive and inspect the items.
-                </p>
-              </div>
-            </div>
+            <h1 className="text-5xl sm:text-7xl font-black text-white tracking-tight mb-8 leading-none">
+              ELITE <span className="text-sky-400">LOGISTICS.</span>
+            </h1>
+            <p className="text-xl text-sky-100/80 font-medium leading-relaxed max-w-2xl">
+              Our commitment to excellence extends beyond our products. We ensure a seamless, premium delivery experience for every piece in your collection.
+            </p>
           </motion.div>
         </div>
 
-        {/* FAQ Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="mt-16"
-        >
-          <div className="bg-white p-8 rounded-2xl shadow-lg">
-            <h2 className="text-3xl font-serif font-semibold text-amber-900 mb-8 text-center">
-              Frequently Asked Questions
-            </h2>
+        {/* Decorative Elements */}
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-sky-600/20 to-transparent"></div>
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl"></div>
+      </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="font-semibold text-amber-900 mb-2">Do you offer assembly services?</h3>
-                <p className="text-amber-700 text-sm">Yes! Our White Glove delivery service includes professional assembly and placement of your furniture items.</p>
+      {/* Delivery Process (Editorial Style) */}
+      <div className="py-24 sm:py-32 max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 sm:gap-20">
+          {deliverySteps.map((step, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+              className="group"
+            >
+              <div className="text-8xl font-black text-blue-50 mb-6 group-hover:text-sky-50 transition-colors duration-500">
+                {step.number}
               </div>
+              <div className="relative -mt-16 sm:-mt-20 pl-4 sm:pl-6 border-l-4 border-sky-500">
+                <h3 className="text-2xl font-bold text-blue-950 mb-4">{step.title}</h3>
+                <p className="text-gray-600 leading-relaxed font-medium">
+                  {step.description}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
 
-              <div>
-                <h3 className="font-semibold text-amber-900 mb-2">What if my item arrives damaged?</h3>
-                <p className="text-amber-700 text-sm">We offer a 30-day return policy and will replace any damaged items at no additional cost to you.</p>
-              </div>
+      {/* Delivery Zones Table */}
+      <div className="bg-gray-50 py-24 sm:py-32">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="mb-16">
+            <h2 className="text-4xl font-black text-blue-950 mb-4 uppercase tracking-tight">Delivery Zones</h2>
+            <div className="w-20 h-2 bg-sky-600"></div>
+          </div>
 
-              <div>
-                <h3 className="font-semibold text-amber-900 mb-2">Can I change my delivery date?</h3>
-                <p className="text-amber-700 text-sm">Yes, you can reschedule your delivery up to 48 hours before the scheduled date by contacting our customer service.</p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-amber-900 mb-2">Do you deliver to apartments?</h3>
-                <p className="text-amber-700 text-sm">Absolutely! We deliver to all residential locations including apartments, condos, and high-rise buildings.</p>
-              </div>
+          <div className="bg-white rounded-[2.5rem] shadow-xl shadow-blue-900/5 overflow-hidden border border-gray-100">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-blue-950 text-white">
+                    <th className="p-8 font-bold uppercase tracking-widest text-xs">Region</th>
+                    <th className="p-8 font-bold uppercase tracking-widest text-xs">Estimated Fee</th>
+                    <th className="p-8 font-bold uppercase tracking-widest text-xs">Timeline</th>
+                    <th className="p-8 font-bold uppercase tracking-widest text-xs">Service Type</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {zones.map((zone, idx) => (
+                    <tr key={idx} className="group hover:bg-sky-50/50 transition-colors">
+                      <td className="p-8">
+                        <div className="flex items-center gap-3">
+                          <MapPin className="w-5 h-5 text-sky-600" />
+                          <span className="font-bold text-blue-950 text-xl">{zone.city}</span>
+                        </div>
+                      </td>
+                      <td className="p-8 text-gray-700 font-bold">{zone.price}</td>
+                      <td className="p-8">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-gray-400" />
+                          <span className="text-gray-600 font-medium">{zone.time}</span>
+                        </div>
+                      </td>
+                      <td className="p-8">
+                        <span className="inline-block px-4 py-1 rounded-full bg-blue-50 text-blue-900 text-sm font-bold">
+                          {zone.note}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-        </motion.div>
+        </div>
+      </div>
+
+      {/* FAQ / Reassurance Strip */}
+      <div className="py-24 max-w-5xl mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+          <div>
+            <h4 className="text-xl font-bold text-blue-950 mb-4 flex items-center gap-3">
+              <ShieldCheck className="w-6 h-6 text-sky-600" />
+              Secure Transit
+            </h4>
+            <p className="text-gray-600 leading-relaxed font-medium">
+              Every item is insured from the moment it leaves our warehouse until it is placed in your home. We take full responsibility for the safety of your purchase.
+            </p>
+          </div>
+          <div>
+            <h4 className="text-xl font-bold text-blue-950 mb-4 flex items-center gap-3">
+              <HeadphonesIcon className="w-6 h-6 text-sky-600" />
+              Real-time Tracking
+            </h4>
+            <p className="text-gray-600 leading-relaxed font-medium">
+              Our concierge team is available via WhatsApp to provide live updates on your order status and coordinate the perfect delivery time for you.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-20 p-12 bg-blue-950 rounded-[3rem] text-center text-white relative overflow-hidden group">
+          <div className="relative z-10 transition-transform group-hover:scale-105 duration-700">
+            <h2 className="text-3xl font-black mb-6">Experience the Elite Standard</h2>
+            <p className="text-sky-200 mb-10 max-w-sm mx-auto font-medium">Ready to curated your palace? Shop our latest designer collections now.</p>
+            <a href="/products" className="inline-flex items-center gap-3 bg-sky-600 hover:bg-sky-500 text-white font-black py-5 px-12 rounded-2xl shadow-2xl transition-all">
+              Shop Collections
+              <ArrowRight className="w-5 h-5" />
+            </a>
+          </div>
+          {/* Decorative */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-sky-600/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-sky-400/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl"></div>
+        </div>
       </div>
     </div>
-  )
+  );
 }
 

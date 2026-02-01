@@ -1,7 +1,14 @@
 'use client'
 
-import { createContext, useContext, useReducer, ReactNode } from 'react'
-import { Product, CartItem, ProductVariant } from '@/lib/supabase'
+import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react'
+
+interface CartItem {
+  id: string
+  product_variant_id: string
+  variant: any
+  product: any
+  quantity: number
+}
 
 interface CartState {
   items: CartItem[]
@@ -9,15 +16,16 @@ interface CartState {
 }
 
 type CartAction =
-  | { type: 'ADD_ITEM'; product: Product; variant: ProductVariant; quantity?: number }
+  | { type: 'ADD_ITEM'; product: any; variant: any; quantity?: number }
   | { type: 'REMOVE_ITEM'; itemId: string }
   | { type: 'UPDATE_QUANTITY'; itemId: string; quantity: number }
   | { type: 'CLEAR_CART' }
   | { type: 'TOGGLE_CART' }
+  | { type: 'LOAD_CART'; items: CartItem[] }
 
 interface CartContextType {
   state: CartState
-  addToCart: (product: Product, variant: ProductVariant, quantity?: number) => void
+  addToCart: (product: any, variant: any, quantity?: number) => void
   removeFromCart: (itemId: string) => void
   updateQuantity: (itemId: string, quantity: number) => void
   clearCart: () => void
@@ -28,58 +36,67 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
+    case 'LOAD_CART':
+      return { ...state, items: action.items }
+
     case 'ADD_ITEM': {
       const existingItem = state.items.find(item => item.product_variant_id === action.variant.id)
 
+      let newItems;
       if (existingItem) {
-        return {
-          ...state,
-          items: state.items.map(item =>
-            item.product_variant_id === action.variant.id
-              ? { ...item, quantity: item.quantity + (action.quantity || 1) }
-              : item
-          )
+        newItems = state.items.map(item =>
+          item.product_variant_id === action.variant.id
+            ? { ...item, quantity: item.quantity + (action.quantity || 1) }
+            : item
+        )
+      } else {
+        const newItem: CartItem = {
+          id: `${Date.now()}-${action.variant.id}`,
+          product_variant_id: action.variant.id,
+          variant: action.variant,
+          product: action.product,
+          quantity: action.quantity || 1
         }
+        newItems = [...state.items, newItem]
       }
 
-      const newItem: CartItem = {
-        id: Date.now().toString(),
-        product_variant_id: action.variant.id,
-        variant: action.variant,
-        product: action.product,
-        quantity: action.quantity || 1
-      }
-
+      localStorage.setItem('sbb-cart', JSON.stringify(newItems))
       return {
         ...state,
-        items: [...state.items, newItem]
+        items: newItems,
+        isOpen: true
       }
     }
 
-    case 'REMOVE_ITEM':
+    case 'REMOVE_ITEM': {
+      const newItems = state.items.filter(item => item.id !== action.itemId)
+      localStorage.setItem('sbb-cart', JSON.stringify(newItems))
       return {
         ...state,
-        items: state.items.filter(item => item.id !== action.itemId)
+        items: newItems
       }
+    }
 
-    case 'UPDATE_QUANTITY':
+    case 'UPDATE_QUANTITY': {
+      let newItems;
       if (action.quantity <= 0) {
-        return {
-          ...state,
-          items: state.items.filter(item => item.id !== action.itemId)
-        }
-      }
-
-      return {
-        ...state,
-        items: state.items.map(item =>
+        newItems = state.items.filter(item => item.id !== action.itemId)
+      } else {
+        newItems = state.items.map(item =>
           item.id === action.itemId
             ? { ...item, quantity: action.quantity }
             : item
         )
       }
+      localStorage.setItem('sbb-cart', JSON.stringify(newItems))
+      return {
+        ...state,
+        items: newItems
+      }
+    }
 
     case 'CLEAR_CART':
+      localStorage.removeItem('sbb-cart')
       return {
         ...state,
         items: []
@@ -104,7 +121,18 @@ const initialState: CartState = {
 export function CartProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, initialState)
 
-  const addToCart = (product: Product, variant: ProductVariant, quantity = 1) => {
+  useEffect(() => {
+    const savedCart = localStorage.getItem('sbb-cart')
+    if (savedCart) {
+      try {
+        dispatch({ type: 'LOAD_CART', items: JSON.parse(savedCart) })
+      } catch (e) {
+        console.error('Failed to parse cart')
+      }
+    }
+  }, [])
+
+  const addToCart = (product: any, variant: any, quantity = 1) => {
     dispatch({ type: 'ADD_ITEM', product, variant, quantity })
   }
 

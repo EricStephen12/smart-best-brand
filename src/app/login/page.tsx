@@ -16,11 +16,19 @@ export default function LoginPage() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Enforce the specific admin password for the boss
+        if (email === 'smartbestbrands@gmail.com' && password !== 'smart123@123') {
+            alert('Security Key invalid for Admin Essence');
+            return;
+        }
+
         setIsLoading(true);
 
         setTimeout(() => {
             setIsLoading(false);
-            const role = email.includes('admin') ? 'ADMIN' : 'CUSTOMER';
+            const isAdmin = email.includes('admin') || email === 'smartbestbrands@gmail.com';
+            const role = isAdmin ? 'ADMIN' : 'CUSTOMER';
             login(role, email);
             router.push('/account');
         }, 1500);
@@ -105,7 +113,7 @@ export default function LoginPage() {
                 <div className="mt-10 pt-8 border-t border-slate-50 text-center">
                     <p className="text-sm font-medium text-slate-400 mb-6">First time here?</p>
                     <Link
-                        href="/auth/register"
+                        href="/register"
                         className="inline-flex items-center gap-2 text-xs font-black text-blue-950 uppercase tracking-widest hover:text-sky-600 transition-colors"
                     >
                         Initialize New Account

@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, Minus, Search } from 'lucide-react';
+import { Plus, Minus, MessageCircle, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const faqs = [
     {
@@ -34,51 +35,106 @@ export default function FAQPage() {
     const [openIndex, setOpenIndex] = useState<number | null>(0);
 
     return (
-        <div className="pt-20 sm:pt-32 pb-16 sm:pb-24 bg-sky-50/20 min-h-screen">
-            <div className="max-w-3xl mx-auto px-4">
-                <div className="text-center mb-10 sm:mb-16">
-                    <h1 className="text-4xl sm:text-5xl font-black text-blue-950 tracking-tight mb-4">FAQs</h1>
-                    <p className="text-lg text-gray-600 font-medium">Everything you need to know about Smart Best Brands.</p>
+        <div className="pt-32 sm:pt-48 pb-24 bg-white min-h-screen">
+            <div className="max-w-4xl mx-auto px-4">
+                <div className="mb-16 sm:mb-24">
+                    <motion.span
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-sky-600 font-black tracking-[0.3em] text-xs uppercase mb-4 block"
+                    >
+                        Assistance & Logistics
+                    </motion.span>
+                    <motion.h1
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="text-5xl sm:text-7xl font-black text-blue-950 tracking-tight leading-none"
+                    >
+                        FREQUENTLY <br />
+                        <span className="text-gray-300">ASKED.</span>
+                    </motion.h1>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                     {faqs.map((faq, idx) => (
-                        <div
+                        <motion.div
                             key={idx}
-                            className={`rounded-[2rem] border transition-all duration-300 ${openIndex === idx ? 'bg-white border-sky-100 shadow-xl shadow-sky-600/10' : 'bg-transparent border-gray-100'}`}
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: idx * 0.05 }}
+                            className={`rounded-[2rem] border-2 transition-all duration-500 overflow-hidden ${openIndex === idx
+                                ? 'bg-white border-sky-100 shadow-2xl shadow-sky-600/5'
+                                : 'bg-gray-50/50 border-transparent hover:border-gray-100'
+                                }`}
                         >
                             <button
                                 onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
-                                className="w-full flex items-center justify-between p-8 text-left"
+                                className="w-full flex items-center justify-between p-8 sm:p-10 text-left"
                             >
-                                <span className="text-lg font-bold text-blue-950 pr-8">{faq.question}</span>
-                                <div className={`p-2 rounded-xl transition-colors ${openIndex === idx ? 'bg-sky-600 text-white' : 'bg-gray-100 text-gray-400'}`}>
+                                <span className={`text-xl sm:text-2xl font-bold transition-colors duration-300 ${openIndex === idx ? 'text-blue-950' : 'text-gray-500 hover:text-blue-950'
+                                    }`}>
+                                    {faq.question}
+                                </span>
+                                <div className={`p-3 rounded-2xl transition-all duration-300 ${openIndex === idx ? 'bg-blue-950 text-white rotate-0' : 'bg-white text-gray-400 rotate-90 shadow-sm'
+                                    }`}>
                                     {openIndex === idx ? <Minus className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
                                 </div>
                             </button>
-                            {openIndex === idx && (
-                                <div className="px-8 pb-8 animate-in fade-in slide-in-from-top-4 duration-300">
-                                    <p className="text-gray-600 leading-relaxed font-medium border-t border-gray-50 pt-4">
-                                        {faq.answer}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
+
+                            <AnimatePresence>
+                                {openIndex === idx && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.4, ease: "circOut" }}
+                                    >
+                                        <div className="px-8 sm:px-10 pb-10">
+                                            <div className="h-[2px] w-12 bg-sky-500 mb-6"></div>
+                                            <p className="text-lg text-gray-600 leading-relaxed font-medium max-w-2xl">
+                                                {faq.answer}
+                                            </p>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </motion.div>
                     ))}
                 </div>
 
-                <div className="mt-12 sm:mt-20 p-8 sm:p-12 bg-blue-950 rounded-[2rem] sm:rounded-[3rem] text-center text-white relative overflow-hidden">
-                    <div className="relative z-10">
-                        <h2 className="text-2xl font-bold mb-4">Still have questions?</h2>
-                        <p className="text-sky-200 mb-8 max-w-sm mx-auto">Can&apos;t find the answer you&apos;re looking for? Please chat with our friendly team.</p>
-                        <a href="/contact" className="inline-block bg-sky-600 hover:bg-sky-700 text-white font-bold py-4 px-10 rounded-2xl shadow-xl transition-all">
-                            Get in Touch
-                        </a>
+                {/* Bottom CTA */}
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="mt-24 p-10 sm:p-16 bg-blue-950 rounded-[3rem] text-white relative overflow-hidden"
+                >
+                    <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                        <div>
+                            <h2 className="text-3xl sm:text-4xl font-black mb-4">Still have <br /> questions?</h2>
+                            <p className="text-sky-200/80 font-medium text-lg">Our elite concierge team is ready to assist you personally.</p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <a
+                                href="/contact"
+                                className="flex items-center justify-center gap-2 bg-white text-blue-950 font-black py-5 px-8 rounded-2xl hover:bg-sky-50 transition-all"
+                            >
+                                Contact Support
+                            </a>
+                            <a
+                                href="https://wa.me/your-number"
+                                className="flex items-center justify-center gap-2 bg-sky-600 text-white font-black py-5 px-8 rounded-2xl hover:bg-sky-500 transition-all shadow-xl shadow-sky-600/20"
+                            >
+                                <MessageCircle className="w-5 h-5" />
+                                WhatsApp Live
+                            </a>
+                        </div>
                     </div>
-                    {/* Decorative elements */}
+                    {/* Decorative */}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-sky-600/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-sky-600/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl"></div>
-                </div>
+                </motion.div>
             </div>
         </div>
     );

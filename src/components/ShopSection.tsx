@@ -11,167 +11,88 @@ import {
   DollarSign,
   Tag,
   Layers,
-  X
+  X,
+  Image as ImageIcon
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-const BRANDS = ['All', 'Vitafoam', 'Mouka Foam', 'Sara Foam', 'Royal Foam', 'Green Earth', 'Uni Foam', 'Hara Foam']
-const CATEGORIES = ['All', 'Mattresses', 'Pillows', 'Beddings', 'Furniture']
-const SIZES = ['All', 'Single', 'Double', 'Family', 'King']
-const PRICE_RANGES = ['All', 'Under 50k', '50k - 200k', '200k - 500k', 'Above 500k']
+interface ShopSectionProps {
+  initialProducts: any[]
+  brands: any[]
+  categories: any[]
+  sizes: any[]
+}
 
-const mockProducts = [
-  {
-    id: '1',
-    name: 'Vitafoam Grandeur Mattress',
-    brand: 'Vitafoam',
-    category: 'Mattresses',
-    size: 'King',
-    price: 185000,
-    promo_price: 165000,
-    is_negotiable: true,
-    images: [
-      '/images/Modern Luxury Home Furniture Bedroom Bed Set Queen King Size Headboard Stainless Steel Base Bed.jpeg',
-      '/images/Marshmallow Bed Frame.jpeg'
-    ],
-    description: 'Ultra-premium memory foam mattress for maximum comfort.',
-    in_stock: true,
-  },
-  {
-    id: '2',
-    name: 'Mouka Flora Mattress',
-    brand: 'Mouka Foam',
-    category: 'Mattresses',
-    size: 'Double',
-    price: 95000,
-    is_negotiable: false,
-    images: [
-      '/images/Marshmallow Bed Frame.jpeg',
-      '/images/Modern Luxury Home Furniture Bedroom Bed Set Queen King Size Headboard Stainless Steel Base Bed.jpeg'
-    ],
-    description: 'Classic comfort with Mouka Foam durability.',
-    in_stock: true,
-  },
-  {
-    id: '3',
-    name: 'Royal Foam Executive Pillow',
-    brand: 'Royal Foam',
-    category: 'Pillows',
-    size: 'Single',
-    price: 12500,
-    is_negotiable: false,
-    images: [
-      '/images/Modern Throw Pillow & Decorative Accent Pillows for Sofas, Chairs & Beds _ CB2.jpeg',
-      '/images/Decorative Pillow Covers, White Geometric, Cotton, Set Of 6, 18x18 _ Color_ White _ Size_ Os.jpeg'
-    ],
-    description: 'Soft and supportive pillow for a restful sleep.',
-    in_stock: true,
-  },
-  {
-    id: '4',
-    name: 'Luxury Cotton Bedding Set',
-    brand: 'Sara Foam',
-    category: 'Beddings',
-    size: 'Family',
-    price: 45000,
-    promo_price: 38000,
-    is_negotiable: true,
-    images: [
-      '/images/Decorative Pillow Covers, White Geometric, Cotton, Set Of 6, 18x18 _ Color_ White _ Size_ Os.jpeg',
-      '/images/Modern Throw Pillow & Decorative Accent Pillows for Sofas, Chairs & Beds _ CB2.jpeg'
-    ],
-    description: 'Premium quality cotton sheets.',
-    in_stock: true,
-  },
-  {
-    id: '5',
-    name: 'Uni Foam Supreme',
-    brand: 'Uni Foam',
-    category: 'Mattresses',
-    size: 'King',
-    price: 650000,
-    is_negotiable: true,
-    images: [
-      '/images/Marshmallow Bed Frame.jpeg',
-      '/images/Modern Luxury Home Furniture Bedroom Bed Set Queen King Size Headboard Stainless Steel Base Bed.jpeg'
-    ],
-    description: 'The pinnacle of sleeping luxury.',
-    in_stock: true,
-  },
-  {
-    id: '6',
-    name: 'Green Earth Eco-Pillow',
-    brand: 'Green Earth',
-    category: 'Pillows',
-    size: 'Double',
-    price: 18000,
-    is_negotiable: false,
-    images: [
-      '/images/Modern Throw Pillow & Decorative Accent Pillows for Sofas, Chairs & Beds _ CB2.jpeg',
-      '/images/Decorative Pillow Covers, White Geometric, Cotton, Set Of 6, 18x18 _ Color_ White _ Size_ Os.jpeg'
-    ],
-    description: 'Sustainable comfort for your neck.',
-    in_stock: true,
-  },
+const PRICE_RANGES = [
+  { label: 'All', min: 0, max: Infinity },
+  { label: 'Under 50k', min: 0, max: 50000 },
+  { label: '50k - 200k', min: 50000, max: 200000 },
+  { label: '200k - 500k', min: 200000, max: 500000 },
+  { label: 'Above 500k', min: 500000, max: Infinity }
 ]
 
-export default function ShopSection() {
-  const [selectedBrand, setSelectedBrand] = useState('All')
-  const [selectedCategory, setSelectedCategory] = useState('All')
-  const [selectedSize, setSelectedSize] = useState('All')
-  const [selectedPrice, setSelectedPrice] = useState('All')
+export default function ShopSection({ initialProducts, brands, categories, sizes }: ShopSectionProps) {
+  const [selectedBrandId, setSelectedBrandId] = useState('All')
+  const [selectedCategoryId, setSelectedCategoryId] = useState('All')
+  const [selectedSizeId, setSelectedSizeId] = useState('All')
+  const [selectedPriceRange, setSelectedPriceRange] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
-  const [filteredProducts, setFilteredProducts] = useState(mockProducts)
+  const [filteredProducts, setFilteredProducts] = useState(initialProducts)
   const [showFilters, setShowFilters] = useState(false)
 
   const containerRef = useRef(null)
   const isInView = useInView(containerRef, { once: true, margin: "-100px" })
 
   useEffect(() => {
-    let result = mockProducts
+    let result = initialProducts
 
     // Brand Filter
-    if (selectedBrand !== 'All') result = result.filter(p => p.brand === selectedBrand)
+    if (selectedBrandId !== 'All') {
+      result = result.filter(p => p.brandId === selectedBrandId)
+    }
 
     // Category Filter
-    if (selectedCategory !== 'All') result = result.filter(p => p.category === selectedCategory)
+    if (selectedCategoryId !== 'All') {
+      result = result.filter(p => p.categories.some((c: any) => c.categoryId === selectedCategoryId))
+    }
 
     // Size Filter
-    if (selectedSize !== 'All') result = result.filter(p => p.size === selectedSize)
+    if (selectedSizeId !== 'All') {
+      result = result.filter(p => p.variants.some((v: any) => v.sizeId === selectedSizeId))
+    }
 
     // Price Filter
-    if (selectedPrice !== 'All') {
-      result = result.filter(p => {
-        const price = p.promo_price || p.price
-        if (selectedPrice === 'Under 50k') return price < 50000
-        if (selectedPrice === '50k - 200k') return price >= 50000 && price <= 200000
-        if (selectedPrice === '200k - 500k') return price > 200000 && price <= 500000
-        if (selectedPrice === 'Above 500k') return price > 500000
-        return true
-      })
+    if (selectedPriceRange !== 'All') {
+      const range = PRICE_RANGES.find(r => r.label === selectedPriceRange)
+      if (range) {
+        result = result.filter(p => {
+          const minProductPrice = Math.min(...p.variants.map((v: any) => v.promoPrice || v.price))
+          return minProductPrice >= range.min && minProductPrice <= range.max
+        })
+      }
     }
 
     // Search Filter
     if (searchQuery) {
       result = result.filter(p =>
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.brand.toLowerCase().includes(searchQuery.toLowerCase())
+        p.brand.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
 
     setFilteredProducts(result)
-  }, [selectedBrand, selectedCategory, selectedSize, selectedPrice, searchQuery])
+  }, [selectedBrandId, selectedCategoryId, selectedSizeId, selectedPriceRange, searchQuery, initialProducts])
 
   const clearFilters = () => {
-    setSelectedBrand('All')
-    setSelectedCategory('All')
-    setSelectedSize('All')
-    setSelectedPrice('All')
+    setSelectedBrandId('All')
+    setSelectedCategoryId('All')
+    setSelectedSizeId('All')
+    setSelectedPriceRange('All')
     setSearchQuery('')
   }
 
-  const isFiltered = selectedBrand !== 'All' || selectedCategory !== 'All' || selectedSize !== 'All' || selectedPrice !== 'All' || searchQuery !== ''
+  const isFiltered = selectedBrandId !== 'All' || selectedCategoryId !== 'All' || selectedSizeId !== 'All' || selectedPriceRange !== 'All' || searchQuery !== ''
 
   return (
     <section ref={containerRef} className="py-16 sm:py-24 md:py-32 bg-white selection:bg-sky-100 min-h-screen font-sans">
@@ -245,7 +166,7 @@ export default function ShopSection() {
               )}
             </div>
 
-            <p className="hidden md:block text-[10px] font-black text-slate-300 uppercase tracking-widest">
+            <p className="hidden md:block text-[10px] font-black text-slate-300 uppercase tracking-widest font-sans">
               Showing {filteredProducts.length} Results
             </p>
           </div>
@@ -263,19 +184,28 @@ export default function ShopSection() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-slate-400">
                     <Tag className="w-3 h-3" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Select Brand</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Elite Partners</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {BRANDS.map((brand) => (
+                    <button
+                      onClick={() => setSelectedBrandId('All')}
+                      className={`px-4 sm:px-6 py-2 rounded-xl text-[9px] font-black tracking-widest uppercase transition-all
+                        ${selectedBrandId === 'All'
+                          ? 'bg-sky-600 text-white shadow-lg shadow-sky-200'
+                          : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
+                    >
+                      All Brands
+                    </button>
+                    {brands.map((brand) => (
                       <button
-                        key={brand}
-                        onClick={() => setSelectedBrand(brand)}
+                        key={brand.id}
+                        onClick={() => setSelectedBrandId(brand.id)}
                         className={`px-4 sm:px-6 py-2 rounded-xl text-[9px] font-black tracking-widest uppercase transition-all
-                          ${selectedBrand === brand
+                          ${selectedBrandId === brand.id
                             ? 'bg-sky-600 text-white shadow-lg shadow-sky-200'
                             : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
                       >
-                        {brand}
+                        {brand.name}
                       </button>
                     ))}
                   </div>
@@ -289,16 +219,25 @@ export default function ShopSection() {
                       <span className="text-[10px] font-black uppercase tracking-widest">Product Type</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {CATEGORIES.map((cat) => (
+                      <button
+                        onClick={() => setSelectedCategoryId('All')}
+                        className={`px-5 py-2.5 rounded-xl text-[9px] font-black tracking-widest uppercase transition-all
+                          ${selectedCategoryId === 'All'
+                            ? 'bg-blue-950 text-white shadow-xl'
+                            : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
+                      >
+                        All Types
+                      </button>
+                      {categories.map((cat) => (
                         <button
-                          key={cat}
-                          onClick={() => setSelectedCategory(cat)}
+                          key={cat.id}
+                          onClick={() => setSelectedCategoryId(cat.id)}
                           className={`px-5 py-2.5 rounded-xl text-[9px] font-black tracking-widest uppercase transition-all
-                            ${selectedCategory === cat
+                            ${selectedCategoryId === cat.id
                               ? 'bg-blue-950 text-white shadow-xl'
                               : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
                         >
-                          {cat}
+                          {cat.name}
                         </button>
                       ))}
                     </div>
@@ -311,16 +250,25 @@ export default function ShopSection() {
                       <span className="text-[10px] font-black uppercase tracking-widest">Global Sizing</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {SIZES.map((size) => (
+                      <button
+                        onClick={() => setSelectedSizeId('All')}
+                        className={`px-5 py-2.5 rounded-xl text-[9px] font-black tracking-widest uppercase transition-all
+                          ${selectedSizeId === 'All'
+                            ? 'bg-blue-950 text-white shadow-xl'
+                            : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
+                      >
+                        All Sizes
+                      </button>
+                      {sizes.map((size) => (
                         <button
-                          key={size}
-                          onClick={() => setSelectedSize(size)}
+                          key={size.id}
+                          onClick={() => setSelectedSizeId(size.id)}
                           className={`px-5 py-2.5 rounded-xl text-[9px] font-black tracking-widest uppercase transition-all
-                            ${selectedSize === size
+                            ${selectedSizeId === size.id
                               ? 'bg-blue-950 text-white shadow-xl'
                               : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
                         >
-                          {size}
+                          {size.label}
                         </button>
                       ))}
                     </div>
@@ -335,14 +283,14 @@ export default function ShopSection() {
                     <div className="flex flex-wrap gap-2">
                       {PRICE_RANGES.map((range) => (
                         <button
-                          key={range}
-                          onClick={() => setSelectedPrice(range)}
+                          key={range.label}
+                          onClick={() => setSelectedPriceRange(range.label)}
                           className={`px-5 py-2.5 rounded-xl text-[9px] font-black tracking-widest uppercase transition-all
-                            ${selectedPrice === range
+                            ${selectedPriceRange === range.label
                               ? 'bg-blue-950 text-white shadow-xl'
                               : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}`}
                         >
-                          {range}
+                          {range.label}
                         </button>
                       ))}
                     </div>
@@ -372,11 +320,11 @@ export default function ShopSection() {
             <div className="w-20 h-20 sm:w-24 sm:h-24 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mx-auto mb-6 sm:mb-8">
               <Search className="w-8 h-8 sm:w-10 sm:h-10" />
             </div>
-            <h3 className="text-xl sm:text-2xl font-black text-blue-950 mb-2">No Matches Found</h3>
+            <h3 className="text-xl sm:text-2xl font-black text-blue-950 mb-2 font-display uppercase tracking-tight">No Matches Found</h3>
             <p className="text-slate-400 font-medium">Try adjusting your filters or search criteria.</p>
             <button
               onClick={clearFilters}
-              className="mt-6 sm:mt-8 text-sky-600 font-black text-[10px] uppercase tracking-widest hover:text-blue-950 transition-colors"
+              className="mt-6 sm:mt-8 text-sky-600 font-black text-[10px] uppercase tracking-[0.2em] hover:text-blue-950 transition-colors"
             >
               Exterminate All Filters &rarr;
             </button>
@@ -389,6 +337,9 @@ export default function ShopSection() {
 
 function ProductCard({ product, index }: { product: any, index: number }) {
   const [isHovered, setIsHovered] = useState(false)
+  const minPrice = Math.min(...product.variants.map((v: any) => v.price))
+  const minPromoPrice = Math.min(...product.variants.filter((v: any) => v.promoPrice).map((v: any) => v.promoPrice))
+  const finalMinPrice = minPromoPrice !== Infinity ? minPromoPrice : minPrice
 
   return (
     <motion.div
@@ -401,20 +352,26 @@ function ProductCard({ product, index }: { product: any, index: number }) {
       onMouseLeave={() => setIsHovered(false)}
       className="group"
     >
-      <Link href={`/products/${product.id}`}>
+      <Link href={`/products/${product.slug}`}>
         <div className="relative aspect-[4/5] bg-slate-100 overflow-hidden mb-6 cursor-pointer rounded-2xl sm:rounded-none">
           {/* Primary Image */}
-          <Image
-            src={product.images[0]}
-            alt={product.name}
-            fill
-            className={`object-cover transition-all duration-[1.5s] ease-out 
-            ${isHovered ? 'scale-110 blur-[2px] opacity-0' : 'scale-100 opacity-100'}`}
-            sizes="(max-width: 768px) 100vw, 25vw"
-          />
+          {product.images?.[0] ? (
+            <Image
+              src={product.images[0]}
+              alt={product.name}
+              fill
+              className={`object-cover transition-all duration-[1.5s] ease-out 
+              ${isHovered ? 'scale-110 blur-[2px] opacity-0' : 'scale-100 opacity-100'}`}
+              sizes="(max-width: 768px) 100vw, 25vw"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
+              <ImageIcon className="w-12 h-12 text-slate-200" />
+            </div>
+          )}
 
           {/* Secondary Image - Reveal on Hover */}
-          {product.images[1] && (
+          {product.images?.[1] && (
             <Image
               src={product.images[1]}
               alt={product.name}
@@ -428,15 +385,15 @@ function ProductCard({ product, index }: { product: any, index: number }) {
           {/* Glassmorphic Brand Tag */}
           <div className="absolute top-4 sm:top-6 left-4 sm:left-6 z-10">
             <span className="glass px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[8px] sm:text-[9px] font-black text-blue-950 uppercase tracking-[0.2em] font-sans">
-              {product.brand}
+              {product.brand?.name}
             </span>
           </div>
 
           {/* Promo Price Badge */}
-          {product.promo_price && (
+          {minPromoPrice !== Infinity && (
             <div className="absolute top-4 sm:top-6 right-4 sm:right-6 z-10">
               <span className="bg-blue-950 text-white px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] shadow-xl font-sans">
-                Limited
+                Elite Offer
               </span>
             </div>
           )}
@@ -452,15 +409,15 @@ function ProductCard({ product, index }: { product: any, index: number }) {
 
         <div className="space-y-2 sm:space-y-3 px-1 text-center lg:text-left">
           <p className="text-[10px] sm:text-xs font-black text-sky-600/40 uppercase tracking-[0.4em] font-inter">
-            {product.category}
+            {product.categories?.[0]?.category?.name || 'Exclusive'}
           </p>
-          <h4 className="text-lg sm:text-xl font-bold text-blue-950 tracking-tight group-hover:text-sky-600 transition-colors duration-300 h-12 sm:h-14 overflow-hidden leading-tight font-display">
+          <h4 className="text-lg sm:text-xl font-bold text-blue-950 tracking-tight group-hover:text-sky-600 transition-colors duration-300 h-14 sm:h-16 overflow-hidden leading-tight font-display uppercase">
             {product.name}
           </h4>
-          <div className="flex items-center justify-center lg:justify-start gap-3 sm:gap-4">
-            <span className="text-lg sm:text-xl font-black text-blue-950">₦{product.price.toLocaleString()}</span>
-            {product.promo_price && (
-              <span className="text-[10px] sm:text-xs text-slate-300 line-through font-bold">₦{product.promo_price.toLocaleString()}</span>
+          <div className="flex items-center justify-center lg:justify-start gap-3 sm:gap-4 font-sans">
+            <span className="text-lg sm:text-xl font-black text-blue-950">₦{finalMinPrice.toLocaleString()}</span>
+            {minPromoPrice !== Infinity && minPromoPrice < minPrice && (
+              <span className="text-[10px] sm:text-xs text-slate-300 line-through font-bold">₦{minPrice.toLocaleString()}</span>
             )}
           </div>
 

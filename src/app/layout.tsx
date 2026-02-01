@@ -3,6 +3,7 @@ import { Playfair_Display, Inter, Crimson_Text, Montserrat } from "next/font/goo
 import "./globals.css";
 import Layout from "@/components/Layout";
 import { CartProvider } from "@/lib/cart-context";
+import { Toaster } from "react-hot-toast";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -47,6 +48,22 @@ export default function RootLayout({
           <Layout>
             {children}
           </Layout>
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                background: '#0f172a',
+                color: '#fff',
+                borderRadius: '1rem',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                padding: '1rem 2rem',
+                border: '1px solid rgba(255,255,255,0.1)'
+              }
+            }}
+          />
         </CartProvider>
       </body>
     </html>

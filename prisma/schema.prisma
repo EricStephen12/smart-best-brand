@@ -13,6 +13,15 @@ enum Role {
   CUSTOMER
 }
 
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
 model User {
   id        String   @id @default(uuid())
   name      String?
@@ -20,6 +29,7 @@ model User {
   password  String
   role      Role     @default(CUSTOMER)
   createdAt DateTime @default(now())
+  orders    Order[]
 }
 
 model Brand {
@@ -28,64 +38,183 @@ model Brand {
   slug      String    @unique
   logoUrl   String?
   isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
   products  Product[]
+
+  @@index([slug])
+  @@index([isActive])
 }
 
 model Category {
-  id       String            @id @default(uuid())
-  name     String            @unique
-  products ProductCategory[]
+  id        String            @id @default(uuid())
+  name      String            @unique
+  slug      String            @unique
+  createdAt DateTime          @default(now())
+  products  ProductCategory[]
+  promotions PromotionCategory[]
+
+  @@index([slug])
 }
 
 model Size {
-  id       String    @id @default(uuid())
-  label    String    @unique // e.g., King, Double
-  products Product[]
+  id       String           @id @default(uuid())
+  label    String           @unique // e.g., King (6x7), Double (4.5x6)
+  width    Float?           // in feet
+  length   Float?           // in feet
+  variants ProductVariant[]
+
+  @@index([label])
 }
 
 model Product {
-  id          String   @id @default(uuid())
-  name        String
-  slug        String   @unique
+  id           String            @id @default(uuid())
+  name         String
+  slug         String            @unique
+  description  String?
   brandId      String
-  brand        Brand    @relation(fields: [brandId], references: [id])
-  sizeId       String
-  size         Size     @relation(fields: [sizeId], references: [id])
-  type        String?  // Mattress, Pillow, etc.
-  materials   String?
-  firmness    String?
-  finishing   String?
-  price       Float
-  promoPrice  Float?
-  isNegotiable Boolean  @default(false)
-  warranty    String?
-  imageUrl    String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  brand        Brand             @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  type         String?           // Mattress, Pillow, Furniture
+  materials    String?
+  firmness     String?
+  finishing    String?
+  features     String[]          // Array of feature strings
+  isNegotiable Boolean           @default(false)
+  warranty     String?
+  images       String[]          // Array of Cloudinary URLs
+  isActive     Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
   
-  categories  ProductCategory[]
+  categories   ProductCategory[]
+  variants     ProductVariant[]
+  promotions   PromotionProduct[]
+
+  @@index([slug])
+  @@index([brandId])
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+model ProductVariant {
+  id         String      @id @default(uuid())
+  productId  String
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sizeId     String
+  size       Size        @relation(fields: [sizeId], references: [id])
+  price      Float
+  promoPrice Float?
+  stock      Int         @default(0)
+  sku        String?     @unique
+  isActive   Boolean     @default(true)
+  orderItems OrderItem[]
+
+  @@index([productId])
+  @@index([sizeId])
+  @@index([sku])
 }
 
 model ProductCategory {
   productId  String
   categoryId String
-  product    Product  @relation(fields: [productId], references: [id])
-  category   Category @relation(fields: [categoryId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@id([productId, categoryId])
+  @@index([productId])
+  @@index([categoryId])
+}
+
+model Order {
+  id                String      @id @default(uuid())
+  orderNumber       String      @unique
+  userId            String?
+  user              User?       @relation(fields: [userId], references: [id])
+  customerName      String
+  customerEmail     String
+  customerPhone     String
+  deliveryAddress   String
+  deliveryLocation  String
+  deliveryFee       Float
+  subtotal          Float
+  total             Float
+  status            OrderStatus @default(PENDING)
+  paymentMethod     String      // WhatsApp, Paystack
+  paymentReference  String?
+  notes             String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  items             OrderItem[]
+
+  @@index([orderNumber])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id        String         @id @default(uuid())
+  orderId   String
+  order     Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  quantity  Int
+  price     Float          // Price at time of order
+  
+  @@index([orderId])
+  @@index([variantId])
 }
 
 model DeliveryLocation {
-  id        String  @id @default(uuid())
-  name      String  @unique // Abuja, Benin
+  id        String   @id @default(uuid())
+  name      String   @unique // Abuja, Benin
   basePrice Float
-  isActive  Boolean @default(true)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([isActive])
 }
 
 model Promotion {
-  id            String  @id @default(uuid())
+  id            String   @id @default(uuid())
   title         String
-  discountType  String  // Percentage, Fixed
+  description   String?
+  code          String?  @unique
+  discountType  String   // Percentage, Fixed
   discountValue Float
-  isActive      Boolean @default(true)
+  minPurchase   Float?
+  startDate     DateTime?
+  endDate       DateTime?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  
+  // Shopify Standard Targeting
+  appliesTo     String   @default("ALL") // ALL, PRODUCTS, CATEGORIES
+  products      PromotionProduct[]
+  categories    PromotionCategory[]
+
+  @@index([code])
+  @@index([isActive])
+}
+
+model PromotionProduct {
+  promotionId String
+  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([promotionId, productId])
+  @@index([promotionId])
+  @@index([productId])
+}
+
+model PromotionCategory {
+  promotionId String
+  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  categoryId  String
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([promotionId, categoryId])
+  @@index([promotionId])
+  @@index([categoryId])
 }

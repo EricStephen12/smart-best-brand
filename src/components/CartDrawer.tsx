@@ -102,10 +102,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                     <div>
                                       <div className="flex justify-between text-base font-bold text-blue-950">
                                         <h3>{item.product?.name}</h3>
-                                        <p className="ml-4">₦{((item.variant?.promo_price || item.variant?.price || 0) * item.quantity).toLocaleString()}</p>
+                                        <p className="ml-4">₦{((item.variant?.promoPrice || item.variant?.price || 0) * item.quantity).toLocaleString()}</p>
                                       </div>
                                       <p className="mt-1 text-sm text-gray-500 italic">
-                                        Size: {item.variant?.size?.name || 'Standard'}
+                                        Size: {item.variant?.size?.label || 'Standard'}
                                       </p>
                                     </div>
                                     <div className="flex flex-1 items-end justify-between text-sm">

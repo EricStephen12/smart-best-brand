@@ -4,7 +4,7 @@ import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import Image from 'next/image'
 
-export default function StorySection() {
+export default function StorySection({ brandCount }: { brandCount?: number }) {
   const containerRef = useRef(null)
 
   return (
@@ -79,7 +79,7 @@ export default function StorySection() {
 
               <div className="flex gap-12">
                 <div>
-                  <h4 className="font-black text-4xl text-blue-950 leading-none mb-2">07</h4>
+                  <h4 className="font-black text-4xl text-blue-950 leading-none mb-2">{brandCount ? brandCount.toString().padStart(2, '0') : '07'}</h4>
                   <p className="text-[9px] font-black tracking-widest text-slate-300 uppercase">Legacy Brands</p>
                 </div>
                 <div>
