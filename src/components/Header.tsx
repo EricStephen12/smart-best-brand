@@ -55,16 +55,13 @@ export default function Header() {
           </div>
 
           {/* Logo: Centered Masthead (Reference Style) */}
-          <Link href="/" className="flex flex-col items-center flex-shrink-0 px-2 sm:px-8 group">
+          <Link href="/" className="flex items-center flex-shrink-0 px-2 sm:px-8 group">
             <div
-              className={`tracking-[0.2em] sm:tracking-[0.8em] transition-all duration-500 leading-none text-blue-950 font-black ${isScrolled ? 'text-sm sm:text-lg' : 'text-sm sm:text-2xl'}`}
+              className={`tracking-widest transition-all duration-500 leading-none text-blue-950 font-black ${isScrolled ? 'text-lg sm:text-xl' : 'text-xl sm:text-2xl'}`}
               style={{ fontFamily: 'var(--font-montserrat)' }}
             >
-              SMART BEST
+              SMARTBEST<span className="text-sky-600">BRANDS</span>
             </div>
-            <span className={`text-[8px] sm:text-[10px] tracking-[0.4em] sm:tracking-[0.6em] font-black text-sky-600 uppercase mt-1 sm:mt-2 transition-all duration-500 opacity-100 h-auto`}>
-              BRANDS
-            </span>
           </Link>
 
           {/* Right Navigation: Action Group */}

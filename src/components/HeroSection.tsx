@@ -37,7 +37,7 @@ export default function HeroSection() {
                     initial={{ y: "100%" }}
                     animate={{ y: 0 }}
                     transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                    className="block text-5xl sm:text-7xl md:text-[7rem] lg:text-[9.5rem] font-black leading-[0.85] tracking-[-0.03em] text-blue-950 font-playfair uppercase drop-shadow-sm"
+                    className="block text-5xl sm:text-7xl md:text-[7rem] lg:text-[4rem] xl:text-[5rem] 2xl:text-[6.5rem] font-black leading-[0.85] tracking-[-0.03em] text-blue-950 font-playfair uppercase drop-shadow-sm"
                   >
                     PURE
                   </motion.span>
@@ -47,7 +47,7 @@ export default function HeroSection() {
                     initial={{ y: "100%" }}
                     animate={{ y: 0 }}
                     transition={{ duration: 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                    className="block text-5xl sm:text-7xl md:text-[7rem] lg:text-[9.5rem] font-black leading-[0.85] tracking-[-0.03em] text-sky-600 font-playfair uppercase drop-shadow-sm"
+                    className="block text-5xl sm:text-7xl md:text-[7rem] lg:text-[4rem] xl:text-[5rem] 2xl:text-[6.5rem] font-black leading-[0.85] tracking-[-0.03em] text-sky-600 font-playfair uppercase drop-shadow-sm"
                   >
                     COMFORT.
                   </motion.span>

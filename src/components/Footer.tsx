@@ -14,12 +14,12 @@ export default function Footer() {
         {/* Brand Masthead: Reference Style */}
         <div className="flex flex-col items-center text-center mb-16 sm:mb-24">
           <Link href="/" className="group flex flex-col items-center w-full">
-            <span className="text-3xl sm:text-6xl md:text-8xl font-black tracking-[0.4em] sm:tracking-[0.8em] leading-none text-white group-hover:text-sky-400 transition-colors duration-500 mr-[-0.4em] sm:mr-[-0.8em]">
-              SMART BEST
-            </span>
-            <span className="text-[10px] sm:text-xs md:text-sm tracking-[0.6em] sm:tracking-[1em] font-black text-sky-600 uppercase mt-4 sm:mt-8 mr-[-0.6em] sm:mr-[-1em]">
-              BRANDS
-            </span>
+            <div
+              className="text-3xl sm:text-5xl md:text-7xl font-black tracking-widest leading-none text-white group-hover:text-sky-400 transition-colors duration-500"
+              style={{ fontFamily: 'var(--font-montserrat)' }}
+            >
+              SMARTBEST<span className="text-sky-600">BRANDS</span>
+            </div>
           </Link>
 
           <div className="w-12 h-[2px] bg-sky-600 mt-10 sm:mt-16" />
