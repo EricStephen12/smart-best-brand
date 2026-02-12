@@ -16,6 +16,11 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scroll-behavior: smooth;
+    @apply bg-white;
+  }
+
+  body {
+    @apply bg-white text-blue-950 overflow-x-hidden;
   }
 
   h1,
@@ -46,6 +51,10 @@
   .text-sky {
     @apply text-sky-600;
   }
+
+  .glass {
+    @apply bg-white/80 backdrop-blur-xl border border-white/20;
+  }
 }
 
 /* Custom scrollbar */
@@ -54,7 +63,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #f8fafc;
+  background: white;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -64,4 +73,13 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #1e293b;
+}
+
+/* Hardware Acceleration for scroll-triggered elements */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
 }

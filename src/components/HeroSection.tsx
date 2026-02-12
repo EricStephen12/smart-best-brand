@@ -37,7 +37,7 @@ export default function HeroSection() {
                     initial={{ y: "100%" }}
                     animate={{ y: 0 }}
                     transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                    className="block text-5xl sm:text-7xl md:text-[7rem] lg:text-[4rem] xl:text-[5rem] 2xl:text-[6.5rem] font-black leading-[0.85] tracking-[-0.03em] text-blue-950 font-playfair uppercase drop-shadow-sm"
+                    className="block text-5xl sm:text-7xl md:text-[7rem] lg:text-[4.5rem] xl:text-[5.5rem] 2xl:text-[7.5rem] font-black leading-[0.85] tracking-[-0.03em] text-blue-950 font-playfair uppercase drop-shadow-sm"
                   >
                     PURE
                   </motion.span>
@@ -47,7 +47,7 @@ export default function HeroSection() {
                     initial={{ y: "100%" }}
                     animate={{ y: 0 }}
                     transition={{ duration: 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                    className="block text-5xl sm:text-7xl md:text-[7rem] lg:text-[4rem] xl:text-[5rem] 2xl:text-[6.5rem] font-black leading-[0.85] tracking-[-0.03em] text-sky-600 font-playfair uppercase drop-shadow-sm"
+                    className="block text-5xl sm:text-7xl md:text-[7rem] lg:text-[4.5rem] xl:text-[5.5rem] 2xl:text-[7.5rem] font-black leading-[0.85] tracking-[-0.03em] text-sky-600 font-playfair uppercase drop-shadow-sm"
                   >
                     COMFORT.
                   </motion.span>
@@ -96,7 +96,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, x: -30, y: 30 }}
               animate={{ opacity: 1, x: 0, y: 0 }}
               transition={{ duration: 1, delay: 0.8 }}
-              className="absolute -bottom-8 -left-8 sm:-bottom-12 sm:-left-12 w-40 h-48 sm:w-64 sm:h-72 overflow-hidden border-8 border-white shadow-2xl z-20"
+              className="absolute -bottom-6 -left-4 sm:-bottom-12 sm:-left-12 w-32 h-40 sm:w-64 sm:h-72 overflow-hidden border-4 sm:border-8 border-white shadow-2xl z-20"
             >
               <Image
                 src="/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg"

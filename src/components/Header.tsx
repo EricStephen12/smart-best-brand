@@ -26,9 +26,9 @@ export default function Header() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled
+      className={`sticky top-0 z-50 transition-all duration-500 will-change-transform ${isScrolled
         ? 'bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm'
-        : 'bg-white border-b border-slate-50'
+        : 'bg-white/80 backdrop-blur-sm border-b border-slate-50'
         }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -55,9 +55,9 @@ export default function Header() {
           </div>
 
           {/* Logo: Centered Masthead (Reference Style) */}
-          <Link href="/" className="flex items-center flex-shrink-0 px-2 sm:px-8 group">
+          <Link href="/" className="flex items-center flex-shrink-0 px-1 sm:px-8 group overflow-hidden">
             <div
-              className={`tracking-widest transition-all duration-500 leading-none text-blue-950 font-black ${isScrolled ? 'text-lg sm:text-xl' : 'text-xl sm:text-2xl'}`}
+              className={`tracking-widest transition-all duration-500 leading-none text-blue-950 font-black whitespace-nowrap ${isScrolled ? 'text-sm sm:text-xl' : 'text-base sm:text-2xl'}`}
               style={{ fontFamily: 'var(--font-montserrat)' }}
             >
               SMARTBEST<span className="text-sky-600">BRANDS</span>

@@ -79,7 +79,7 @@ export default function Footer() {
                   <Mail className="w-4 h-4" />
                   <span className="text-[10px] font-black uppercase tracking-widest">Correspondence</span>
                 </div>
-                <a href="mailto:concierge@smartbest.com" className="text-white text-xs font-black pl-7 underline decoration-sky-600 underline-offset-4 tracking-[0.05em] overflow-visible">
+                <a href="mailto:smartbestbrands@gmail.com" className="text-white text-[10px] sm:text-xs font-black pl-7 underline decoration-sky-600 underline-offset-4 tracking-[0.05em] break-all">
                   smartbestbrands@gmail.com
                 </a>
               </div>
@@ -88,11 +88,11 @@ export default function Footer() {
         </div>
 
         {/* Post-Footer Details */}
-        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
+        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
           <p className="text-[9px] font-black tracking-[0.4em] text-slate-600 uppercase">
-            © {currentYear} Smart Best Brands. Powering Authenticity.
+            © {currentYear} Smart Best Brands.
           </p>
-          <div className="flex gap-10 text-[9px] font-black tracking-[0.5em] text-slate-600 uppercase">
+          <div className="flex flex-wrap justify-center gap-6 sm:gap-10 text-[9px] font-black tracking-[0.5em] text-slate-600 uppercase">
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Legal</Link>
           </div>

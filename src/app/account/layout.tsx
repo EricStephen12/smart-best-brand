@@ -68,8 +68,8 @@ export default function AccountLayout({
             <Home className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-blue-950">
-              Smart Best
+            <h1 className="text-xl font-black text-blue-950 uppercase tracking-tight">
+              SmartBest <span className="text-sky-600">Brands</span>
             </h1>
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
               {isAdmin ? 'Admin Dashboard' : 'Customer Account'}
