@@ -121,14 +121,14 @@ export default function SizesList({ initialSizes }: SizesListProps) {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             key={size.id}
-                            className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-3xl p-6 flex items-center justify-between group hover:shadow-xl hover:shadow-blue-900/5 transition-all"
+                            className="bg-white border border-slate-100 rounded-3xl p-6 flex items-center justify-between group hover:shadow-xl hover:shadow-blue-900/5 transition-all"
                         >
                             <div className="flex items-center gap-6">
-                                <div className="w-14 h-14 bg-slate-50 dark:bg-gray-700/50 rounded-2xl flex items-center justify-center text-blue-950 dark:text-white group-hover:bg-sky-50 group-hover:text-sky-600 transition-colors border border-slate-100 dark:border-gray-600">
+                                <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-blue-950 group-hover:bg-sky-50 group-hover:text-sky-600 transition-colors border border-slate-100">
                                     <Ruler className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-black text-blue-950 dark:text-white">{size.label}</h3>
+                                    <h3 className="text-lg font-black text-blue-950">{size.label}</h3>
                                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
                                         {size.width && size.length ? `${size.width}ft x ${size.length}ft` : 'Mixed Dimensions'}
                                         {size._count && ` • ${size._count.variants} Variants`}
@@ -246,17 +246,17 @@ export default function SizesList({ initialSizes }: SizesListProps) {
                             </div>
                         </motion.div>
                     ) : (
-                        <div className="bg-slate-50 dark:bg-gray-800 border-2 border-dashed border-slate-200 dark:border-gray-700 rounded-[2.5rem] p-10 text-center space-y-6">
-                            <div className="w-20 h-20 bg-white dark:bg-gray-700 rounded-3xl flex items-center justify-center text-slate-300 dark:text-sky-400 mx-auto border-2 border-slate-100 dark:border-gray-600 shadow-sm">
+                        <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-10 text-center space-y-6">
+                            <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-slate-300 mx-auto border-2 border-slate-100 shadow-sm">
                                 <Ruler className="w-10 h-10" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-black text-blue-950 dark:text-white">Standardized Scale</h3>
+                                <h3 className="text-xl font-black text-blue-950">Standardized Scale</h3>
                                 <p className="text-sm text-slate-400 mt-2 font-medium leading-relaxed font-inter">Uniform sizes ensure consistency across different mattress brands.</p>
                             </div>
                             <button
                                 onClick={() => setIsAdding(true)}
-                                className="text-sky-600 font-black text-[10px] uppercase tracking-[0.2em] hover:text-blue-950 dark:hover:text-white transition-colors"
+                                className="text-sky-600 font-black text-[10px] uppercase tracking-[0.2em] hover:text-blue-950 transition-colors"
                             >
                                 Define New Standard &rarr;
                             </button>

@@ -44,17 +44,17 @@ export default function CreateBrandPage() {
             <div className="flex items-center gap-6">
                 <Link
                     href="/account/brands"
-                    className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl text-slate-400 transition-all border border-transparent hover:border-gray-200"
+                    className="p-3 hover:bg-gray-100 rounded-2xl text-slate-400 transition-all border border-transparent hover:border-gray-200"
                 >
                     <ArrowLeft className="w-5 h-5" />
                 </Link>
                 <div>
-                    <h1 className="text-3xl font-black text-blue-950 dark:text-white tracking-tight leading-none mb-2">Add Elite Brand</h1>
+                    <h1 className="text-3xl font-black text-blue-950 tracking-tight leading-none mb-2">Add Elite Brand</h1>
                     <p className="text-sm font-medium text-slate-400">Establish a new brand partnership identity.</p>
                 </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-10 border border-gray-100 dark:border-gray-700 shadow-2xl shadow-blue-900/5 space-y-10">
+            <form onSubmit={handleSubmit} className="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-2xl shadow-blue-900/5 space-y-10">
                 {/* Brand Logo Upload */}
                 <div className="space-y-4">
                     <CloudinaryUpload
@@ -73,13 +73,13 @@ export default function CreateBrandPage() {
                             required
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-900 border-2 border-transparent focus:border-sky-600 rounded-2xl outline-none transition-all font-bold text-blue-950 dark:text-white placeholder:text-slate-300"
+                            className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent focus:border-sky-600 rounded-2xl outline-none transition-all font-bold text-blue-950 placeholder:text-slate-300"
                             placeholder="e.g. Vitafoam Nigeria"
                         />
                     </div>
                 </div>
 
-                <div className="pt-8 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                <div className="pt-8 border-t border-gray-100 flex justify-end">
                     <button
                         type="submit"
                         disabled={loading}

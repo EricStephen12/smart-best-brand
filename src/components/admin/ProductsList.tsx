@@ -60,9 +60,9 @@ export default function ProductsList({ initialProducts }: ProductsListProps) {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-slate-100 dark:border-gray-700 shadow-xl shadow-blue-950/5 overflow-hidden">
+        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-blue-950/5 overflow-hidden">
             {/* Table Header / Filters */}
-            <div className="p-8 border-b border-slate-50 dark:border-gray-700 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="p-8 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="relative group w-full max-w-md">
                     <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-sky-600 transition-colors" />
                     <input
@@ -70,12 +70,12 @@ export default function ProductsList({ initialProducts }: ProductsListProps) {
                         placeholder="Search products, brands, categories..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-gray-900 border-none focus:ring-4 focus:ring-sky-600/10 rounded-2xl py-4 pl-14 pr-6 text-sm font-bold text-blue-950 dark:text-white outline-none transition-all duration-300 font-sans"
+                        className="w-full bg-slate-50 border-none focus:ring-4 focus:ring-sky-600/10 rounded-2xl py-4 pl-14 pr-6 text-sm font-bold text-blue-950 outline-none transition-all duration-300 font-sans"
                     />
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-50 dark:bg-gray-700 text-slate-400 hover:text-blue-950 dark:hover:text-white transition-all text-[10px] font-black uppercase tracking-widest">
+                    <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-50 text-slate-400 hover:text-blue-950 transition-all text-[10px] font-black uppercase tracking-widest">
                         <Filter className="w-4 h-4" /> Filter
                     </button>
                 </div>
@@ -84,23 +84,23 @@ export default function ProductsList({ initialProducts }: ProductsListProps) {
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
                     <thead>
-                        <tr className="bg-slate-50/50 dark:bg-gray-700/50">
+                        <tr className="bg-slate-50/50">
                             <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Product Essence</th>
                             <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Inventory Status</th>
                             <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Financials</th>
                             <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50 dark:divide-gray-700">
+                    <tbody className="divide-y divide-slate-50">
                         {filteredProducts.map((product) => {
                             const minPrice = Math.min(...product.variants.map((v: any) => v.promoPrice || v.price));
                             const totalStock = product.variants.reduce((acc: number, curr: any) => acc + curr.stock, 0);
 
                             return (
-                                <tr key={product.id} className="group hover:bg-slate-50/50 dark:hover:bg-gray-700/50 transition-colors">
+                                <tr key={product.id} className="group hover:bg-slate-50/50 transition-colors">
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-6">
-                                            <div className="w-16 h-16 bg-slate-100 dark:bg-gray-700 rounded-2xl relative overflow-hidden flex-shrink-0 border border-slate-200 dark:border-gray-600">
+                                            <div className="w-16 h-16 bg-slate-100 rounded-2xl relative overflow-hidden flex-shrink-0 border border-slate-200">
                                                 {product.images?.[0] ? (
                                                     <Image
                                                         src={product.images[0]}
@@ -115,14 +115,14 @@ export default function ProductsList({ initialProducts }: ProductsListProps) {
                                                 )}
                                             </div>
                                             <div>
-                                                <h4 className="text-sm font-black text-blue-950 dark:text-white group-hover:text-sky-600 transition-colors mb-1">
+                                                <h4 className="text-sm font-black text-blue-950 group-hover:text-sky-600 transition-colors mb-1">
                                                     {product.name}
                                                 </h4>
                                                 <div className="flex items-center gap-2">
                                                     <span className="text-[9px] font-black uppercase tracking-widest text-slate-300 flex items-center gap-1">
                                                         <Package className="w-3 h-3" /> {product.categories?.[0]?.category?.name || 'Uncategorized'}
                                                     </span>
-                                                    <span className="text-slate-200 dark:text-gray-600">/</span>
+                                                    <span className="text-slate-200">/</span>
                                                     <span className="text-[9px] font-black uppercase tracking-widest text-sky-600">
                                                         {product.brand?.name}
                                                     </span>
@@ -132,7 +132,7 @@ export default function ProductsList({ initialProducts }: ProductsListProps) {
                                     </td>
                                     <td className="px-8 py-6">
                                         <div className="space-y-1">
-                                            <span className={`text-sm font-black ${totalStock > 0 ? 'text-blue-950 dark:text-white' : 'text-red-500'}`}>
+                                            <span className={`text-sm font-black ${totalStock > 0 ? 'text-blue-950' : 'text-red-500'}`}>
                                                 {totalStock} Units
                                             </span>
                                             <p className="text-[9px] font-black text-slate-300 uppercase tracking-tighter">Aggregated Stock</p>
@@ -140,7 +140,7 @@ export default function ProductsList({ initialProducts }: ProductsListProps) {
                                     </td>
                                     <td className="px-8 py-6">
                                         <div className="space-y-1">
-                                            <span className="text-sm font-black text-blue-950 dark:text-white">From ₦{minPrice.toLocaleString()}</span>
+                                            <span className="text-sm font-black text-blue-950">From ₦{minPrice.toLocaleString()}</span>
                                             <p className="text-[9px] font-black text-slate-300 uppercase tracking-tighter">Variant Minimum</p>
                                         </div>
                                     </td>
@@ -148,14 +148,14 @@ export default function ProductsList({ initialProducts }: ProductsListProps) {
                                         <div className="flex items-center justify-end gap-2">
                                             <Link
                                                 href={`/account/products/${product.id}/edit`}
-                                                className="p-3 text-slate-300 hover:text-sky-600 hover:bg-white dark:hover:bg-gray-700 rounded-xl transition-all"
+                                                className="p-3 text-slate-300 hover:text-sky-600 hover:bg-slate-50 rounded-xl transition-all"
                                             >
                                                 <Edit3 className="w-5 h-5" />
                                             </Link>
                                             <button
                                                 onClick={() => handleDelete(product.id, product.name)}
                                                 disabled={deletingId === product.id}
-                                                className="p-3 text-slate-300 hover:text-red-500 hover:bg-white dark:hover:bg-gray-700 rounded-xl transition-all disabled:opacity-50"
+                                                className="p-3 text-slate-300 hover:text-red-500 hover:bg-slate-50 rounded-xl transition-all disabled:opacity-50"
                                             >
                                                 {deletingId === product.id ? (
                                                     <Loader2 className="w-5 h-5 animate-spin" />

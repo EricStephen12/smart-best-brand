@@ -136,16 +136,16 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
             <div className="lg:col-span-8 space-y-12">
 
                 {/* Basic Identity Section */}
-                <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-slate-100 dark:border-gray-700 p-10 shadow-xl shadow-blue-950/5 relative overflow-hidden">
+                <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-xl shadow-blue-950/5 relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-8 opacity-5">
                         <Tag className="w-24 h-24" />
                     </div>
 
                     <div className="flex items-center gap-4 mb-10">
-                        <div className="w-10 h-10 bg-sky-50 dark:bg-sky-900/20 rounded-xl flex items-center justify-center text-sky-600">
+                        <div className="w-10 h-10 bg-sky-50 rounded-xl flex items-center justify-center text-sky-600">
                             <Info className="w-5 h-5" />
                         </div>
-                        <h2 className="text-xl font-black text-blue-950 dark:text-white uppercase tracking-tight">Identity Details</h2>
+                        <h2 className="text-xl font-black text-blue-950 uppercase tracking-tight">Identity Details</h2>
                     </div>
 
                     <div className="space-y-8">
@@ -156,7 +156,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                 required
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full bg-slate-50 dark:bg-gray-900 border-2 border-transparent focus:border-sky-600 focus:bg-white rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 dark:text-white outline-none transition-all"
+                                className="w-full bg-slate-50 border-2 border-transparent focus:border-sky-600 focus:bg-white rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 outline-none transition-all"
                                 placeholder="e.g. Vitafoam Grandeur Orthopedic"
                             />
                         </div>
@@ -168,7 +168,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                     required
                                     value={brandId}
                                     onChange={(e) => setBrandId(e.target.value)}
-                                    className="w-full bg-slate-50 dark:bg-gray-900 border-2 border-transparent focus:border-sky-600 focus:bg-white rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 dark:text-white outline-none transition-all appearance-none cursor-pointer"
+                                    className="w-full bg-slate-50 border-2 border-transparent focus:border-sky-600 focus:bg-white rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 outline-none transition-all appearance-none cursor-pointer"
                                 >
                                     <option value="">{brands.length === 0 ? 'No Brands Found' : 'Select Brand...'}</option>
                                     {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -225,7 +225,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                 rows={4}
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
-                                className="w-full bg-slate-50 dark:bg-gray-900 border-2 border-transparent focus:border-sky-600 focus:bg-white rounded-2xl px-6 py-4 text-sm font-medium text-blue-950 dark:text-white outline-none transition-all resize-none"
+                                className="w-full bg-slate-50 border-2 border-transparent focus:border-sky-600 focus:bg-white rounded-2xl px-6 py-4 text-sm font-medium text-blue-950 outline-none transition-all resize-none"
                                 placeholder="Describe the essence of this elite comfort..."
                             />
                         </div>
@@ -233,18 +233,18 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                 </div>
 
                 {/* Variants Control Section */}
-                <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-slate-100 dark:border-gray-700 p-10 shadow-xl shadow-blue-950/5">
+                <div className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-xl shadow-blue-950/5">
                     <div className="flex items-center justify-between mb-10">
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600">
+                            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
                                 <Package className="w-5 h-5" />
                             </div>
-                            <h2 className="text-xl font-black text-blue-950 dark:text-white uppercase tracking-tight">Technical Variants</h2>
+                            <h2 className="text-xl font-black text-blue-950 uppercase tracking-tight">Technical Variants</h2>
                         </div>
                         <button
                             type="button"
                             onClick={addVariant}
-                            className="bg-slate-50 hover:bg-sky-50 dark:bg-gray-700 dark:hover:bg-sky-900/20 text-slate-400 hover:text-sky-600 px-6 py-3 rounded-xl border border-dashed border-slate-200 dark:border-gray-600 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-2"
+                            className="bg-white hover:bg-sky-50 text-slate-400 hover:text-sky-600 px-6 py-3 rounded-xl border border-dashed border-slate-200 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-2"
                         >
                             <Plus className="w-4 h-4" /> Add Size Standard
                         </button>
@@ -252,12 +252,12 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
 
                     <div className="space-y-4">
                         {variants.map((v, index) => (
-                            <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 bg-slate-50/50 dark:bg-gray-900/50 rounded-3xl relative group border border-slate-50 dark:border-gray-700">
+                            <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6 bg-slate-50 rounded-3xl relative group border border-slate-100">
                                 {variants.length > 1 && (
                                     <button
                                         type="button"
                                         onClick={() => removeVariant(index)}
-                                        className="absolute -top-2 -right-2 w-8 h-8 bg-white dark:bg-gray-800 border-2 border-slate-100 dark:border-gray-700 rounded-full flex items-center justify-center text-slate-300 hover:text-red-500 transition-all shadow-md opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100"
+                                        className="absolute -top-2 -right-2 w-8 h-8 bg-white border-2 border-slate-100 rounded-full flex items-center justify-center text-slate-300 hover:text-red-500 transition-all shadow-md opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100"
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
@@ -267,7 +267,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                     <select
                                         value={v.sizeId}
                                         onChange={(e) => updateVariant(index, 'sizeId', e.target.value)}
-                                        className="w-full bg-white dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-blue-950 dark:text-white outline-none focus:ring-2 focus:ring-sky-600 appearance-none cursor-pointer"
+                                        className="w-full bg-white border-none rounded-xl px-4 py-3 text-sm font-bold text-blue-950 outline-none focus:ring-2 focus:ring-sky-600 appearance-none cursor-pointer"
                                     >
                                         <option value="">{sizes.length === 0 ? 'No Sizes Found' : 'Select Size...'}</option>
                                         {sizes.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
@@ -287,7 +287,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                         type="number"
                                         value={v.price}
                                         onChange={(e) => updateVariant(index, 'price', e.target.value)}
-                                        className="w-full bg-white dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-blue-950 dark:text-white outline-none focus:ring-2 focus:ring-sky-600 font-sans"
+                                        className="w-full bg-white border-none rounded-xl px-4 py-3 text-sm font-bold text-blue-950 outline-none focus:ring-2 focus:ring-sky-600 font-sans"
                                         placeholder="0"
                                     />
                                 </div>
@@ -297,7 +297,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                         type="number"
                                         value={v.promoPrice}
                                         onChange={(e) => updateVariant(index, 'promoPrice', e.target.value)}
-                                        className="w-full bg-white dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-blue-950 dark:text-white outline-none focus:ring-2 focus:ring-sky-600 font-sans"
+                                        className="w-full bg-white border-none rounded-xl px-4 py-3 text-sm font-bold text-blue-950 outline-none focus:ring-2 focus:ring-sky-600 font-sans"
                                         placeholder="Optional"
                                     />
                                 </div>
@@ -307,7 +307,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                         type="number"
                                         value={v.stock}
                                         onChange={(e) => updateVariant(index, 'stock', e.target.value)}
-                                        className="w-full bg-white dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-blue-950 dark:text-white outline-none focus:ring-2 focus:ring-sky-600 font-sans"
+                                        className="w-full bg-white border-none rounded-xl px-4 py-3 text-sm font-bold text-blue-950 outline-none focus:ring-2 focus:ring-sky-600 font-sans"
                                         placeholder="10"
                                     />
                                 </div>
@@ -317,12 +317,12 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                 </div>
 
                 {/* Attributes Section */}
-                <div className="bg-slate-50 dark:bg-gray-900 rounded-[2.5rem] border border-slate-200/50 dark:border-gray-700/50 p-10 relative overflow-hidden">
+                <div className="bg-slate-50 rounded-[2.5rem] border border-slate-100 p-10 relative overflow-hidden">
                     <div className="flex items-center gap-4 mb-10">
                         <div className="w-10 h-10 bg-blue-950 rounded-xl flex items-center justify-center text-white">
                             <Settings className="w-5 h-5" />
                         </div>
-                        <h2 className="text-xl font-black text-blue-950 dark:text-white uppercase tracking-tight">Elite Attributes</h2>
+                        <h2 className="text-xl font-black text-blue-950 uppercase tracking-tight">Elite Attributes</h2>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -332,7 +332,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                 type="text"
                                 value={materials}
                                 onChange={(e) => setMaterials(e.target.value)}
-                                className="w-full bg-white dark:bg-gray-800 border-none rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 dark:text-white outline-none shadow-sm focus:ring-4 focus:ring-sky-600/10"
+                                className="w-full bg-white border-none rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 outline-none shadow-sm focus:ring-4 focus:ring-sky-600/10"
                                 placeholder="e.g. Memory Foam, Latex"
                             />
                         </div>
@@ -341,7 +341,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                             <select
                                 value={firmness}
                                 onChange={(e) => setFirmness(e.target.value)}
-                                className="w-full bg-white dark:bg-gray-800 border-none rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 dark:text-white outline-none shadow-sm focus:ring-4 focus:ring-sky-600/10 appearance-none cursor-pointer"
+                                className="w-full bg-white border-none rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 outline-none shadow-sm focus:ring-4 focus:ring-sky-600/10 appearance-none cursor-pointer"
                             >
                                 <option>Standard Medium</option>
                                 <option>Plush Soft</option>
@@ -355,7 +355,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                 type="text"
                                 value={finishing}
                                 onChange={(e) => setFinishing(e.target.value)}
-                                className="w-full bg-white dark:bg-gray-800 border-none rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 dark:text-white outline-none shadow-sm focus:ring-4 focus:ring-sky-600/10"
+                                className="w-full bg-white border-none rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 outline-none shadow-sm focus:ring-4 focus:ring-sky-600/10"
                                 placeholder="e.g. Damascus Fabric Quilting"
                             />
                         </div>
@@ -365,7 +365,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                 type="text"
                                 value={warranty}
                                 onChange={(e) => setWarranty(e.target.value)}
-                                className="w-full bg-white dark:bg-gray-800 border-none rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 dark:text-white outline-none shadow-sm focus:ring-4 focus:ring-sky-600/10"
+                                className="w-full bg-white border-none rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 outline-none shadow-sm focus:ring-4 focus:ring-sky-600/10"
                                 placeholder="e.g. 10 Years Manufacturer Warranty"
                             />
                         </div>
@@ -389,7 +389,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                         type="text"
                                         value={f}
                                         onChange={(e) => updateFeature(i, e.target.value)}
-                                        className="w-full bg-white dark:bg-gray-800 border-none rounded-xl px-6 py-3 text-xs font-bold text-blue-950 dark:text-white outline-none shadow-sm"
+                                        className="w-full bg-white border-none rounded-xl px-6 py-3 text-xs font-bold text-blue-950 outline-none shadow-sm"
                                         placeholder="e.g. Anti-Fungal Treatment"
                                     />
                                     {features.length > 1 && (
@@ -412,7 +412,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
             <div className="lg:col-span-4 space-y-12">
 
                 {/* Media Module */}
-                <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-slate-100 dark:border-gray-700 p-8 shadow-xl shadow-blue-950/5">
+                <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-xl shadow-blue-950/5">
                     <CloudinaryUpload
                         value={images}
                         onChange={setImages}

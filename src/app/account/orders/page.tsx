@@ -51,7 +51,7 @@ export default function OrdersPage() {
     <div className="space-y-10 pb-20 font-sans">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div>
-          <h1 className="text-4xl font-black text-blue-950 dark:text-white tracking-tight uppercase leading-none mb-1">
+          <h1 className="text-4xl font-black text-blue-950 tracking-tight uppercase leading-none mb-1">
             {isAdmin ? 'Store Dispatch' : 'Order Dossier'}
           </h1>
           <p className="text-slate-400 font-medium font-inter">
@@ -63,7 +63,7 @@ export default function OrdersPage() {
 
         {isAdmin && (
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-6 py-4 bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:text-blue-950 dark:hover:text-white transition-all shadow-xl shadow-blue-900/5">
+            <button className="flex items-center gap-2 px-6 py-4 bg-white border border-slate-100 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:text-blue-950 transition-all shadow-xl shadow-blue-900/5">
               Export Dossier
             </button>
           </div>
@@ -73,11 +73,11 @@ export default function OrdersPage() {
       {orders.length > 0 ? (
         <OrdersList initialOrders={orders} />
       ) : (
-        <div className="py-24 text-center bg-white dark:bg-gray-800 rounded-[2.5rem] border border-slate-100 dark:border-gray-700 shadow-xl shadow-blue-950/5">
-          <div className="w-20 h-20 bg-slate-50 dark:bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
+        <div className="py-24 text-center bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-blue-950/5">
+          <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
             <Package className="w-10 h-10 italic" />
           </div>
-          <h2 className="text-xl font-black text-blue-950 dark:text-white uppercase tracking-tight mb-2">Empty Archives</h2>
+          <h2 className="text-xl font-black text-blue-950 uppercase tracking-tight mb-2">Empty Archives</h2>
           <p className="text-slate-400 font-medium max-w-sm mx-auto">
             {isAdmin
               ? 'No orders have been dispatched from the store yet.'

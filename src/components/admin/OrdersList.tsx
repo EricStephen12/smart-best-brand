@@ -61,24 +61,24 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
 
     return (
         <div className="space-y-8">
-            <div className="bg-white dark:bg-gray-800 rounded-3xl border border-slate-100 dark:border-gray-700 p-4 shadow-sm">
+            <div className="bg-white rounded-3xl border border-slate-100 p-4 shadow-sm">
                 <div className="relative">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
                         type="text"
                         placeholder="Search order ID or patron name..."
-                        className="w-full pl-12 pr-6 py-4 bg-slate-50 dark:bg-gray-900 border-none rounded-2xl text-sm font-bold text-blue-950 dark:text-white outline-none focus:ring-4 focus:ring-sky-600/10 transition-all font-sans"
+                        className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold text-blue-950 outline-none focus:ring-4 focus:ring-sky-600/10 transition-all font-sans"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-slate-100 dark:border-gray-700 shadow-xl shadow-blue-950/5 overflow-hidden">
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-blue-950/5 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-slate-50/50 dark:bg-gray-700/50 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                            <tr className="bg-slate-50/50 text-[10px] font-black uppercase tracking-widest text-slate-400">
                                 <th className="px-8 py-6">Identity</th>
                                 <th className="px-8 py-6">Patron</th>
                                 <th className="px-8 py-6">Timeline</th>
@@ -87,20 +87,20 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
                                 <th className="px-8 py-6 text-right">Protocol</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50 dark:divide-gray-700">
+                        <tbody className="divide-y divide-slate-50">
                             {filteredOrders.map((order) => (
-                                <tr key={order.id} className="hover:bg-slate-50/50 dark:hover:bg-gray-700/50 transition-colors group">
+                                <tr key={order.id} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center text-blue-600">
+                                            <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600">
                                                 <Package className="w-4 h-4" />
                                             </div>
-                                            <span className="font-black text-blue-950 dark:text-white">{order.orderNumber}</span>
+                                            <span className="font-black text-blue-950">{order.orderNumber}</span>
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
                                         <div>
-                                            <p className="font-bold text-blue-950 dark:text-white leading-tight">{order.customerName}</p>
+                                            <p className="font-bold text-blue-950 leading-tight">{order.customerName}</p>
                                             <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{order.deliveryLocation}</p>
                                         </div>
                                     </td>
@@ -115,7 +115,7 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
                                     <td className="px-8 py-6">
                                         <StatusBadge status={order.status.toLowerCase()} />
                                     </td>
-                                    <td className="px-8 py-6 font-black text-blue-950 dark:text-white">
+                                    <td className="px-8 py-6 font-black text-blue-950">
                                         ₦ {order.total.toLocaleString()}
                                     </td>
                                     <td className="px-8 py-6 text-right">
@@ -124,7 +124,7 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
                                                 value={order.status}
                                                 onChange={(e) => handleStatusChange(order.id, e.target.value)}
                                                 disabled={updatingId === order.id}
-                                                className="bg-slate-50 dark:bg-gray-900 border-none rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:ring-4 focus:ring-sky-600/10 outline-none cursor-pointer disabled:opacity-50"
+                                                className="bg-slate-50 border-none rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:ring-4 focus:ring-sky-600/10 outline-none cursor-pointer disabled:opacity-50"
                                             >
                                                 <option value="PENDING">Pending</option>
                                                 <option value="PAID">Paid</option>
@@ -135,7 +135,7 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
                                             </select>
                                             <Link
                                                 href={`/account/orders/${order.id}`}
-                                                className="p-2 hover:bg-white dark:hover:bg-gray-700 rounded-xl text-slate-300 hover:text-sky-600 transition-all shadow-sm"
+                                                className="p-2 hover:bg-slate-50 rounded-xl text-slate-300 hover:text-sky-600 transition-all shadow-sm"
                                             >
                                                 <Eye className="w-5 h-5" />
                                             </Link>
@@ -160,12 +160,12 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
 
 function StatusBadge({ status }: { status: string }) {
     const styles: Record<string, string> = {
-        pending: "text-amber-500 bg-amber-50 dark:bg-amber-900/10",
-        paid: "text-emerald-500 bg-emerald-50 dark:bg-emerald-900/10",
-        processing: "text-blue-500 bg-blue-50 dark:bg-blue-900/10",
-        shipped: "text-sky-500 bg-sky-50 dark:bg-sky-900/10",
-        delivered: "text-emerald-500 bg-emerald-50 dark:bg-emerald-900/10",
-        cancelled: "text-rose-500 bg-rose-50 dark:bg-rose-900/10",
+        pending: "text-amber-500 bg-amber-50",
+        paid: "text-emerald-500 bg-emerald-50",
+        processing: "text-blue-500 bg-blue-50",
+        shipped: "text-sky-500 bg-sky-50",
+        delivered: "text-emerald-500 bg-emerald-50",
+        cancelled: "text-rose-500 bg-rose-50",
     };
 
     const icons: Record<string, React.ReactNode> = {

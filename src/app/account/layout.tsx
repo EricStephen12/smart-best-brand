@@ -61,8 +61,8 @@ export default function AccountLayout({
   }
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
-      <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+    <div className="flex flex-col h-full bg-white border-r border-slate-100">
+      <div className="p-6 border-b border-slate-100 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 group">
           <div className="bg-blue-950 p-2 rounded-lg group-hover:bg-sky-600 transition-colors">
             <Home className="w-5 h-5 text-white" />
@@ -107,7 +107,7 @@ export default function AccountLayout({
           </>
         )}
 
-        <div className="pt-4 mt-4 border-t border-gray-100 dark:border-gray-700">
+        <div className="pt-4 mt-4 border-t border-slate-50">
           <p className="px-4 text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">
             Settings
           </p>
@@ -115,14 +115,14 @@ export default function AccountLayout({
         </div>
       </nav>
 
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-t border-slate-100">
         <div className="px-4 py-3 mb-4 bg-slate-50 rounded-xl">
           <p className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Logged in as</p>
           <p className="text-[10px] font-bold text-blue-950 truncate">{user.email}</p>
         </div>
         <button
           onClick={logout}
-          className="flex items-center gap-3 px-4 py-3 w-full text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-lg transition-colors"
+          className="flex items-center gap-3 px-4 py-3 w-full text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
         >
           <LogOut className="w-5 h-5" />
           Sign Out
@@ -132,7 +132,7 @@ export default function AccountLayout({
   );
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans">
+    <div className="flex h-screen bg-slate-50/50 text-blue-950 font-sans">
       {/* Desktop Sidebar */}
       <aside className="w-64 hidden md:flex flex-col flex-shrink-0">
         {sidebarContent}
@@ -165,7 +165,7 @@ export default function AccountLayout({
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Mobile Header */}
-        <header className="md:hidden bg-white border-b border-gray-200 p-4 flex items-center justify-between flex-shrink-0">
+        <header className="md:hidden bg-white border-b border-slate-100 p-4 flex items-center justify-between flex-shrink-0">
           <Link href="/" className="flex items-center gap-2">
             <div className="bg-blue-950 p-1.5 rounded-lg">
               <Home className="w-4 h-4 text-white" />
@@ -177,7 +177,7 @@ export default function AccountLayout({
           </button>
         </header>
 
-        <main className="flex-1 overflow-auto relative bg-gray-50">
+        <main className="flex-1 overflow-auto relative bg-slate-50/50">
           <div className="max-w-7xl mx-auto p-4 md:p-8">
             {children}
           </div>

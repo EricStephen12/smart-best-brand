@@ -59,7 +59,7 @@ export default function AccountOverviewPage() {
           {/* Admin Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <h1 className="text-4xl sm:text-5xl font-black text-blue-950 dark:text-white tracking-tight leading-none uppercase mb-2">
+              <h1 className="text-4xl sm:text-5xl font-black text-blue-950 tracking-tight leading-none uppercase mb-2">
                 Control <span className="text-sky-600">Center</span>
               </h1>
               <p className="text-slate-400 font-medium font-inter">

@@ -50,20 +50,20 @@ export default function AdminOverview({ stats, recentOrders }: AdminOverviewProp
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] p-10 border border-slate-100 dark:border-gray-700 shadow-xl shadow-blue-950/5">
+                <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-xl shadow-blue-950/5">
                     <div className="flex items-center justify-between mb-10">
-                        <h2 className="text-xl font-black text-blue-950 dark:text-white uppercase tracking-widest">Recent Orders</h2>
-                        <Link href="/account/orders" className="text-[10px] font-black text-sky-600 uppercase tracking-widest hover:text-blue-950 dark:hover:text-white transition-colors">View All &rarr;</Link>
+                        <h2 className="text-xl font-black text-blue-950 uppercase tracking-widest">Recent Orders</h2>
+                        <Link href="/account/orders" className="text-[10px] font-black text-sky-600 uppercase tracking-widest hover:text-blue-950 transition-colors">View All &rarr;</Link>
                     </div>
                     <div className="space-y-4">
                         {recentOrders.map((order) => (
-                            <div key={order.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-gray-900 rounded-2xl hover:bg-slate-100 dark:hover:bg-gray-700 transition-colors cursor-pointer group">
+                            <div key={order.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors cursor-pointer group">
                                 <div className="flex items-center gap-4">
                                     <div className="w-10 h-10 rounded-xl bg-blue-950 flex items-center justify-center text-white font-black text-xs">
                                         {order.customerName.substring(0, 2).toUpperCase()}
                                     </div>
                                     <div>
-                                        <p className="font-bold text-blue-950 dark:text-white">{order.customerName}</p>
+                                        <p className="font-bold text-blue-950">{order.customerName}</p>
                                         <p className="text-[10px] text-slate-400 font-black uppercase">₦ {order.total.toLocaleString()} &bull; {order.orderNumber}</p>
                                     </div>
                                 </div>
@@ -102,19 +102,19 @@ function StatCard({ title, value, change, icon: Icon, color }: { title: string, 
     const isBlue = color === 'blue-950';
 
     return (
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-gray-700 shadow-lg shadow-blue-950/5 hover:shadow-xl hover:shadow-blue-950/10 transition-all group">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-lg shadow-blue-950/5 hover:shadow-xl hover:shadow-blue-950/10 transition-all group">
             <div className="flex items-center justify-between mb-8">
-                <div className={`p-4 rounded-2xl transition-all duration-500 ${isBlue ? 'bg-blue-950 text-white group-hover:bg-sky-600' : 'bg-sky-100 dark:bg-sky-900/20 text-sky-600 group-hover:bg-blue-950 group-hover:text-white'}`}>
+                <div className={`p-4 rounded-2xl transition-all duration-500 ${isBlue ? 'bg-blue-950 text-white group-hover:bg-sky-600' : 'bg-sky-100 text-sky-600 group-hover:bg-blue-950 group-hover:text-white'}`}>
                     <Icon className="w-6 h-6" />
                 </div>
-                <div className="flex items-center gap-1 text-[10px] font-black text-green-500 uppercase tracking-widest bg-green-50 dark:bg-green-900/10 px-3 py-1 rounded-full">
+                <div className="flex items-center gap-1 text-[10px] font-black text-green-500 uppercase tracking-widest bg-green-50 px-3 py-1 rounded-full">
                     <TrendingUp className="w-3 h-3" />
                     <span>{change}</span>
                 </div>
             </div>
             <div>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{title}</p>
-                <h3 className="text-3xl font-black text-blue-950 dark:text-white tracking-tighter leading-none">{value}</h3>
+                <h3 className="text-3xl font-black text-blue-950 tracking-tighter leading-none">{value}</h3>
             </div>
         </div>
     );

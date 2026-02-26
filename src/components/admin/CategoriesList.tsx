@@ -107,30 +107,30 @@ export default function CategoriesList({ initialCategories }: CategoriesListProp
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.9 }}
                             key={cat.id}
-                            className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-[2rem] p-8 group hover:shadow-2xl hover:shadow-blue-900/5 transition-all relative overflow-hidden"
+                            className="bg-white border border-slate-100 rounded-[2rem] p-8 group hover:shadow-2xl hover:shadow-blue-900/5 transition-all relative overflow-hidden"
                         >
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 dark:bg-gray-700/50 rounded-bl-full -mr-16 -mt-16 group-hover:bg-sky-50 dark:group-hover:bg-sky-900/20 transition-colors" />
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-full -mr-16 -mt-16 group-hover:bg-sky-50 transition-colors" />
 
                             <div className="relative z-10 flex flex-col h-full">
                                 <div className="w-12 h-12 bg-blue-950 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:bg-sky-600 transition-colors shadow-lg shadow-blue-900/20">
                                     <Grid className="w-5 h-5" />
                                 </div>
-                                <h3 className="text-xl font-black text-blue-950 dark:text-white mb-2">{cat.name}</h3>
+                                <h3 className="text-xl font-black text-blue-950 mb-2">{cat.name}</h3>
                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                                     {cat._count?.products || 0} Active Products
                                 </p>
 
-                                <div className="mt-8 flex items-center gap-2 pt-4 border-t border-slate-50 dark:border-gray-700">
+                                <div className="mt-8 flex items-center gap-2 pt-4 border-t border-slate-50">
                                     <button
                                         onClick={() => startEditing(cat)}
-                                        className="flex-1 bg-slate-50 dark:bg-gray-700 hover:bg-sky-50 dark:hover:bg-sky-900/20 hover:text-sky-600 text-slate-400 p-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest"
+                                        className="flex-1 bg-slate-50 hover:bg-sky-50 hover:text-sky-600 text-slate-400 p-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest"
                                     >
                                         <Edit3 className="w-4 h-4" /> Edit
                                     </button>
                                     <button
                                         onClick={() => handleDelete(cat.id, cat.name)}
                                         disabled={deletingId === cat.id}
-                                        className="w-12 h-12 bg-slate-50 dark:bg-gray-700 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 text-slate-400 rounded-xl transition-all flex items-center justify-center disabled:opacity-50"
+                                        className="w-12 h-12 bg-slate-50 hover:bg-red-50 hover:text-red-500 text-slate-400 rounded-xl transition-all flex items-center justify-center disabled:opacity-50"
                                     >
                                         {deletingId === cat.id ? (
                                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -206,19 +206,19 @@ export default function CategoriesList({ initialCategories }: CategoriesListProp
                             key="info"
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-700 rounded-[2.5rem] p-10 text-center space-y-6"
+                            className="bg-white border border-slate-100 rounded-[2.5rem] p-10 text-center space-y-6"
                         >
-                            <div className="w-20 h-20 bg-slate-50 dark:bg-gray-700/50 rounded-3xl flex items-center justify-center text-blue-950 dark:text-sky-400 mx-auto border border-slate-100 dark:border-gray-700">
+                            <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center text-blue-950 mx-auto border border-slate-100">
                                 <Grid className="w-10 h-10" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-black text-blue-950 dark:text-white tracking-tight">Structural Integrity</h3>
+                                <h3 className="text-xl font-black text-blue-950 tracking-tight">Structural Integrity</h3>
                                 <p className="text-sm text-slate-400 mt-2 font-medium leading-relaxed font-inter">Categories define how customers navigate your store's essence.</p>
                             </div>
                             <div className="pt-2">
                                 <button
                                     onClick={() => setIsAdding(true)}
-                                    className="bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-sky-600 hover:text-white transition-all"
+                                    className="bg-sky-50 text-sky-600 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-sky-600 hover:text-white transition-all"
                                 >
                                     Add New Category
                                 </button>

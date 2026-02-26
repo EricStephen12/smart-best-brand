@@ -14,7 +14,7 @@ export default async function AdminProductsPage() {
     <div className="space-y-10 font-sans">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-blue-950 dark:text-white tracking-tight leading-none mb-2 uppercase">Product Inventory</h1>
+          <h1 className="text-4xl font-black text-blue-950 tracking-tight leading-none mb-2 uppercase">Product Inventory</h1>
           <p className="text-slate-400 font-medium font-inter">Manage your elite mattress and furniture catalog with technical precision.</p>
         </div>
         <Link

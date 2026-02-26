@@ -14,7 +14,7 @@ export default async function BrandsPage() {
         <div className="space-y-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
                 <div>
-                    <h1 className="text-3xl font-black text-blue-950 dark:text-white tracking-tight leading-none mb-2">Brands</h1>
+                    <h1 className="text-3xl font-black text-blue-950 tracking-tight leading-none mb-2">Brands</h1>
                     <p className="text-sm font-medium text-slate-400">Manage the elite brand partnerships displayed in your store.</p>
                 </div>
                 <Link

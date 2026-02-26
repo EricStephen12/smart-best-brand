@@ -110,12 +110,12 @@ export default function CreatePromotionPage() {
             <div className="flex items-center gap-6">
                 <Link
                     href="/account/promotions"
-                    className="w-12 h-12 bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 flex items-center justify-center text-slate-400 hover:text-sky-600 hover:border-sky-100 transition-all group"
+                    className="w-12 h-12 bg-white rounded-2xl border border-slate-100 flex items-center justify-center text-slate-400 hover:text-sky-600 hover:border-sky-100 transition-all group"
                 >
                     <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                 </Link>
                 <div>
-                    <h1 className="text-3xl font-black text-blue-950 dark:text-white tracking-tight uppercase leading-none mb-1">Create Campaign</h1>
+                    <h1 className="text-3xl font-black text-blue-950 tracking-tight uppercase leading-none mb-1">Create Campaign</h1>
                     <p className="text-slate-400 font-medium font-inter">Initialize a new discount or marketing banner.</p>
                 </div>
             </div>
@@ -123,12 +123,12 @@ export default function CreatePromotionPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 <div className="lg:col-span-8 space-y-10">
                     {/* Basic Identity */}
-                    <section className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-slate-100 dark:border-gray-700 p-10 shadow-xl shadow-blue-950/5">
+                    <section className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-xl shadow-blue-950/5">
                         <div className="flex items-center gap-4 mb-10">
-                            <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-indigo-600">
+                            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
                                 <Layout className="w-5 h-5" />
                             </div>
-                            <h2 className="text-xl font-black text-blue-950 dark:text-white uppercase tracking-tight">Campaign Identity</h2>
+                            <h2 className="text-xl font-black text-blue-950 uppercase tracking-tight">Campaign Identity</h2>
                         </div>
 
                         <div className="space-y-8">
@@ -139,7 +139,7 @@ export default function CreatePromotionPage() {
                                     required
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    className="w-full bg-slate-50 dark:bg-gray-900 border-2 border-transparent focus:border-sky-600 rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 dark:text-white outline-none transition-all placeholder:text-slate-300"
+                                    className="w-full bg-slate-50 border-2 border-transparent focus:border-sky-600 rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 outline-none transition-all placeholder:text-slate-300"
                                     placeholder="e.g. Valentines Comfort Flash Sale"
                                 />
                             </div>
@@ -150,7 +150,7 @@ export default function CreatePromotionPage() {
                                         type="text"
                                         value={code}
                                         onChange={(e) => setCode(e.target.value)}
-                                        className="w-full bg-slate-50 dark:bg-gray-900 border-2 border-transparent focus:border-sky-600 rounded-2xl px-6 py-4 text-sm font-black text-blue-950 dark:text-white outline-none transition-all uppercase placeholder:text-slate-300"
+                                        className="w-full bg-slate-50 border-2 border-transparent focus:border-sky-600 rounded-2xl px-6 py-4 text-sm font-black text-blue-950 outline-none transition-all uppercase placeholder:text-slate-300"
                                         placeholder="SMART2026"
                                     />
                                 </div>
@@ -162,7 +162,7 @@ export default function CreatePromotionPage() {
                                             setAppliesTo(e.target.value);
                                             setSelectedIds([]);
                                         }}
-                                        className="w-full bg-slate-50 dark:bg-gray-900 border-2 border-transparent focus:border-sky-600 rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 dark:text-white outline-none transition-all cursor-pointer appearance-none"
+                                        className="w-full bg-slate-50 border-2 border-transparent focus:border-sky-600 rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 outline-none transition-all cursor-pointer appearance-none"
                                     >
                                         <option value="ALL">All Products (Site-wide)</option>
                                         <option value="PRODUCTS">Specific Products</option>
@@ -173,15 +173,15 @@ export default function CreatePromotionPage() {
 
                             {/* Target Selection UI */}
                             {appliesTo !== 'ALL' && (
-                                <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-gray-700 animate-in fade-in slide-in-from-top-4 duration-500">
+                                <div className="space-y-4 pt-4 border-t border-slate-100 animate-in fade-in slide-in-from-top-4 duration-500">
                                     <div className="flex items-center justify-between">
                                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">
                                             Select {appliesTo === 'PRODUCTS' ? 'Elite Products' : 'Catalog Categories'}
                                         </label>
-                                        <span className="text-[10px] font-black text-sky-600 bg-sky-50 dark:bg-sky-900/30 px-3 py-1 rounded-full">{selectedIds.length} Selected</span>
+                                        <span className="text-[10px] font-black text-sky-600 bg-sky-50 px-3 py-1 rounded-full">{selectedIds.length} Selected</span>
                                     </div>
 
-                                    <div className="max-h-60 overflow-y-auto bg-slate-50 dark:bg-gray-900 rounded-2xl p-4 grid grid-cols-1 md:grid-cols-2 gap-2 scrollbar-hide">
+                                    <div className="max-h-60 overflow-y-auto bg-slate-50 rounded-2xl p-4 grid grid-cols-1 md:grid-cols-2 gap-2 scrollbar-hide">
                                         {fetchingData ? (
                                             <div className="col-span-full py-8 text-center text-slate-400 font-bold flex items-center justify-center gap-3">
                                                 <Loader2 className="w-5 h-5 animate-spin" /> Fetching targeting options...
@@ -194,7 +194,7 @@ export default function CreatePromotionPage() {
                                                     onClick={() => toggleSelection(item.id)}
                                                     className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left group ${selectedIds.includes(item.id)
                                                         ? 'bg-blue-950 border-blue-950 text-white shadow-lg'
-                                                        : 'bg-white dark:bg-gray-800 border-transparent text-slate-600 dark:text-slate-300 hover:border-sky-200'}`}
+                                                        : 'bg-white border-transparent text-slate-600 hover:border-sky-200'}`}
                                                 >
                                                     <div className={`w-2 h-2 rounded-full transition-colors ${selectedIds.includes(item.id) ? 'bg-sky-400' : 'bg-slate-200 group-hover:bg-sky-200'}`} />
                                                     <span className="text-xs font-bold truncate">{item.name}</span>
@@ -211,7 +211,7 @@ export default function CreatePromotionPage() {
                                     rows={3}
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
-                                    className="w-full bg-slate-50 dark:bg-gray-900 border-2 border-transparent focus:border-sky-600 rounded-2xl px-6 py-4 text-sm font-medium text-blue-950 dark:text-white outline-none transition-all resize-none placeholder:text-slate-300"
+                                    className="w-full bg-slate-50 border-2 border-transparent focus:border-sky-600 rounded-2xl px-6 py-4 text-sm font-medium text-blue-950 outline-none transition-all resize-none placeholder:text-slate-300"
                                     placeholder="Brief details about this marketing essence..."
                                 />
                             </div>
@@ -219,19 +219,19 @@ export default function CreatePromotionPage() {
                     </section>
 
                     {/* Logic & Values */}
-                    <section className="bg-slate-50 dark:bg-gray-900 rounded-[2.5rem] border border-slate-200/50 dark:border-gray-700 p-10">
+                    <section className="bg-slate-50 rounded-[2.5rem] border border-slate-200/50 p-10">
                         <div className="flex items-center gap-4 mb-10">
-                            <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl flex items-center justify-center text-emerald-600">
+                            <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
                                 <Target className="w-5 h-5" />
                             </div>
-                            <h2 className="text-xl font-black text-blue-950 dark:text-white uppercase tracking-tight">Incentive Logic</h2>
+                            <h2 className="text-xl font-black text-blue-950 uppercase tracking-tight">Incentive Logic</h2>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             <div className="space-y-6">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">Discount Basis</label>
-                                    <div className="flex bg-white dark:bg-gray-800 rounded-2xl p-1 border border-slate-100 dark:border-gray-700 shadow-sm">
+                                    <div className="flex bg-white rounded-2xl p-1 border border-slate-100 shadow-sm">
                                         <button
                                             type="button"
                                             onClick={() => setDiscountType('Percentage')}
@@ -256,20 +256,20 @@ export default function CreatePromotionPage() {
                                     required
                                     value={discountValue}
                                     onChange={(e) => setDiscountValue(e.target.value)}
-                                    className="w-full bg-white dark:bg-gray-800 border-none rounded-2xl px-6 py-4 text-sm font-black text-blue-950 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all shadow-sm font-sans"
+                                    className="w-full bg-white border-none rounded-2xl px-6 py-4 text-sm font-black text-blue-950 outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all shadow-sm font-sans"
                                     placeholder={discountType === 'Percentage' ? '15' : '5000'}
                                 />
                             </div>
                         </div>
 
-                        <div className="mt-8 pt-8 border-t border-slate-200 dark:border-gray-700">
+                        <div className="mt-8 pt-8 border-t border-slate-200">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Min Placement Value (Optional)</label>
                                 <input
                                     type="number"
                                     value={minPurchase}
                                     onChange={(e) => setMinPurchase(e.target.value)}
-                                    className="w-full bg-white dark:bg-gray-800 border-none rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 dark:text-white outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all shadow-sm font-sans placeholder:text-slate-300"
+                                    className="w-full bg-white border-none rounded-2xl px-6 py-4 text-sm font-bold text-blue-950 outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all shadow-sm font-sans placeholder:text-slate-300"
                                     placeholder="e.g. 100000"
                                 />
                             </div>
@@ -307,14 +307,14 @@ export default function CreatePromotionPage() {
                     </div>
 
                     {/* Commit Section */}
-                    <div className="bg-emerald-50 dark:bg-emerald-900/10 rounded-[2.5rem] p-10 border border-emerald-100 dark:border-emerald-900/20">
+                    <div className="bg-emerald-50 rounded-[2.5rem] p-10 border border-emerald-100">
                         <div className="flex flex-col gap-6">
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white">
                                     <CheckCircle2 className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest leading-none">Ready for Launch</p>
+                                    <p className="text-[10px] font-black text-emerald-700 uppercase tracking-widest leading-none">Ready for Launch</p>
                                     <p className="text-[8px] font-black text-emerald-600/60 uppercase mt-1">System validation complete</p>
                                 </div>
                             </div>

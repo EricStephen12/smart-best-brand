@@ -98,13 +98,13 @@ export default function PromotionsList({ initialPromotions }: PromotionsListProp
             </div>
 
             {/* Search */}
-            <div className="bg-white dark:bg-gray-800 rounded-3xl border border-slate-100 dark:border-gray-700 p-4 shadow-sm">
+            <div className="bg-white rounded-3xl border border-slate-100 p-4 shadow-sm">
                 <div className="relative">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
                         type="text"
                         placeholder="Search campaigns..."
-                        className="w-full pl-12 pr-6 py-4 bg-slate-50 dark:bg-gray-900 border-none rounded-2xl text-sm font-medium focus:ring-4 focus:ring-sky-600/10 transition-all outline-none font-sans"
+                        className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl text-sm font-medium focus:ring-4 focus:ring-sky-600/10 transition-all outline-none font-sans"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -112,11 +112,11 @@ export default function PromotionsList({ initialPromotions }: PromotionsListProp
             </div>
 
             {/* Table */}
-            <div className="bg-white dark:bg-gray-800 rounded-[2.5rem] border border-slate-100 dark:border-gray-700 overflow-hidden shadow-xl shadow-blue-950/5">
+            <div className="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-xl shadow-blue-950/5">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-slate-50/50 dark:bg-gray-700/50 border-b border-slate-100 dark:border-gray-700">
+                            <tr className="bg-slate-50/50 border-b border-slate-100">
                                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Campaign Details</th>
                                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Promo Code</th>
                                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Discount</th>
@@ -124,18 +124,18 @@ export default function PromotionsList({ initialPromotions }: PromotionsListProp
                                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50 dark:divide-gray-700">
+                        <tbody className="divide-y divide-slate-50">
                             {filteredPromotions.map((promo) => {
                                 const status = getStatus(promo);
                                 return (
-                                    <tr key={promo.id} className="hover:bg-slate-50/50 dark:hover:bg-gray-700/50 transition-colors group">
+                                    <tr key={promo.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 bg-sky-50 dark:bg-sky-900/20 rounded-2xl flex items-center justify-center text-sky-600">
+                                                <div className="w-12 h-12 bg-sky-50 rounded-2xl flex items-center justify-center text-sky-600">
                                                     <Layout className="w-6 h-6" />
                                                 </div>
                                                 <div>
-                                                    <p className="font-bold text-blue-950 dark:text-white leading-tight mb-1">{promo.title}</p>
+                                                    <p className="font-bold text-blue-950 leading-tight mb-1">{promo.title}</p>
                                                     <div className="flex items-center gap-3">
                                                         <div className="flex items-center gap-2 text-[10px] text-slate-400 font-black uppercase tracking-widest">
                                                             <Calendar className="w-3 h-3" />
@@ -149,13 +149,13 @@ export default function PromotionsList({ initialPromotions }: PromotionsListProp
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <span className="font-black text-[10px] uppercase tracking-[0.2em] px-3 py-1.5 bg-slate-100 dark:bg-gray-700 text-slate-500 dark:text-slate-300 rounded-lg border border-slate-200 dark:border-gray-600">
+                                            <span className="font-black text-[10px] uppercase tracking-[0.2em] px-3 py-1.5 bg-slate-100 text-slate-500 rounded-lg border border-slate-200">
                                                 {promo.code || 'NO CODE'}
                                             </span>
                                         </td>
                                         <td className="px-8 py-6">
                                             <div className="flex flex-col">
-                                                <span className="font-black text-blue-950 dark:text-white text-lg leading-none mb-1">
+                                                <span className="font-black text-blue-950 text-lg leading-none mb-1">
                                                     {promo.discountType === 'Percentage' ? `${promo.discountValue}% OFF` : `₦${promo.discountValue.toLocaleString()} OFF`}
                                                 </span>
                                                 <span className="text-[10px] font-black text-sky-600 uppercase tracking-widest">{promo.discountType} Base</span>
@@ -168,14 +168,14 @@ export default function PromotionsList({ initialPromotions }: PromotionsListProp
                                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <Link
                                                     href={`/account/promotions/${promo.id}/edit`}
-                                                    className="p-2 hover:bg-white dark:hover:bg-gray-700 rounded-lg text-slate-400 hover:text-sky-600 transition-all font-sans"
+                                                    className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-sky-600 transition-all font-sans"
                                                 >
                                                     <Edit className="w-4 h-4" />
                                                 </Link>
                                                 <button
                                                     onClick={() => handleDelete(promo.id, promo.title)}
                                                     disabled={deletingId === promo.id}
-                                                    className="p-2 hover:bg-white dark:hover:bg-gray-700 rounded-lg text-slate-400 hover:text-red-600 transition-all font-sans disabled:opacity-50"
+                                                    className="p-2 hover:bg-white rounded-lg text-slate-400 hover:text-red-600 transition-all font-sans disabled:opacity-50"
                                                 >
                                                     {deletingId === promo.id ? (
                                                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -198,13 +198,13 @@ export default function PromotionsList({ initialPromotions }: PromotionsListProp
 
 function StatCard({ icon: Icon, label, value, subValue, color }: { icon: React.ElementType, label: string, value: string, subValue: string, color: string }) {
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-[2rem] border border-slate-100 dark:border-gray-700 p-8 shadow-sm group hover:shadow-xl hover:shadow-blue-950/5 transition-all">
+        <div className="bg-white rounded-[2rem] border border-slate-100 p-8 shadow-sm group hover:shadow-xl hover:shadow-blue-950/5 transition-all">
             <div className={`w-12 h-12 ${color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500`}>
                 <Icon className="w-6 h-6" />
             </div>
             <div>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-                <h3 className="text-3xl font-black text-blue-950 dark:text-white tracking-tight leading-none mb-1">{value}</h3>
+                <h3 className="text-3xl font-black text-blue-950 tracking-tight leading-none mb-1">{value}</h3>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter italic">{subValue}</p>
             </div>
         </div>
