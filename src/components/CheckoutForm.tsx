@@ -83,11 +83,21 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
                 const result = await createOrder(orderData);
 
                 if (result.success && result.data) {
+                    const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
+
+                    if (!paystackKey) {
+                        toast.error('Payment system configuration missing');
+                        setIsProcessing(false);
+                        return;
+                    }
+
+                    console.log('DEBUG: Paystack key being used:', paystackKey.substring(0, 7) + '...');
+
                     const paystackConfig = {
-                        reference: result.data.orderNumber, // Crucial: Use our order number as reference
+                        reference: result.data.orderNumber,
                         email: formData.email,
                         amount: total * 100,
-                        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
+                        key: paystackKey,
                     };
 
                     // @ts-ignore
