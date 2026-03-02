@@ -91,8 +91,6 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
                         return;
                     }
 
-                    console.log('DEBUG: Paystack key being used:', paystackKey.substring(0, 7) + '...');
-
                     const paystackConfig = {
                         reference: result.data.orderNumber,
                         email: formData.email,
