@@ -34,7 +34,7 @@ export default function ProductDetailView({ product }: ProductDetailViewProps) {
 
     const handleWhatsAppOrder = () => {
         const isCustom = !selectedVariant.price || selectedVariant.price === 0;
-        const text = `Hello Smart Best Brands, I would like to ${isCustom ? 'request a custom size specification' : `order the ${product.name} (${selectedVariant.size.label})`}${product.isNegotiable ? ' - I am interested in negotiating the price' : ''}.${!isCustom ? ` Current Price: ₦${(selectedVariant.promo_price || selectedVariant.price).toLocaleString()}.` : ''} URL: ${window.location.href}`;
+        const text = `Hello Smart Best Brands, I would like to ${isCustom ? 'request a custom size specification' : `order the ${product.name} (${selectedVariant.size.label})`}${product.isNegotiable ? ' - I am interested in negotiating the price' : ''}.${!isCustom ? ` Current Price: ₦${(selectedVariant.promoPrice || selectedVariant.price).toLocaleString()}.` : ''} URL: ${window.location.href}`;
         const encodedText = encodeURIComponent(text);
         window.open(`https://wa.me/2349033333333?text=${encodedText}`, '_blank');
     };
@@ -143,9 +143,9 @@ export default function ProductDetailView({ product }: ProductDetailViewProps) {
                             <div className="flex items-center gap-6 pb-8 border-b border-slate-100 flex-wrap font-sans">
                                 <div className="flex items-baseline gap-4 sm:gap-6">
                                     <span className="text-4xl sm:text-6xl font-black text-blue-950 tracking-tighter">
-                                        {(!selectedVariant.price || selectedVariant.price === 0) ? 'Bespoke' : `₦${(selectedVariant.promo_price || selectedVariant.price).toLocaleString()}`}
+                                        {(!selectedVariant.price || selectedVariant.price === 0) ? 'Bespoke' : `₦${(selectedVariant.promoPrice || selectedVariant.price).toLocaleString()}`}
                                     </span>
-                                    {selectedVariant.promo_price && selectedVariant.price > 0 && (
+                                    {selectedVariant.promoPrice && selectedVariant.price > 0 && (
                                         <span className="text-xl sm:text-2xl text-slate-300 line-through font-bold">
                                             ₦{selectedVariant.price.toLocaleString()}
                                         </span>
@@ -267,12 +267,12 @@ export default function ProductDetailView({ product }: ProductDetailViewProps) {
                         </motion.div>
                     </div>
                 </div>
-            </div>
+            </div >
             <CustomRequestModal
                 isOpen={isCustomModalOpen}
                 onClose={() => setIsCustomModalOpen(false)}
                 productName={product.name}
             />
-        </div>
+        </div >
     );
 }

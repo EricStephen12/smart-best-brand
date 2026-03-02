@@ -17,7 +17,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const { items: cartItems } = state
 
   const subtotal = cartItems.reduce((sum, item) => {
-    const price = item.variant?.promo_price || item.variant?.price || 0
+    const price = item.variant?.promoPrice || item.variant?.price || 0
     return sum + (price * item.quantity)
   }, 0)
 

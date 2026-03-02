@@ -4,6 +4,7 @@ import "./globals.css";
 import Layout from "@/components/Layout";
 import { CartProvider } from "@/lib/cart-context";
 import { Toaster } from "react-hot-toast";
+import Script from "next/script";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -65,6 +66,7 @@ export default function RootLayout({
             }}
           />
         </CartProvider>
+        <Script src="https://js.paystack.co/v1/inline.js" strategy="beforeInteractive" />
       </body>
     </html>
   );

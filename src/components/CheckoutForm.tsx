@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { ShoppingBag, CreditCard, MessageCircle, MapPin, CheckCircle2 } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
-import { usePaystackPayment } from 'react-paystack';
+// usePaystackPayment removed
 import { createOrder, updatePaymentReference } from '@/actions/orders';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -37,52 +37,14 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
     }, 0);
     const total = cartTotal + (selectedZone?.basePrice || 0);
 
-    const config = {
-        reference: (new Date()).getTime().toString(),
-        email: formData.email,
-        amount: total * 100, // Paystack expects amount in kobo
-        publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
-    };
-
-    const initializePayment = usePaystackPayment(config);
+    // Removal of usePaystackPayment hook for manual control
 
     const onSuccess = async (reference: any) => {
-        setIsProcessing(true);
-        try {
-            const orderData = {
-                customerName: formData.name,
-                customerEmail: formData.email,
-                customerPhone: formData.phone,
-                deliveryAddress: formData.address,
-                deliveryLocation: selectedZone.name,
-                deliveryFee: selectedZone.basePrice,
-                subtotal: cartTotal,
-                total: total,
-                paymentMethod: 'PAYSTACK',
-                items: state.items.map(item => ({
-                    variantId: item.product_variant_id,
-                    quantity: item.quantity,
-                    price: item.variant?.promoPrice || item.variant?.price || 0
-                }))
-            };
-
-            const result = await createOrder(orderData);
-
-            if (result.success && result.data) {
-                // Update with Paystack reference
-                await updatePaymentReference(result.data.orderNumber, reference.reference);
-
-                clearCart();
-                router.push('/checkout/success');
-            } else {
-                toast.error('Payment successful but failed to create order. Please contact support.');
-            }
-        } catch (error) {
-            console.error('Order creation error:', error);
-            toast.error('Something went wrong. Please contact support.');
-        } finally {
-            setIsProcessing(false);
-        }
+        // Order is already created, just confirm and redirect
+        // The webhook will handle the status update reliably
+        clearCart();
+        router.push('/checkout/success');
+        toast.success('Payment Received');
     };
 
     const onClose = () => {
@@ -97,8 +59,58 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
                 toast.error('Email is required for online payment');
                 return;
             }
-            // @ts-ignore
-            initializePayment(onSuccess, onClose);
+
+            setIsProcessing(true);
+            try {
+                // Pre-create the order
+                const orderData = {
+                    customerName: formData.name,
+                    customerEmail: formData.email,
+                    customerPhone: formData.phone,
+                    deliveryAddress: formData.address,
+                    deliveryLocation: selectedZone.name,
+                    deliveryFee: selectedZone.basePrice,
+                    subtotal: cartTotal,
+                    total: total,
+                    paymentMethod: 'PAYSTACK',
+                    items: state.items.map(item => ({
+                        variantId: item.product_variant_id,
+                        quantity: item.quantity,
+                        price: item.variant?.promoPrice || item.variant?.price || 0
+                    }))
+                };
+
+                const result = await createOrder(orderData);
+
+                if (result.success && result.data) {
+                    const paystackConfig = {
+                        reference: result.data.orderNumber, // Crucial: Use our order number as reference
+                        email: formData.email,
+                        amount: total * 100,
+                        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
+                    };
+
+                    // @ts-ignore
+                    const handler = window.PaystackPop.setup({
+                        ...paystackConfig,
+                        callback: function (response: any) {
+                            onSuccess(response);
+                        },
+                        onClose: function () {
+                            onClose();
+                            setIsProcessing(false);
+                        }
+                    });
+                    handler.openIframe();
+                } else {
+                    toast.error('Failed to initialize order');
+                    setIsProcessing(false);
+                }
+            } catch (error) {
+                console.error('Payment initialization error:', error);
+                toast.error('Failed to start payment');
+                setIsProcessing(false);
+            }
             return;
         }
 
