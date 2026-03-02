@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { updateOrderStatus } from '@/actions/orders';
 import { toast } from 'react-hot-toast';
+import { useAuth } from '@/hooks/use-auth';
 
 interface Order {
     id: string;
@@ -58,6 +59,9 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
             setUpdatingId(null);
         }
     };
+
+    const { user } = useAuth();
+    const isAdmin = user?.role === 'ADMIN';
 
     return (
         <div className="space-y-8">
@@ -119,20 +123,24 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
                                         ₦ {order.total.toLocaleString()}
                                     </td>
                                     <td className="px-8 py-6 text-right">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <select
-                                                value={order.status}
-                                                onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                                                disabled={updatingId === order.id}
-                                                className="bg-slate-50 border-none rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:ring-4 focus:ring-sky-600/10 outline-none cursor-pointer disabled:opacity-50"
-                                            >
-                                                <option value="PENDING">Pending</option>
-                                                <option value="PAID">Paid</option>
-                                                <option value="PROCESSING">Processing</option>
-                                                <option value="SHIPPED">Shipped</option>
-                                                <option value="DELIVERED">Delivered</option>
-                                                <option value="CANCELLED">Cancelled</option>
-                                            </select>
+                                        <div className="flex items-center justify-end gap-4">
+                                            {isAdmin ? (
+                                                <select
+                                                    value={order.status}
+                                                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                                                    disabled={updatingId === order.id}
+                                                    className="bg-slate-50 border-none rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:ring-4 focus:ring-sky-600/10 outline-none cursor-pointer disabled:opacity-50"
+                                                >
+                                                    <option value="PENDING">Pending</option>
+                                                    <option value="PAID">Paid</option>
+                                                    <option value="PROCESSING">Processing</option>
+                                                    <option value="SHIPPED">Shipped</option>
+                                                    <option value="DELIVERED">Delivered</option>
+                                                    <option value="CANCELLED">Cancelled</option>
+                                                </select>
+                                            ) : (
+                                                <StatusBadge status={order.status.toLowerCase()} />
+                                            )}
                                             <Link
                                                 href={`/account/orders/${order.id}`}
                                                 className="p-2 hover:bg-slate-50 rounded-xl text-slate-300 hover:text-sky-600 transition-all shadow-sm"

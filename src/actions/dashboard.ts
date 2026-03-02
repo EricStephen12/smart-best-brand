@@ -44,7 +44,7 @@ export async function getDashboardStats() {
 export async function getRecentOrders(limit = 5, email?: string) {
     try {
         const orders = await prisma.order.findMany({
-            where: email ? { customerEmail: email } : {},
+            where: email ? { customerEmail: email.toLowerCase() } : {},
             take: limit,
             orderBy: { createdAt: 'desc' },
             select: {

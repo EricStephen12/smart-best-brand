@@ -121,6 +121,8 @@ model Order {
   deliveryFee      Float
   subtotal         Float
   total            Float
+  discount         Float       @default(0)
+  promoCode        String?
   status           OrderStatus @default(PENDING)
   paymentMethod    String
   paymentReference String?

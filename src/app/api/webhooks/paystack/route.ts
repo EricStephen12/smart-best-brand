@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { reduceInventory } from '@/actions/orders';
+import { sendOrderNotification } from '@/lib/sms';
 
 export async function POST(req: Request) {
     try {
@@ -16,19 +18,27 @@ export async function POST(req: Request) {
         }
 
         const event = body.event;
-        const data = body.data;
+        const respData = body.data;
 
         if (event === 'charge.success') {
-            const orderNumber = data.reference;
+            const orderNumber = respData.reference;
 
             // In our system, we use the orderNumber as the Paystack reference
-            await prisma.order.update({
+            const order = await prisma.order.update({
                 where: { orderNumber },
                 data: {
                     status: 'PAID',
-                    paymentReference: data.id.toString(), // Paystack's transaction ID
+                    paymentReference: respData.id.toString(), // Paystack's transaction ID
                 }
             });
+
+            if (order) {
+                // Trigger inventory reduction
+                await reduceInventory(order.id);
+
+                // Trigger SMS notification
+                await sendOrderNotification(order.customerPhone, order.orderNumber, order.total);
+            }
 
             revalidatePath('/account/orders');
         }

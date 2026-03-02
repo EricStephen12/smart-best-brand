@@ -3,10 +3,13 @@
 import React, { useState } from 'react';
 import { ShoppingBag, CreditCard, MessageCircle, MapPin, CheckCircle2 } from 'lucide-react';
 import { useCart } from '@/lib/cart-context';
+import { useAuth } from '@/hooks/use-auth';
 // usePaystackPayment removed
 import { createOrder, updatePaymentReference } from '@/actions/orders';
+import { validatePromotionCode } from '@/actions/promotions';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import { Ticket } from 'lucide-react';
 
 interface DeliveryZone {
     id: string;
@@ -20,6 +23,7 @@ interface CheckoutFormProps {
 
 export default function CheckoutForm({ zones }: CheckoutFormProps) {
     const { state, clearCart } = useCart();
+    const { user } = useAuth();
     const router = useRouter();
     const [selectedZone, setSelectedZone] = useState<DeliveryZone>(zones[0] || { id: 'custom', name: 'Other Locations', basePrice: 0 });
     const [paymentMethod, setPaymentMethod] = useState('whatsapp');
@@ -31,11 +35,52 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
         address: ''
     });
 
+    const [couponCode, setCouponCode] = useState('');
+    const [appliedPromo, setAppliedPromo] = useState<any>(null);
+    const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+
+    // Pre-fill form with authenticated user data
+    React.useEffect(() => {
+        if (user) {
+            setFormData(prev => ({
+                ...prev,
+                name: prev.name || user.name || '',
+                email: prev.email || user.email || ''
+            }));
+        }
+    }, [user]);
+
     const cartTotal = state.items.reduce((acc, item) => {
         const price = item.variant?.promoPrice || item.variant?.price || 0
         return acc + (price * item.quantity)
     }, 0);
-    const total = cartTotal + (selectedZone?.basePrice || 0);
+
+    const discount = appliedPromo?.discount || 0;
+    const total = cartTotal + (selectedZone?.basePrice || 0) - discount;
+
+    const handleApplyCoupon = async () => {
+        if (!couponCode) return;
+        setIsValidatingCoupon(true);
+        try {
+            const items = state.items.map(i => ({
+                productId: i.product?.id,
+                categoryIds: i.product?.categories?.map((c: any) => c.categoryId) || []
+            }));
+
+            const result = await validatePromotionCode(couponCode, cartTotal, items);
+            if (result.success && result.data) {
+                setAppliedPromo(result.data);
+                toast.success(`Discount Applied: ₦${result.data.discount.toLocaleString()}`);
+            } else {
+                toast.error(result.error || 'Invalid code');
+                setAppliedPromo(null);
+            }
+        } catch (error) {
+            toast.error('Failed to validate code');
+        } finally {
+            setIsValidatingCoupon(false);
+        }
+    };
 
     // Removal of usePaystackPayment hook for manual control
 
@@ -53,90 +98,99 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
 
     const handleCompleteOrder = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsProcessing(true);
 
-        if (paymentMethod === 'paystack') {
-            if (!formData.email) {
-                toast.error('Email is required for online payment');
+        try {
+            // Prepare common order data
+            const orderData = {
+                customerName: formData.name,
+                customerEmail: formData.email.toLowerCase(),
+                customerPhone: formData.phone,
+                deliveryAddress: formData.address,
+                deliveryLocation: selectedZone.name,
+                deliveryFee: selectedZone.basePrice,
+                subtotal: cartTotal,
+                total: total,
+                discount: discount,
+                promoCode: appliedPromo?.promotion?.code || undefined,
+                paymentMethod: paymentMethod === 'paystack' ? 'PAYSTACK' : 'WHATSAPP',
+                userId: user?.id || undefined,
+                items: state.items.map(item => ({
+                    variantId: item.product_variant_id,
+                    quantity: item.quantity,
+                    price: item.variant?.promoPrice || item.variant?.price || 0
+                }))
+            };
+
+            const result = await createOrder(orderData);
+
+            if (!result.success || !result.data) {
+                toast.error('Failed to initialize order');
+                setIsProcessing(false);
                 return;
             }
 
-            setIsProcessing(true);
-            try {
-                // Pre-create the order
-                const orderData = {
-                    customerName: formData.name,
-                    customerEmail: formData.email,
-                    customerPhone: formData.phone,
-                    deliveryAddress: formData.address,
-                    deliveryLocation: selectedZone.name,
-                    deliveryFee: selectedZone.basePrice,
-                    subtotal: cartTotal,
-                    total: total,
-                    paymentMethod: 'PAYSTACK',
-                    items: state.items.map(item => ({
-                        variantId: item.product_variant_id,
-                        quantity: item.quantity,
-                        price: item.variant?.promoPrice || item.variant?.price || 0
-                    }))
+            if (paymentMethod === 'paystack') {
+                const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
+
+                if (!paystackKey) {
+                    toast.error('Payment system configuration missing');
+                    setIsProcessing(false);
+                    return;
+                }
+
+                const paystackConfig = {
+                    reference: result.data.orderNumber,
+                    email: formData.email,
+                    amount: total * 100,
+                    key: paystackKey,
                 };
 
-                const result = await createOrder(orderData);
-
-                if (result.success && result.data) {
-                    const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
-
-                    if (!paystackKey) {
-                        toast.error('Payment system configuration missing');
+                // @ts-ignore
+                const handler = window.PaystackPop.setup({
+                    ...paystackConfig,
+                    callback: function (response: any) {
+                        onSuccess(response);
+                    },
+                    onClose: function () {
+                        onClose();
                         setIsProcessing(false);
-                        return;
                     }
+                });
+                handler.openIframe();
+                return;
+            }
 
-                    const paystackConfig = {
-                        reference: result.data.orderNumber,
-                        email: formData.email,
-                        amount: total * 100,
-                        key: paystackKey,
-                    };
+            // WhatsApp Flow
+            const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '2349033333333';
+            const itemsList = state.items.map(i => `${i.product?.name} (${i.variant?.size?.label}) x${i.quantity}`).join(', ');
+            const text = `⚜️ ELITE CONSIGNMENT REQUEST (${result.data.orderNumber})
+            
+Protocol: ${formData.name}
+Contact: ${formData.phone}
+Destination: ${formData.address}
+Zone: ${selectedZone?.name}
+Selection: ${itemsList}
+Total Value: ₦${total.toLocaleString()}
 
-                    // @ts-ignore
-                    const handler = window.PaystackPop.setup({
-                        ...paystackConfig,
-                        callback: function (response: any) {
-                            onSuccess(response);
-                        },
-                        onClose: function () {
-                            onClose();
-                            setIsProcessing(false);
-                        }
-                    });
-                    handler.openIframe();
-                } else {
-                    toast.error('Failed to initialize order');
-                    setIsProcessing(false);
-                }
-            } catch (error) {
-                console.error('Payment initialization error:', error);
-                toast.error('Failed to start payment');
+Please confirm the dispatch timeline for this curation.`;
+
+            const encodedText = encodeURIComponent(text);
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedText}`, '_blank');
+
+            // Redirect to success page for WhatsApp too as the order is now in DB
+            clearCart();
+            router.push('/checkout/success');
+            toast.success('Order Established');
+
+        } catch (error) {
+            console.error('Order processing error:', error);
+            toast.error('Failed to process order');
+        } finally {
+            if (paymentMethod !== 'paystack') {
                 setIsProcessing(false);
             }
-            return;
         }
-
-        const itemsList = state.items.map(i => `${i.product?.name} (${i.variant?.size?.label}) x${i.quantity}`).join(', ');
-        const text = `New Order Details:
-Name: ${formData.name}
-Phone: ${formData.phone}
-Address: ${formData.address}
-Zone: ${selectedZone?.name}
-Items: ${itemsList}
-Total: ₦${total.toLocaleString()}
-Payment: ${paymentMethod === 'whatsapp' ? 'Confirm via WhatsApp' : 'Online Payment'}`;
-
-        const encodedText = encodeURIComponent(text);
-        window.open(`https://wa.me/2349033333333?text=${encodedText}`, '_blank');
-
-        // Optionally create order in DB for WhatsApp too, but usually it's just a message
-        // For now preventing default behavior for WhatsApp as it opens a new tab
     };
 
     return (
@@ -307,10 +361,42 @@ Payment: ${paymentMethod === 'whatsapp' ? 'Confirm via WhatsApp' : 'Online Payme
                             <span>Logistics</span>
                             <span className="text-white">₦{selectedZone?.basePrice.toLocaleString()}</span>
                         </div>
+                        {discount > 0 && (
+                            <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] text-sky-400">
+                                <span>Incentive Applied</span>
+                                <span>-₦{discount.toLocaleString()}</span>
+                            </div>
+                        )}
                         <div className="flex justify-between pt-5">
                             <span className="text-xs font-black uppercase tracking-[0.3em] text-sky-400">Final Value</span>
                             <span className="text-3xl font-black">₦{total.toLocaleString()}</span>
                         </div>
+                    </div>
+
+                    <div className="pt-8 border-t border-white/10 space-y-4">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 ml-2">Promo Protocol</label>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={couponCode}
+                                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                placeholder="ENTER CODE"
+                                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs font-black tracking-widest text-white outline-none focus:border-sky-400/50 transition-all uppercase"
+                            />
+                            <button
+                                type="button"
+                                onClick={handleApplyCoupon}
+                                disabled={isValidatingCoupon || !couponCode}
+                                className="px-6 py-3 bg-white/10 hover:bg-white/20 disabled:opacity-30 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all"
+                            >
+                                {isValidatingCoupon ? '...' : 'APPLY'}
+                            </button>
+                        </div>
+                        {appliedPromo && (
+                            <p className="text-[8px] font-black text-sky-400 uppercase tracking-widest text-center">
+                                {appliedPromo.promotion.title} Activated
+                            </p>
+                        )}
                     </div>
 
                     <button

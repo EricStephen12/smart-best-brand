@@ -20,6 +20,8 @@ interface CreateOrderData {
     }[]
     userId?: string
     notes?: string
+    discount?: number
+    promoCode?: string
 }
 
 // Create order
@@ -33,13 +35,15 @@ export async function createOrder(data: CreateOrderData) {
                 orderNumber,
                 userId: data.userId || null,
                 customerName: data.customerName,
-                customerEmail: data.customerEmail,
+                customerEmail: data.customerEmail.toLowerCase(),
                 customerPhone: data.customerPhone,
                 deliveryAddress: data.deliveryAddress,
                 deliveryLocation: data.deliveryLocation,
                 deliveryFee: data.deliveryFee,
                 subtotal: data.subtotal,
                 total: data.total,
+                discount: data.discount || 0,
+                promoCode: data.promoCode || null,
                 paymentMethod: data.paymentMethod,
                 notes: data.notes || null,
                 status: 'PENDING',
@@ -78,7 +82,7 @@ export async function createOrder(data: CreateOrderData) {
 export async function getAllOrders(email?: string) {
     try {
         const orders = await prisma.order.findMany({
-            where: email ? { customerEmail: email } : {},
+            where: email ? { customerEmail: email.toLowerCase() } : {},
             include: {
                 items: {
                     include: {
@@ -134,6 +138,32 @@ export async function getOrderByNumber(orderNumber: string) {
     }
 }
 
+// Get order by ID
+export async function getOrderById(id: string) {
+    try {
+        const order = await prisma.order.findUnique({
+            where: { id },
+            include: {
+                items: {
+                    include: {
+                        variant: {
+                            include: {
+                                product: true,
+                                size: true
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        return { success: true, data: order }
+    } catch (error) {
+        console.error('Error fetching order by ID:', error)
+        return { success: false, error: 'Failed to fetch order' }
+    }
+}
+
 // Update order status
 export async function updateOrderStatus(id: string, status: string) {
     try {
@@ -162,11 +192,44 @@ export async function updatePaymentReference(orderNumber: string, reference: str
             }
         })
 
+        // Trigger inventory reduction
+        await reduceInventory(order.id)
+
         revalidatePath('/account/orders')
 
         return { success: true, data: order }
     } catch (error) {
         console.error('Error updating payment reference:', error)
         return { success: false, error: 'Failed to update payment reference' }
+    }
+}
+
+// Reduce inventory when order is paid
+export async function reduceInventory(orderId: string) {
+    try {
+        const order = await prisma.order.findUnique({
+            where: { id: orderId },
+            include: { items: true }
+        })
+
+        if (!order) return { success: false, error: 'Order not found' }
+
+        // Atomic update for each item
+        const updates = order.items.map(item =>
+            prisma.productVariant.update({
+                where: { id: item.variantId },
+                data: {
+                    stock: {
+                        decrement: item.quantity
+                    }
+                }
+            })
+        )
+
+        await Promise.all(updates)
+        return { success: true }
+    } catch (error) {
+        console.error('Inventory reduction error:', error)
+        return { success: false, error }
     }
 }

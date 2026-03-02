@@ -49,10 +49,10 @@ export default function FAQPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="text-5xl sm:text-7xl font-black text-blue-950 tracking-tight leading-none"
+                        className="text-5xl sm:text-7xl font-black text-blue-950 tracking-[-0.04em] leading-none font-display"
                     >
                         FREQUENTLY <br />
-                        <span className="text-gray-300">ASKED.</span>
+                        <span className="text-slate-200">ASKED.</span>
                     </motion.h1>
                 </div>
 
@@ -66,18 +66,18 @@ export default function FAQPage() {
                             transition={{ delay: idx * 0.05 }}
                             className={`rounded-[2rem] border-2 transition-all duration-500 overflow-hidden ${openIndex === idx
                                 ? 'bg-white border-sky-100 shadow-2xl shadow-sky-600/5'
-                                : 'bg-gray-50/50 border-transparent hover:border-gray-100'
+                                : 'bg-slate-50/50 border-transparent hover:border-slate-100'
                                 }`}
                         >
                             <button
                                 onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
                                 className="w-full flex items-center justify-between p-8 sm:p-10 text-left"
                             >
-                                <span className={`text-xl sm:text-2xl font-bold transition-colors duration-300 ${openIndex === idx ? 'text-blue-950' : 'text-gray-500 hover:text-blue-950'
+                                <span className={`text-xl sm:text-2xl font-black transition-colors duration-300 tracking-tight ${openIndex === idx ? 'text-blue-950' : 'text-slate-400 hover:text-blue-950'
                                     }`}>
                                     {faq.question}
                                 </span>
-                                <div className={`p-3 rounded-2xl transition-all duration-300 ${openIndex === idx ? 'bg-blue-950 text-white rotate-0' : 'bg-white text-gray-400 rotate-90 shadow-sm'
+                                <div className={`p-3 rounded-2xl transition-all duration-300 ${openIndex === idx ? 'bg-blue-950 text-white rotate-0' : 'bg-white text-slate-300 rotate-90 shadow-sm border border-slate-100'
                                     }`}>
                                     {openIndex === idx ? <Minus className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
                                 </div>
@@ -92,8 +92,8 @@ export default function FAQPage() {
                                         transition={{ duration: 0.4, ease: "circOut" }}
                                     >
                                         <div className="px-8 sm:px-10 pb-10">
-                                            <div className="h-[2px] w-12 bg-sky-500 mb-6"></div>
-                                            <p className="text-lg text-gray-600 leading-relaxed font-medium max-w-2xl">
+                                            <div className="h-[2px] w-12 bg-sky-600 mb-6"></div>
+                                            <p className="text-lg text-slate-500 leading-relaxed font-medium max-w-2xl font-inter">
                                                 {faq.answer}
                                             </p>
                                         </div>
@@ -109,23 +109,23 @@ export default function FAQPage() {
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="mt-24 p-10 sm:p-16 bg-blue-950 rounded-[3rem] text-white relative overflow-hidden"
+                    className="mt-24 p-10 sm:p-16 bg-blue-950 rounded-[3rem] text-white relative overflow-hidden font-sans"
                 >
                     <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
                         <div>
-                            <h2 className="text-3xl sm:text-4xl font-black mb-4">Still have <br /> questions?</h2>
-                            <p className="text-sky-200/80 font-medium text-lg">Our elite concierge team is ready to assist you personally.</p>
+                            <h2 className="text-3xl sm:text-4xl font-black mb-4 tracking-tight uppercase">Still have <br /> questions?</h2>
+                            <p className="text-sky-200/80 font-medium text-lg font-inter">Our elite concierge team is ready to assist you personally.</p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <a
                                 href="/contact"
-                                className="flex items-center justify-center gap-2 bg-white text-blue-950 font-black py-5 px-8 rounded-2xl hover:bg-sky-50 transition-all"
+                                className="btn-secondary flex-1"
                             >
                                 Contact Support
                             </a>
                             <a
-                                href="https://wa.me/your-number"
-                                className="flex items-center justify-center gap-2 bg-sky-600 text-white font-black py-5 px-8 rounded-2xl hover:bg-sky-500 transition-all shadow-xl shadow-sky-600/20"
+                                href="https://wa.me/2349033333333"
+                                className="btn-primary flex-1 flex items-center justify-center gap-2 !bg-sky-600 !shadow-sky-600/20"
                             >
                                 <MessageCircle className="w-5 h-5" />
                                 WhatsApp Live

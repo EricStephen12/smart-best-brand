@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { LogIn, ArrowRight, ShieldCheck, Mail, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
+import toast from 'react-hot-toast';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -19,19 +20,24 @@ export default function LoginPage() {
 
         // Enforce the specific admin password for the boss
         if (email === 'smartbestbrands@gmail.com' && password !== 'smart123@123') {
-            alert('Security Key invalid for Admin Essence');
+            toast.error('Security Key invalid for Admin Essence');
+            setIsLoading(false);
             return;
         }
 
         setIsLoading(true);
 
-        setTimeout(() => {
-            setIsLoading(false);
-            const isAdmin = email.includes('admin') || email === 'smartbestbrands@gmail.com';
-            const role = isAdmin ? 'ADMIN' : 'CUSTOMER';
-            login(role, email);
+        const isAdmin = email.includes('admin') || email === 'smartbestbrands@gmail.com';
+        const role = isAdmin ? 'ADMIN' : 'CUSTOMER';
+
+        const result = await login(role, email, password);
+        setIsLoading(false);
+
+        if (result.success) {
             router.push('/account');
-        }, 1500);
+        } else {
+            toast.error(result.error || 'Identity not found in the Essence database.');
+        }
     };
 
     return (

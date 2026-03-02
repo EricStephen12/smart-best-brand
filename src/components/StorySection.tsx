@@ -3,6 +3,7 @@
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function StorySection({ brandCount }: { brandCount?: number }) {
   const containerRef = useRef(null)
@@ -89,9 +90,9 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
               </div>
 
               <div className="pt-6">
-                <button className="text-[10px] font-black tracking-[0.3em] text-blue-950 uppercase border-b-2 border-sky-600 pb-2 hover:text-sky-600 transition-colors">
+                <Link href="/about" className="text-[10px] font-black tracking-[0.3em] text-blue-950 uppercase border-b-2 border-sky-600 pb-2 hover:text-sky-600 transition-colors inline-block">
                   Meet the Artisans
-                </button>
+                </Link>
               </div>
             </motion.div>
           </div>

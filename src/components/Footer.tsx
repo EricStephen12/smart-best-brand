@@ -60,9 +60,9 @@ export default function Footer() {
           <div className="space-y-8 sm:col-span-1">
             <h4 className="text-[10px] font-black tracking-[0.4em] text-sky-400 uppercase">Communications</h4>
             <div className="flex gap-4">
-              <SocialLink icon={Instagram} href="#" />
-              <SocialLink icon={MessageCircle} href="#" />
-              <SocialLink icon={Phone} href="#" />
+              <SocialLink icon={Instagram} href="https://instagram.com/smartbestbrands" />
+              <SocialLink icon={MessageCircle} href="https://wa.me/2349033333333" />
+              <SocialLink icon={Phone} href="tel:+2349033333333" />
             </div>
             <div className="space-y-6 pt-4">
               <div className="flex flex-col gap-2">
@@ -79,8 +79,8 @@ export default function Footer() {
                   <Mail className="w-4 h-4" />
                   <span className="text-[10px] font-black uppercase tracking-widest">Correspondence</span>
                 </div>
-                <a href="mailto:smartbestbrands@gmail.com" className="text-white text-[10px] sm:text-xs font-black pl-7 underline decoration-sky-600 underline-offset-4 tracking-[0.05em] break-all">
-                  smartbestbrands@gmail.com
+                <a href="mailto:hello@smartbestbrands.com" className="text-white text-[10px] sm:text-xs font-black pl-7 underline decoration-sky-600 underline-offset-4 tracking-[0.05em] break-all">
+                  hello@smartbestbrands.com
                 </a>
               </div>
             </div>

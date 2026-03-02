@@ -57,13 +57,13 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     {/* Header */}
                     <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
                       <div className="flex items-start justify-between">
-                        <Dialog.Title className="text-lg font-medium text-gray-900">
-                          Shopping Cart
+                        <Dialog.Title className="text-sm font-black text-blue-950 uppercase tracking-[0.3em]">
+                          Selection Dossier
                         </Dialog.Title>
                         <div className="ml-3 flex h-7 items-center">
                           <button
                             type="button"
-                            className="-m-2 p-2 text-gray-400 hover:text-gray-500"
+                            className="-m-2 p-2 text-slate-400 hover:text-blue-950 transition-colors"
                             onClick={onClose}
                           >
                             <XMarkIcon className="h-6 w-6" />
@@ -72,68 +72,68 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       </div>
 
                       {/* Cart Items */}
-                      <div className="mt-8">
+                      <div className="mt-12">
                         <div className="flow-root">
                           {cartItems.length === 0 ? (
-                            <div className="text-center py-12">
-                              <ShoppingCartIcon className="mx-auto h-12 w-12 text-gray-400" />
-                              <h3 className="mt-2 text-sm font-medium text-gray-900">Your cart is empty</h3>
-                              <p className="mt-1 text-sm text-gray-500">Start adding some items to your cart.</p>
+                            <div className="text-center py-20 px-4">
+                              <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <ShoppingCartIcon className="h-10 w-10 text-slate-200" />
+                              </div>
+                              <h3 className="text-sm font-black text-blue-950 uppercase tracking-widest mb-2 font-display">Your collection is empty</h3>
+                              <p className="text-xs text-slate-400 font-medium font-inter">Begin curation by selecting our premium pieces.</p>
                             </div>
                           ) : (
-                            <ul role="list" className="-my-6 divide-y divide-gray-200">
+                            <ul role="list" className="-my-6 divide-y divide-slate-100">
                               {cartItems.map((item) => (
                                 <motion.li
                                   key={item.id}
                                   initial={{ opacity: 0, x: 20 }}
                                   animate={{ opacity: 1, x: 0 }}
-                                  className="flex py-6"
+                                  className="flex py-8 group"
                                 >
-                                  <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-sky-100 relative">
+                                  <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-2xl bg-slate-50 relative border border-slate-100">
                                     <Image
                                       src={item.product?.images?.[0] || "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=2070&auto=format&fit=crop"}
                                       alt={item.product?.name || 'Product'}
                                       fill
-                                      className="object-cover"
+                                      className="object-cover group-hover:scale-110 transition-transform duration-700"
                                     />
                                   </div>
 
-                                  <div className="ml-4 flex flex-1 flex-col">
+                                  <div className="ml-6 flex flex-1 flex-col">
                                     <div>
-                                      <div className="flex justify-between text-base font-bold text-blue-950">
-                                        <h3>{item.product?.name}</h3>
-                                        <p className="ml-4">₦{((item.variant?.promoPrice || item.variant?.price || 0) * item.quantity).toLocaleString()}</p>
+                                      <div className="flex justify-between text-[10px] font-black text-blue-950 uppercase tracking-widest leading-none mb-2">
+                                        <h3 className="line-clamp-1">{item.product?.name}</h3>
+                                        <p className="ml-4 tabular-nums">₦{((item.variant?.promoPrice || item.variant?.price || 0) * item.quantity).toLocaleString()}</p>
                                       </div>
-                                      <p className="mt-1 text-sm text-gray-500 italic">
-                                        Size: {item.variant?.size?.label || 'Standard'}
+                                      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
+                                        {item.variant?.size?.label || 'Standard'}
                                       </p>
                                     </div>
-                                    <div className="flex flex-1 items-end justify-between text-sm">
-                                      <div className="flex items-center space-x-2">
+                                    <div className="flex flex-1 items-end justify-between">
+                                      <div className="flex items-center space-x-4 bg-slate-50 px-3 py-2 rounded-xl border border-slate-100/50">
                                         <button
                                           onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                                          className="p-1 rounded-full hover:bg-gray-100"
+                                          className="text-slate-400 hover:text-blue-950 transition-colors"
                                         >
-                                          <MinusIcon className="h-4 w-4" />
+                                          <MinusIcon className="h-3 w-3" />
                                         </button>
-                                        <span className="px-2 py-1 bg-gray-100 rounded">{item.quantity}</span>
+                                        <span className="text-xs font-black text-blue-950 w-4 text-center">{item.quantity}</span>
                                         <button
                                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                          className="p-1 rounded-full hover:bg-gray-100"
+                                          className="text-slate-400 hover:text-blue-950 transition-colors"
                                         >
-                                          <PlusIcon className="h-4 w-4" />
+                                          <PlusIcon className="h-3 w-3" />
                                         </button>
                                       </div>
 
-                                      <div className="flex">
-                                        <button
-                                          type="button"
-                                          onClick={() => removeFromCart(item.id)}
-                                          className="font-medium text-sky-600 hover:text-sky-500"
-                                        >
-                                          Remove
-                                        </button>
-                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={() => removeFromCart(item.id)}
+                                        className="text-[10px] font-black text-sky-600 hover:text-sky-700 uppercase tracking-widest transition-colors"
+                                      >
+                                        Dismiss
+                                      </button>
                                     </div>
                                   </div>
                                 </motion.li>
@@ -146,38 +146,35 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
                     {/* Footer */}
                     {cartItems.length > 0 && (
-                      <div className="border-t border-gray-200 px-4 py-6 sm:px-6">
-                        <div className="flex justify-between text-lg font-black text-blue-950">
-                          <p>Subtotal</p>
-                          <p>₦{subtotal.toLocaleString()}</p>
+                      <div className="border-t border-slate-100 px-8 py-10 sm:px-10 bg-slate-50/50">
+                        <div className="flex justify-between items-baseline mb-2">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Acquisition Total</p>
+                          <p className="text-2xl font-black text-blue-950 tabular-nums">₦{subtotal.toLocaleString()}</p>
                         </div>
-                        <p className="mt-1 text-xs font-bold text-gray-400 uppercase tracking-widest">
-                          Delivery calculated at checkout.
+                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-10">
+                          Logistics calculated at final verification.
                         </p>
-                        <div className="mt-6">
+                        <div className="">
                           <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => {
                               window.location.href = '/checkout'
                             }}
-                            className="w-full bg-blue-950 hover:bg-sky-600 text-white font-bold py-5 rounded-2xl transition-all shadow-xl shadow-blue-900/10"
+                            className="btn-elite w-full py-6"
                           >
-                            Checkout
+                            Proceed to Checkpoint
                           </motion.button>
                         </div>
-                        <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
-                          <p>
-                            or{' '}
-                            <button
-                              type="button"
-                              className="font-medium text-indigo-600 hover:text-indigo-500"
-                              onClick={onClose}
-                            >
-                              Continue Shopping
-                              <span aria-hidden="true"> &rarr;</span>
-                            </button>
-                          </p>
+                        <div className="mt-8 flex justify-center text-center">
+                          <button
+                            type="button"
+                            className="text-[9px] font-black text-slate-400 hover:text-blue-950 uppercase tracking-[0.3em] transition-all flex items-center gap-2 group"
+                            onClick={onClose}
+                          >
+                            Resume Curation
+                            <span aria-hidden="true" className="group-hover:translate-x-1 transition-transform"> &rarr;</span>
+                          </button>
                         </div>
                       </div>
                     )}

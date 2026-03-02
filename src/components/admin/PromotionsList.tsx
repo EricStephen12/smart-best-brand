@@ -86,7 +86,7 @@ export default function PromotionsList({ initialPromotions }: PromotionsListProp
                     label="Scheduled"
                     value={promotions.filter(p => getStatus(p) === 'SCHEDULED').length.toString()}
                     subValue="Awaiting launch"
-                    color="bg-indigo-50 text-indigo-600"
+                    color="bg-sky-50 text-sky-600"
                 />
                 <StatCard
                     icon={CheckCircle2}
@@ -141,7 +141,7 @@ export default function PromotionsList({ initialPromotions }: PromotionsListProp
                                                             <Calendar className="w-3 h-3" />
                                                             {promo.endDate ? `Until ${new Date(promo.endDate).toLocaleDateString()}` : 'Perpetual'}
                                                         </div>
-                                                        <span className={`text-[8px] font-black uppercase tracking-tighter px-2 py-0.5 rounded ${promo.appliesTo === 'ALL' ? 'bg-indigo-50 text-indigo-600' : 'bg-amber-50 text-amber-600'}`}>
+                                                        <span className={`text-[8px] font-black uppercase tracking-tighter px-2 py-0.5 rounded ${promo.appliesTo === 'ALL' ? 'bg-sky-50 text-sky-600' : 'bg-amber-50 text-amber-600'}`}>
                                                             {promo.appliesTo === 'ALL' ? 'Site-wide' : 'Targeted'}
                                                         </span>
                                                     </div>

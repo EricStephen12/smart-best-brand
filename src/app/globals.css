@@ -20,7 +20,7 @@
   }
 
   body {
-    @apply bg-white text-blue-950 overflow-x-hidden;
+    @apply bg-white text-blue-950 overflow-x-hidden selection:bg-sky-100;
   }
 
   h1,
@@ -37,11 +37,15 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-blue-950 hover:bg-sky-700 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-xl shadow-blue-900/10 active:scale-95;
+    @apply bg-blue-950 hover:bg-sky-600 text-white font-black py-5 px-10 rounded-2xl transition-all duration-300 shadow-xl shadow-blue-900/10 active:scale-95 text-[10px] uppercase tracking-[0.2em];
   }
 
   .btn-secondary {
-    @apply bg-sky-50 hover:bg-sky-100 text-sky-950 font-bold py-4 px-8 rounded-2xl transition-all duration-300;
+    @apply bg-sky-50 hover:bg-sky-100 text-sky-600 font-black py-5 px-10 rounded-2xl transition-all duration-300 text-[10px] uppercase tracking-[0.2em];
+  }
+
+  .btn-elite {
+    @apply bg-blue-950 hover:bg-sky-600 text-white font-black py-5 px-10 rounded-full transition-all duration-500 shadow-2xl shadow-blue-950/20 active:scale-95 text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-4;
   }
 
   .bg-deep-blue {
@@ -55,6 +59,19 @@
   .glass {
     @apply bg-white/80 backdrop-blur-xl border border-white/20;
   }
+
+  /* Custom Font Utilities for Tailwind 4 */
+  .font-display {
+    font-family: var(--font-playfair);
+  }
+
+  .font-inter {
+    font-family: var(--font-inter);
+  }
+
+  .font-playfair {
+    font-family: var(--font-playfair);
+  }
 }
 
 /* Custom scrollbar */
@@ -67,7 +84,8 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #0f172a;
+  background: #1e293b;
+  /* Slate-800 */
   border-radius: 10px;
 }
 

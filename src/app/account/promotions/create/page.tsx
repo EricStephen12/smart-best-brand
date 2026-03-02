@@ -125,7 +125,7 @@ export default function CreatePromotionPage() {
                     {/* Basic Identity */}
                     <section className="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-xl shadow-blue-950/5">
                         <div className="flex items-center gap-4 mb-10">
-                            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                            <div className="w-10 h-10 bg-sky-50 rounded-xl flex items-center justify-center text-sky-600">
                                 <Layout className="w-5 h-5" />
                             </div>
                             <h2 className="text-xl font-black text-blue-950 uppercase tracking-tight">Campaign Identity</h2>

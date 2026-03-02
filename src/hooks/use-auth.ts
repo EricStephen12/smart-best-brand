@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { login as serverLogin, logout as serverLogout, getSession, updateProfile as serverUpdateProfile, register as serverRegister } from '@/actions/auth';
 
 export interface User {
     id: string;
@@ -17,13 +18,10 @@ export function useAuth() {
     const pathname = usePathname();
 
     useEffect(() => {
-        // Basic mock auth logic since environment variables are skipped
-        // In a real scenario, we'd check Supabase session here
         const checkAuth = async () => {
-            // Simulate session check
-            const storedUser = localStorage.getItem('sbb_user');
-            if (storedUser) {
-                setUser(JSON.parse(storedUser));
+            const session = await getSession();
+            if (session) {
+                setUser(session);
             }
             setIsLoading(false);
         };
@@ -41,17 +39,39 @@ export function useAuth() {
         }
     }, [isLoading, user, pathname, router]);
 
-    const login = (role: 'ADMIN' | 'CUSTOMER', email: string) => {
-        const newUser: User = { id: 'u1', email, role, name: email.split('@')[0] };
-        localStorage.setItem('sbb_user', JSON.stringify(newUser));
-        setUser(newUser);
+    const login = async (role: 'ADMIN' | 'CUSTOMER', email: string, password?: string) => {
+        const result = await serverLogin(email, password);
+        if (result.success) {
+            setUser(result.user as User);
+            return { success: true };
+        }
+        return { success: false, error: result.error };
     };
 
-    const logout = () => {
-        localStorage.removeItem('sbb_user');
+    const logout = async () => {
+        await serverLogout();
         setUser(null);
         router.push('/login');
     };
 
-    return { user, isLoading, login, logout };
+    const updateUser = async (data: Partial<User>) => {
+        if (!user) return;
+        const result = await serverUpdateProfile({ name: data.name, email: data.email });
+        if (result.success) {
+            setUser(result.user as User);
+            return { success: true };
+        }
+        return { success: false, error: result.error };
+    };
+
+    const register = async (name: string, email: string, password?: string) => {
+        const result = await serverRegister({ name, email, password });
+        if (result.success) {
+            setUser(result.user as User);
+            return { success: true };
+        }
+        return { success: false, error: result.error };
+    };
+
+    return { user, isLoading, login, logout, updateUser, register };
 }

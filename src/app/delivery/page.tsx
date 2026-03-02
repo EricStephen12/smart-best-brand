@@ -66,7 +66,7 @@ export default function DeliveryPage() {
       </div>
 
       {/* Delivery Process (Editorial Style) */}
-      <div className="py-24 sm:py-32 max-w-7xl mx-auto px-4">
+      <div className="py-24 sm:py-32 max-w-7xl mx-auto px-4 font-sans">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 sm:gap-20">
           {deliverySteps.map((step, idx) => (
             <motion.div
@@ -77,12 +77,12 @@ export default function DeliveryPage() {
               transition={{ delay: idx * 0.1 }}
               className="group"
             >
-              <div className="text-8xl font-black text-blue-50 mb-6 group-hover:text-sky-50 transition-colors duration-500">
+              <div className="text-8xl font-black text-slate-50 mb-6 group-hover:text-sky-50 transition-colors duration-500 font-display">
                 {step.number}
               </div>
-              <div className="relative -mt-16 sm:-mt-20 pl-4 sm:pl-6 border-l-4 border-sky-500">
-                <h3 className="text-2xl font-bold text-blue-950 mb-4">{step.title}</h3>
-                <p className="text-gray-600 leading-relaxed font-medium">
+              <div className="relative -mt-16 sm:-mt-20 pl-4 sm:pl-6 border-l-4 border-sky-600">
+                <h3 className="text-2xl font-black text-blue-950 mb-4 tracking-tight uppercase">{step.title}</h3>
+                <p className="text-slate-500 leading-relaxed font-medium font-inter">
                   {step.description}
                 </p>
               </div>
@@ -92,42 +92,44 @@ export default function DeliveryPage() {
       </div>
 
       {/* Delivery Zones Table */}
-      <div className="bg-gray-50 py-24 sm:py-32">
+      <div className="bg-slate-50 py-24 sm:py-32 font-sans">
         <div className="max-w-7xl mx-auto px-4">
           <div className="mb-16">
-            <h2 className="text-4xl font-black text-blue-950 mb-4 uppercase tracking-tight">Delivery Zones</h2>
+            <h2 className="text-4xl font-black text-blue-950 mb-4 uppercase tracking-tighter font-display">Logistic Domains</h2>
             <div className="w-20 h-2 bg-sky-600"></div>
           </div>
 
-          <div className="bg-white rounded-[2.5rem] shadow-xl shadow-blue-900/5 overflow-hidden border border-gray-100">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-blue-950/5 overflow-hidden border border-slate-100">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-blue-950 text-white">
-                    <th className="p-8 font-bold uppercase tracking-widest text-xs">Region</th>
-                    <th className="p-8 font-bold uppercase tracking-widest text-xs">Estimated Fee</th>
-                    <th className="p-8 font-bold uppercase tracking-widest text-xs">Timeline</th>
-                    <th className="p-8 font-bold uppercase tracking-widest text-xs">Service Type</th>
+                    <th className="p-8 font-black uppercase tracking-[0.2em] text-[10px]">Region</th>
+                    <th className="p-8 font-black uppercase tracking-[0.2em] text-[10px]">Investment</th>
+                    <th className="p-8 font-black uppercase tracking-[0.2em] text-[10px]">Timeline</th>
+                    <th className="p-8 font-black uppercase tracking-[0.2em] text-[10px]">Service Protocol</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-slate-50">
                   {zones.map((zone, idx) => (
-                    <tr key={idx} className="group hover:bg-sky-50/50 transition-colors">
+                    <tr key={idx} className="group hover:bg-slate-50 transition-colors">
+                      <td className="p-8">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-sky-600 group-hover:bg-white transition-colors">
+                            <MapPin className="w-5 h-5" />
+                          </div>
+                          <span className="font-black text-blue-950 text-xl tracking-tight">{zone.city}</span>
+                        </div>
+                      </td>
+                      <td className="p-8 text-slate-500 font-black tabular-nums">{zone.price}</td>
                       <td className="p-8">
                         <div className="flex items-center gap-3">
-                          <MapPin className="w-5 h-5 text-sky-600" />
-                          <span className="font-bold text-blue-950 text-xl">{zone.city}</span>
-                        </div>
-                      </td>
-                      <td className="p-8 text-gray-700 font-bold">{zone.price}</td>
-                      <td className="p-8">
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-gray-400" />
-                          <span className="text-gray-600 font-medium">{zone.time}</span>
+                          <Clock className="w-4 h-4 text-slate-300" />
+                          <span className="text-slate-500 font-bold text-xs uppercase tracking-widest">{zone.time}</span>
                         </div>
                       </td>
                       <td className="p-8">
-                        <span className="inline-block px-4 py-1 rounded-full bg-blue-50 text-blue-900 text-sm font-bold">
+                        <span className="inline-block px-4 py-2 rounded-xl bg-sky-50 text-sky-600 text-[9px] font-black uppercase tracking-widest border border-sky-100">
                           {zone.note}
                         </span>
                       </td>
@@ -141,40 +143,44 @@ export default function DeliveryPage() {
       </div>
 
       {/* FAQ / Reassurance Strip */}
-      <div className="py-24 max-w-5xl mx-auto px-4">
+      <div className="py-24 max-w-5xl mx-auto px-4 font-sans">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
           <div>
-            <h4 className="text-xl font-bold text-blue-950 mb-4 flex items-center gap-3">
-              <ShieldCheck className="w-6 h-6 text-sky-600" />
-              Secure Transit
+            <h4 className="text-lg font-black text-blue-950 mb-6 flex items-center gap-4 uppercase tracking-tight">
+              <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-sky-600">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              Invoiced Transit
             </h4>
-            <p className="text-gray-600 leading-relaxed font-medium">
+            <p className="text-slate-500 leading-relaxed font-medium font-inter">
               Every item is insured from the moment it leaves our warehouse until it is placed in your home. We take full responsibility for the safety of your purchase.
             </p>
           </div>
           <div>
-            <h4 className="text-xl font-bold text-blue-950 mb-4 flex items-center gap-3">
-              <HeadphonesIcon className="w-6 h-6 text-sky-600" />
-              Real-time Tracking
+            <h4 className="text-lg font-black text-blue-950 mb-6 flex items-center gap-4 uppercase tracking-tight">
+              <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-sky-600">
+                <HeadphonesIcon className="w-6 h-6" />
+              </div>
+              Precision Tracking
             </h4>
-            <p className="text-gray-600 leading-relaxed font-medium">
+            <p className="text-slate-500 leading-relaxed font-medium font-inter">
               Our concierge team is available via WhatsApp to provide live updates on your order status and coordinate the perfect delivery time for you.
             </p>
           </div>
         </div>
 
-        <div className="mt-20 p-12 bg-blue-950 rounded-[3rem] text-center text-white relative overflow-hidden group">
-          <div className="relative z-10 transition-transform group-hover:scale-105 duration-700">
-            <h2 className="text-3xl font-black mb-6">Experience the Elite Standard</h2>
-            <p className="text-sky-200 mb-10 max-w-sm mx-auto font-medium">Ready to curated your palace? Shop our latest designer collections now.</p>
-            <a href="/products" className="inline-flex items-center gap-3 bg-sky-600 hover:bg-sky-500 text-white font-black py-5 px-12 rounded-2xl shadow-2xl transition-all">
-              Shop Collections
-              <ArrowRight className="w-5 h-5" />
+        <div className="mt-20 p-12 sm:p-20 bg-blue-950 rounded-[3rem] text-center text-white relative overflow-hidden group">
+          <div className="relative z-10">
+            <h2 className="text-4xl sm:text-5xl font-black mb-6 tracking-tight font-display uppercase">The Elite Standard</h2>
+            <p className="text-sky-200/80 mb-12 max-w-sm mx-auto font-medium text-lg font-inter leading-relaxed">Ready to curate your palace? Experience the pinnacle of authentic rest.</p>
+            <a href="/products" className="btn-elite inline-flex !rounded-[2rem] px-16 group/btn">
+              Explore Collections
+              <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-2 transition-transform" />
             </a>
           </div>
           {/* Decorative */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-sky-600/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-sky-400/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl"></div>
+          <div className="absolute top-0 right-0 w-96 h-96 bg-sky-600/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-sky-400/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl"></div>
         </div>
       </div>
     </div>

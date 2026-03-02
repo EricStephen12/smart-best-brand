@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/use-auth';
 
 export default function RegisterPage() {
     const router = useRouter();
-    const { login } = useAuth();
+    const { login, register } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -19,12 +19,14 @@ export default function RegisterPage() {
         e.preventDefault();
         setIsLoading(true);
 
-        setTimeout(() => {
-            setIsLoading(false);
-            // In this mock system, registration just logs you in as a customer
-            login('CUSTOMER', email);
+        const result = await register(name, email, password);
+        setIsLoading(false);
+
+        if (result.success) {
             router.push('/account');
-        }, 1500);
+        } else {
+            alert(result.error || 'Identity initialization failed. Please try again.');
+        }
     };
 
     return (
