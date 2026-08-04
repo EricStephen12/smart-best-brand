@@ -17,20 +17,9 @@ export default function LoginPage() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        // Enforce the specific admin password for the boss
-        if (email === 'smartbestbrands@gmail.com' && password !== 'smart123@123') {
-            toast.error('Security Key invalid for Admin Essence');
-            setIsLoading(false);
-            return;
-        }
-
         setIsLoading(true);
 
-        const isAdmin = email.includes('admin') || email === 'smartbestbrands@gmail.com';
-        const role = isAdmin ? 'ADMIN' : 'CUSTOMER';
-
-        const result = await login(role, email, password);
+        const result = await login('CUSTOMER', email, password);
         setIsLoading(false);
 
         if (result.success) {

@@ -19,8 +19,7 @@ export default function OrdersPage() {
 
       setLoading(true);
       try {
-        // Admins see all, customers see their own
-        const result = await getAllOrders(user.role === 'ADMIN' ? undefined : user.email);
+        const result = await getAllOrders();
         if (result.success) {
           setOrders(result.data || []);
         }

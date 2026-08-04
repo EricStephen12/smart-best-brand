@@ -1,0 +1,143 @@
+{
+  "name": "Smart Best Brands Order Notifications",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "order-notifications",
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        250,
+        150
+      ],
+      "webhookId": "1"
+    },
+    {
+      "parameters": {
+        "functionCode": "const event = $json.event || 'order.status';\nconst data = $json.data || {};\nconst orderNumber = data.orderNumber || data.order_number || $json.orderNumber || $json.order_number || 'UNKNOWN';\nconst customerEmail = data.customerEmail || data.customer_email || $json.customerEmail || $json.customer_email || '';\nconst customerName = data.customerName || data.customer_name || $json.customerName || $json.customer_name || 'Customer';\nconst status = (data.status || $json.status || '').toUpperCase();\nconst total = data.total || $json.total || 0;\nconst deliveryLocation = data.deliveryLocation || data.delivery_location || $json.deliveryLocation || $json.delivery_location || '';\nconst supportEmail = 'support@smartbestbrands.com';\n\nlet subject = `Smart Best Brands Order ${orderNumber} Update`;\nlet html = `<p>Hi ${customerName},</p>`;\n\nif (event === 'order.created') {\n  subject = `Order ${orderNumber} received`;\n  html += `<p>We have received your order <strong>${orderNumber}</strong> successfully.</p>`;\n  html += `<p><strong>Total amount:</strong> ₦${Number(total).toLocaleString()}</p>`;\n  html += `<p>We will notify you again when payment is confirmed and your order moves to the next stage.</p>`;\n} else if (event === 'order.paid') {\n  subject = `Payment confirmed for order ${orderNumber}`;\n  html += `<p>Your payment for order <strong>${orderNumber}</strong> has been confirmed.</p>`;\n  html += `<p><strong>Total paid:</strong> ₦${Number(total).toLocaleString()}</p>`;\n  html += `<p>We are now processing your order.</p>`;\n} else if (event === 'order.status') {\n  subject = `Order ${orderNumber} status updated`;\n  html += `<p>Your order <strong>${orderNumber}</strong> status has been updated to <strong>${status}</strong>.</p>`;\n  if (deliveryLocation) {\n    html += `<p><strong>Delivery location:</strong> ${deliveryLocation}</p>`;\n  }\n} else {\n  subject = `Smart Best Brands update for order ${orderNumber}`;\n  html += `<p>Your order <strong>${orderNumber}</strong> has a new update.</p>`;\n}\n\nhtml += `<p>If you have any questions, reply directly to this email or contact ${supportEmail}.</p>`;\nhtml += `<p>Thank you for choosing Smart Best Brands.</p>`;\n\nreturn [{\n  json: {\n    event,\n    orderNumber,\n    customerEmail,\n    customerName,\n    status,\n    total,\n    deliveryLocation,\n    subject,\n    html,\n    groqQuery: '*[_type == \"product\"]{title,slug,price}'\n  }\n}];"
+      },
+      "name": "Build Email Payload",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        450,
+        150
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "none",
+        "url": "={{$env.GROQ_ENDPOINT}}",
+        "method": "POST",
+        "responseFormat": "json",
+        "jsonParameters": true,
+        "bodyParametersJson": "={\"query\": \"{{$json[\"groqQuery\"]}}\"}",
+        "options": {
+          "headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.GROQ_API_TOKEN}}"
+            }
+          ]
+        }
+      },
+      "name": "Groq Query",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        650,
+        150
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const payload = $json;\nconst products = payload.body?.result ?? payload.body ?? [];\nlet html = payload.html || '';\nif (Array.isArray(products) && products.length > 0) {\n  html += '<hr/><h3>Featured Products</h3><ul>';\n  for (const item of products) {\n    const title = item.title || item.name || 'Product';\n    const price = item.price != null ? `₦${Number(item.price).toLocaleString()}` : 'Price unavailable';\n    html += `<li>${title} — ${price}</li>`;\n  }\n  html += '</ul>';\n}\nreturn [{ json: { customerEmail: payload.customerEmail, subject: payload.subject, html } }];"
+      },
+      "name": "Append Product List",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        850,
+        150
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "to": "={{$json[\"customerEmail\"]}}",
+        "subject": "={{$json[\"subject\"]}}",
+        "html": "={{$json[\"html\"]}}"
+      },
+      "name": "Send Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        1050,
+        150
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Build Email Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Email Payload": {
+      "main": [
+        [
+          {
+            "node": "Groq Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Query": {
+      "main": [
+        [
+          {
+            "node": "Append Product List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Product List": {
+      "main": [
+        [
+          {
+            "node": "Send Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "id": "smart-best-brands-order-notifications-final",
+  "staticData": {}
+}

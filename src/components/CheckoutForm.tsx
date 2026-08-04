@@ -5,7 +5,7 @@ import { ShoppingBag, CreditCard, MessageCircle, MapPin, CheckCircle2 } from 'lu
 import { useCart } from '@/lib/cart-context';
 import { useAuth } from '@/hooks/use-auth';
 // usePaystackPayment removed
-import { createOrder, updatePaymentReference } from '@/actions/orders';
+import { createOrder } from '@/actions/orders';
 import { validatePromotionCode } from '@/actions/promotions';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
