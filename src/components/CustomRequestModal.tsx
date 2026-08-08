@@ -3,6 +3,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MessageCircle, Ruler, ShieldCheck, Clock } from 'lucide-react';
+import { getWhatsAppUrl } from '@/lib/contact-channels';
+import toast from 'react-hot-toast';
 
 interface CustomRequestModalProps {
     isOpen: boolean;
@@ -12,9 +14,13 @@ interface CustomRequestModalProps {
 
 export default function CustomRequestModal({ isOpen, onClose, productName }: CustomRequestModalProps) {
     const handleWhatsApp = () => {
-        const text = `Hello Smart Best Brands, I am interested in a custom size specification for the ${productName}. Please let me know the process for bespoke measurements.`;
-        const encodedText = encodeURIComponent(text);
-        window.open(`https://wa.me/2349033333333?text=${encodedText}`, '_blank');
+        const text = `Hello Smart Best Brands, I am interested in a custom size for ${productName}. Please share the next steps.`;
+        const url = getWhatsAppUrl(text);
+        if (!url) {
+            toast.error('WhatsApp is not configured. Please use the contact page.');
+            return;
+        }
+        window.open(url, '_blank');
     };
 
     return (

@@ -1,77 +1,87 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { login as serverLogin, logout as serverLogout, getSession, updateProfile as serverUpdateProfile, register as serverRegister } from '@/actions/auth';
+import { useEffect, useState } from 'react'
+import { useAuth as useClerkAuth, useClerk, useUser } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
+import { getSession, updateProfile as serverUpdateProfile } from '@/actions/auth'
 
 export interface User {
-    id: string;
-    email: string;
-    role: 'ADMIN' | 'CUSTOMER';
-    name?: string;
+    id: string
+    email: string
+    role: 'ADMIN' | 'CUSTOMER'
+    name?: string | null
 }
 
 export function useAuth() {
-    const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const router = useRouter();
-    const pathname = usePathname();
+    const { isLoaded: clerkLoaded, isSignedIn } = useClerkAuth()
+    const { user: clerkUser } = useUser()
+    const { signOut } = useClerk()
+    const router = useRouter()
+    const [user, setUser] = useState<User | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        const checkAuth = async () => {
-            const session = await getSession();
-            if (session) {
-                setUser(session);
+        let cancelled = false
+
+        const syncUser = async () => {
+            if (!clerkLoaded) return
+
+            if (!isSignedIn) {
+                if (!cancelled) {
+                    setUser(null)
+                    setIsLoading(false)
+                }
+                return
             }
-            setIsLoading(false);
-        };
 
-        checkAuth();
-    }, []);
-
-    useEffect(() => {
-        if (!isLoading) {
-            const isAccountRoute = pathname.startsWith('/account');
-
-            if (isAccountRoute && !user) {
-                router.push('/login');
+            try {
+                const session = await getSession()
+                if (!cancelled) {
+                    setUser(
+                        session
+                            ? {
+                                  id: session.id,
+                                  email: session.email,
+                                  role: session.role,
+                                  name: session.name,
+                              }
+                            : null
+                    )
+                }
+            } catch (error) {
+                console.error('Failed to sync app user:', error)
+                if (!cancelled) setUser(null)
+            } finally {
+                if (!cancelled) setIsLoading(false)
             }
         }
-    }, [isLoading, user, pathname, router]);
 
-    const login = async (role: 'ADMIN' | 'CUSTOMER', email: string, password?: string) => {
-        const result = await serverLogin(email, password);
-        if (result.success) {
-            setUser(result.user as User);
-            return { success: true };
+        void syncUser()
+        return () => {
+            cancelled = true
         }
-        return { success: false, error: result.error };
-    };
+    }, [clerkLoaded, isSignedIn, clerkUser?.id])
 
     const logout = async () => {
-        await serverLogout();
-        setUser(null);
-        router.push('/login');
-    };
+        await signOut({ redirectUrl: '/login' })
+        setUser(null)
+    }
 
     const updateUser = async (data: Partial<User>) => {
-        if (!user) return;
-        const result = await serverUpdateProfile({ name: data.name, email: data.email });
-        if (result.success) {
-            setUser(result.user as User);
-            return { success: true };
+        if (!user) return { success: false, error: 'Not authenticated' }
+        const result = await serverUpdateProfile({ name: data.name ?? undefined })
+        if (result.success && result.user) {
+            setUser(result.user as User)
+            return { success: true }
         }
-        return { success: false, error: result.error };
-    };
+        return { success: false, error: result.error }
+    }
 
-    const register = async (name: string, email: string, password?: string) => {
-        const result = await serverRegister({ name, email, password });
-        if (result.success) {
-            setUser(result.user as User);
-            return { success: true };
-        }
-        return { success: false, error: result.error };
-    };
-
-    return { user, isLoading, login, logout, updateUser, register };
+    return {
+        user,
+        isLoading: !clerkLoaded || isLoading,
+        isSignedIn: !!isSignedIn,
+        logout,
+        updateUser,
+    }
 }

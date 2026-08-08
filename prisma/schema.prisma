@@ -10,12 +10,15 @@ datasource db {
 
 model User {
   id        String   @id @default(uuid())
+  clerkId   String?  @unique
   name      String?
   email     String   @unique
-  password  String
   role      Role     @default(CUSTOMER)
   createdAt DateTime @default(now())
   orders    Order[]
+  reviews   Review[]
+
+  @@index([clerkId])
 }
 
 model Brand {
@@ -73,6 +76,7 @@ model Product {
   categories   ProductCategory[]
   variants     ProductVariant[]
   promotions   PromotionProduct[]
+  reviews      Review[]
 
   @@index([slug])
   @@index([brandId])
@@ -201,6 +205,71 @@ model PromotionCategory {
   @@id([promotionId, categoryId])
   @@index([promotionId])
   @@index([categoryId])
+}
+
+model Banner {
+  id        String   @id @default(uuid())
+  title     String
+  subtitle  String?
+  imageUrl  String
+  ctaLabel  String?
+  ctaHref   String?
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([isActive])
+  @@index([sortOrder])
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  productId  String
+  userId     String?
+  authorName String
+  rating     Int
+  title      String?
+  body       String
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, userId])
+  @@index([productId])
+  @@index([isApproved])
+  @@index([createdAt])
+}
+
+model ContactInquiry {
+  id        String   @id @default(uuid())
+  name      String
+  phone     String
+  email     String?
+  subject   String
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+/// Singleton row (id = "default") for no-code site content & theme
+model SiteSettings {
+  id              String   @id @default("default")
+  siteName        String   @default("Smart Best Brands")
+  tagline         String   @default("Quality mattresses, pillows & furniture")
+  primaryColor    String   @default("#172554")
+  accentColor     String   @default("#0284c7")
+  backgroundColor String   @default("#f7f6f3")
+  heroTitle       String   @default("Quality mattresses, pillows & furniture")
+  heroSubtitle    String   @default("Authentic comfort for Nigerian homes — shop trusted brands with clear pricing and delivery.")
+  heroCtaLabel    String   @default("Shop products")
+  heroCtaHref     String   @default("/products")
+  footerText      String   @default("Authentic comfort for Nigerian homes. Quality mattresses, pillows, and furniture from trusted brands.")
+  contactEmail    String   @default("hello@smartbestbrands.com")
+  whatsappNumber  String?
+  supportPhone    String?
+  updatedAt       DateTime @updatedAt
 }
 
 enum Role {

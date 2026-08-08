@@ -1,121 +1,154 @@
 'use client';
 
 import React from 'react';
-import {
-    Package,
-    ShoppingBag,
-    Users,
-    DollarSign,
-    TrendingUp,
-} from 'lucide-react';
+import { Package, ShoppingBag, Tags, Banknote } from 'lucide-react';
 import Link from 'next/link';
 
 interface AdminOverviewProps {
-    stats: any;
-    recentOrders: any[];
+    stats: {
+        totalProducts: number;
+        totalOrders: number;
+        totalBrands: number;
+        paidOrderCount: number;
+        revenue: number;
+    };
+    recentOrders: Array<{
+        id: string;
+        customerName: string;
+        total: number;
+        orderNumber: string;
+        status: string;
+        createdAt?: string | Date;
+    }>;
+}
+
+function statusStyle(status: string) {
+    switch (status) {
+        case 'DELIVERED':
+            return 'text-emerald-700';
+        case 'CANCELLED':
+            return 'text-red-600';
+        case 'PENDING':
+            return 'text-amber-600';
+        default:
+            return 'text-sky-700';
+    }
 }
 
 export default function AdminOverview({ stats, recentOrders }: AdminOverviewProps) {
     return (
-        <div className="space-y-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <StatCard
-                    title="Total Listing Value"
-                    value={`₦ ${stats.totalValue.toLocaleString()}`}
-                    change={stats.valueChange}
-                    icon={DollarSign}
-                    color="blue-950"
-                />
-                <StatCard
-                    title="Procurement Volume"
+        <div className="space-y-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <Stat
+                    label="Orders"
                     value={stats.totalOrders.toString()}
-                    change={stats.orderChange}
+                    hint={`${stats.paidOrderCount} paid`}
                     icon={Package}
-                    color="sky"
                 />
-                <StatCard
-                    title="Active Essences"
+                <Stat
+                    label="Revenue"
+                    value={`₦${Number(stats.revenue).toLocaleString()}`}
+                    hint="Paid & fulfilled"
+                    icon={Banknote}
+                />
+                <Stat
+                    label="Products"
                     value={stats.totalProducts.toString()}
-                    change={stats.productChange}
+                    hint="Active listings"
                     icon={ShoppingBag}
-                    color="blue-950"
                 />
-                <StatCard
-                    title="Patron Base"
+                <Stat
+                    label="Brands"
                     value={stats.totalBrands.toString()}
-                    change={stats.brandChange}
-                    icon={Users}
-                    color="sky"
+                    hint="Active brands"
+                    icon={Tags}
                 />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-xl shadow-blue-950/5">
-                    <div className="flex items-center justify-between mb-10">
-                        <h2 className="text-xl font-black text-blue-950 uppercase tracking-widest">Recent Orders</h2>
-                        <Link href="/account/orders" className="text-[10px] font-black text-sky-600 uppercase tracking-widest hover:text-blue-950 transition-colors">View All &rarr;</Link>
-                    </div>
-                    <div className="space-y-4">
-                        {recentOrders.map((order) => (
-                            <div key={order.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors cursor-pointer group">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-blue-950 flex items-center justify-center text-white font-black text-xs">
-                                        {order.customerName.substring(0, 2).toUpperCase()}
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-blue-950">{order.customerName}</p>
-                                        <p className="text-[10px] text-slate-400 font-black uppercase">₦ {order.total.toLocaleString()} &bull; {order.orderNumber}</p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className={`text-[9px] font-black uppercase tracking-widest ${order.status === 'DELIVERED' ? 'text-green-600' : 'text-sky-600'}`}>
-                                        {order.status}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                        {recentOrders.length === 0 && (
-                            <p className="text-center text-slate-400 font-bold py-10 uppercase tracking-widest text-xs">No Recent Activity</p>
-                        )}
-                    </div>
+            <section className="bg-white border border-stone-200 rounded-xl overflow-hidden">
+                <div className="px-5 py-4 border-b border-stone-200 flex items-center justify-between">
+                    <h2 className="text-base font-semibold text-blue-950">Recent orders</h2>
+                    <Link href="/account/orders" className="text-sm text-sky-700 hover:underline">
+                        Manage orders
+                    </Link>
                 </div>
 
-                <div className="bg-blue-950 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-blue-950/10">
-                    <div className="flex items-center justify-between mb-10">
-                        <h2 className="text-xl font-black uppercase tracking-widest">System Protocols</h2>
-                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                    </div>
-                    <div className="space-y-6">
-                        <div className="pb-6 border-b border-white/10 last:border-0 last:pb-0">
-                            <p className="text-[10px] font-black text-sky-400 uppercase tracking-widest mb-2">Automated Optimization</p>
-                            <p className="text-sm font-bold mb-4 font-inter">Global stock levels are synchronized with production facilities in real-time.</p>
-                            <button className="text-[10px] font-black uppercase tracking-widest px-4 py-2 border border-white/20 rounded-xl hover:bg-white hover:text-blue-950 transition-all">Review Logistics</button>
-                        </div>
-                    </div>
-                </div>
+                {recentOrders.length > 0 ? (
+                    <ul className="divide-y divide-stone-100">
+                        {recentOrders.map((order) => (
+                            <li key={order.id}>
+                                <Link
+                                    href={`/account/orders/${order.id}`}
+                                    className="flex items-center justify-between gap-4 px-5 py-4 hover:bg-stone-50 transition-colors"
+                                >
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-medium text-blue-950 truncate">
+                                            {order.customerName}
+                                        </p>
+                                        <p className="text-xs text-stone-500 mt-0.5 truncate">
+                                            {order.orderNumber}
+                                            {order.createdAt
+                                                ? ` · ${new Date(order.createdAt).toLocaleDateString()}`
+                                                : ''}
+                                        </p>
+                                    </div>
+                                    <div className="text-right shrink-0">
+                                        <p className="text-sm font-semibold text-blue-950">
+                                            ₦{Number(order.total).toLocaleString()}
+                                        </p>
+                                        <p className={`text-[11px] font-medium mt-0.5 ${statusStyle(order.status)}`}>
+                                            {order.status}
+                                        </p>
+                                    </div>
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="px-5 py-12 text-center text-sm text-stone-500">No orders yet</p>
+                )}
+            </section>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <QuickLink href="/account/products" label="Products" />
+                <QuickLink href="/account/orders" label="Orders" />
+                <QuickLink href="/account/delivery-locations" label="Delivery" />
+                <QuickLink href="/account/promotions" label="Promotions" />
             </div>
         </div>
     );
 }
 
-function StatCard({ title, value, change, icon: Icon, color }: { title: string, value: string, change: string | number, icon: React.ElementType, color: string }) {
-    const isBlue = color === 'blue-950';
-
+function Stat({
+    label,
+    value,
+    hint,
+    icon: Icon,
+}: {
+    label: string;
+    value: string;
+    hint: string;
+    icon: React.ElementType;
+}) {
     return (
-        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-lg shadow-blue-950/5 hover:shadow-xl hover:shadow-blue-950/10 transition-all group">
-            <div className="flex items-center justify-between mb-8">
-                <div className={`p-4 rounded-2xl transition-all duration-500 ${isBlue ? 'bg-blue-950 text-white group-hover:bg-sky-600' : 'bg-sky-100 text-sky-600 group-hover:bg-blue-950 group-hover:text-white'}`}>
-                    <Icon className="w-6 h-6" />
-                </div>
-                <div className="flex items-center gap-1 text-[10px] font-black text-green-500 uppercase tracking-widest bg-green-50 px-3 py-1 rounded-full">
-                    <TrendingUp className="w-3 h-3" />
-                    <span>{change}</span>
-                </div>
+        <div className="bg-white border border-stone-200 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+                <p className="text-xs text-stone-500">{label}</p>
+                <Icon className="w-4 h-4 text-stone-400" />
             </div>
-            <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{title}</p>
-                <h3 className="text-3xl font-black text-blue-950 tracking-tighter leading-none">{value}</h3>
-            </div>
+            <p className="text-xl font-semibold text-blue-950 tracking-tight">{value}</p>
+            <p className="text-xs text-stone-400 mt-1">{hint}</p>
         </div>
+    );
+}
+
+function QuickLink({ href, label }: { href: string; label: string }) {
+    return (
+        <Link
+            href={href}
+            className="px-3 py-2.5 text-center text-sm font-medium text-stone-700 bg-white border border-stone-200 rounded-lg hover:border-stone-300 hover:text-blue-950 transition-colors"
+        >
+            {label}
+        </Link>
     );
 }

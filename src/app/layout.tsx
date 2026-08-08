@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter, Crimson_Text, Montserrat } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 import Layout from "@/components/Layout";
 import { CartProvider } from "@/lib/cart-context";
+import { SiteSettingsProvider } from "@/components/site-settings-context";
+import { getSiteSettings } from "@/actions/site-settings";
+import { buildThemeCss } from "@/lib/site-settings";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
 
@@ -35,39 +39,47 @@ export const metadata: Metadata = {
   description: "Authentic premium mattresses, pillows, and furniture from Nigeria&apos;s leading brands. Smart Best Brands - quality you can trust.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const siteSettings = await getSiteSettings();
+  const themeCss = buildThemeCss(siteSettings);
+
   return (
-    <html lang="en">
-      <body
-        className={`${playfair.variable} ${inter.variable} ${crimson.variable} ${montserrat.variable} font-sans antialiased`}
-      >
-        <CartProvider>
-          <Layout>
-            {children}
-          </Layout>
-          <Toaster
-            position="bottom-right"
-            toastOptions={{
-              style: {
-                background: '#0f172a',
-                color: '#fff',
-                borderRadius: '1rem',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                padding: '1rem 2rem',
-                border: '1px solid rgba(255,255,255,0.1)'
-              }
-            }}
-          />
-        </CartProvider>
-        <Script src="https://js.paystack.co/v1/inline.js" strategy="beforeInteractive" />
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body
+          className={`${playfair.variable} ${inter.variable} ${crimson.variable} ${montserrat.variable} font-sans antialiased`}
+        >
+          <style dangerouslySetInnerHTML={{ __html: themeCss }} />
+          <SiteSettingsProvider settings={siteSettings}>
+            <CartProvider>
+              <Layout>
+                {children}
+              </Layout>
+              <Toaster
+                position="bottom-right"
+                toastOptions={{
+                  style: {
+                    background: '#0f172a',
+                    color: '#fff',
+                    borderRadius: '1rem',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    padding: '1rem 2rem',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                  }
+                }}
+              />
+            </CartProvider>
+          </SiteSettingsProvider>
+          <Script src="https://js.paystack.co/v1/inline.js" strategy="beforeInteractive" />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

@@ -6,6 +6,9 @@
   --font-inter: 'Inter', sans-serif;
   --font-crimson: 'Crimson Text', serif;
   --font-montserrat: 'Montserrat', sans-serif;
+  --brand-primary: #172554;
+  --brand-accent: #0284c7;
+  --brand-bg: #f7f6f3;
 }
 
 @layer base {
@@ -37,15 +40,43 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-blue-950 hover:bg-sky-600 text-white font-black py-5 px-10 rounded-2xl transition-all duration-300 shadow-xl shadow-blue-900/10 active:scale-95 text-[10px] uppercase tracking-[0.2em];
+    @apply text-white font-black py-5 px-10 rounded-2xl transition-all duration-300 shadow-xl shadow-blue-900/10 active:scale-95 text-[10px] uppercase tracking-[0.2em];
+    background-color: var(--brand-primary);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--brand-accent);
   }
 
   .btn-secondary {
-    @apply bg-sky-50 hover:bg-sky-100 text-sky-600 font-black py-5 px-10 rounded-2xl transition-all duration-300 text-[10px] uppercase tracking-[0.2em];
+    @apply font-black py-5 px-10 rounded-2xl transition-all duration-300 text-[10px] uppercase tracking-[0.2em];
+    background-color: color-mix(in srgb, var(--brand-accent) 12%, white);
+    color: var(--brand-accent);
+  }
+
+  .btn-secondary:hover {
+    background-color: color-mix(in srgb, var(--brand-accent) 20%, white);
   }
 
   .btn-elite {
-    @apply bg-blue-950 hover:bg-sky-600 text-white font-black py-5 px-10 rounded-full transition-all duration-500 shadow-2xl shadow-blue-950/20 active:scale-95 text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-4;
+    @apply text-white font-black py-5 px-10 rounded-full transition-all duration-500 shadow-2xl shadow-blue-950/20 active:scale-95 text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-4;
+    background-color: var(--brand-primary);
+  }
+
+  .btn-elite:hover {
+    background-color: var(--brand-accent);
+  }
+
+  .text-brand-accent {
+    color: var(--brand-accent);
+  }
+
+  .bg-brand-primary {
+    background-color: var(--brand-primary);
+  }
+
+  .bg-brand-bg {
+    background-color: var(--brand-bg);
   }
 
   .bg-deep-blue {
@@ -100,4 +131,23 @@
 
 .will-change-opacity {
   will-change: opacity;
+}
+
+@keyframes scroll-labels {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-33.333%);
+  }
+}
+
+.animate-scroll-labels {
+  animation: scroll-labels 28s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-scroll-labels {
+    animation: none;
+  }
 }

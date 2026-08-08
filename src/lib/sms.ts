@@ -43,3 +43,29 @@ export async function sendOrderNotification(email: string, orderNumber: string, 
 
     return sendEmail(email, subject, html)
 }
+
+export async function sendContactInquiryNotification(inquiry: {
+    name: string
+    phone: string
+    email: string | null
+    subject: string
+    message: string
+}) {
+    const notifyTo = process.env.CONTACT_NOTIFY_EMAIL || process.env.RESEND_FROM_EMAIL
+    if (!notifyTo) {
+        console.warn('No CONTACT_NOTIFY_EMAIL / RESEND_FROM_EMAIL for contact inquiries')
+        return { success: false, error: 'Notify email not configured' }
+    }
+
+    const subject = `Contact inquiry: ${inquiry.subject}`
+    const html = `
+        <p><strong>Name:</strong> ${inquiry.name}</p>
+        <p><strong>Phone:</strong> ${inquiry.phone}</p>
+        <p><strong>Email:</strong> ${inquiry.email || '—'}</p>
+        <p><strong>Subject:</strong> ${inquiry.subject}</p>
+        <p><strong>Message:</strong></p>
+        <p>${inquiry.message.replace(/\n/g, '<br/>')}</p>
+    `
+
+    return sendEmail(notifyTo, subject, html)
+}

@@ -1,23 +1,26 @@
-import React from 'react';
-import { getAllDeliveryLocations } from '@/actions/delivery-locations';
-import CheckoutClientWrapper from '@/components/CheckoutClientWrapper';
+import React from 'react'
+import { getAllDeliveryLocations } from '@/actions/delivery-locations'
+import CheckoutClientWrapper from '@/components/CheckoutClientWrapper'
+import SectionHeading from '@/components/SectionHeading'
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
 export default async function CheckoutPage() {
-  const result = await getAllDeliveryLocations();
-  const zones = result.success ? result.data : [];
+  const result = await getAllDeliveryLocations()
+  const zones = result.success ? result.data : []
 
   return (
-    <div className="pt-24 sm:pt-32 pb-24 bg-slate-50/50 min-h-screen">
+    <div className="pt-24 sm:pt-28 pb-20 sm:pb-24 bg-white min-h-screen border-t border-blue-950/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mb-16">
-          <h1 className="text-5xl sm:text-7xl font-black text-blue-950 tracking-[-0.04em] leading-none mb-4 uppercase">Checkout</h1>
-          <p className="text-slate-400 font-medium font-inter">Finalize your curated collection selection for elite dispatch.</p>
-        </div>
+        <SectionHeading
+          eyebrow="Checkout"
+          title="Complete your order"
+          description="Enter your delivery details, choose how to pay, and we’ll take it from there."
+          className="mb-12 sm:mb-16"
+        />
 
         <CheckoutClientWrapper zones={zones || []} />
       </div>
     </div>
-  );
+  )
 }

@@ -1,139 +1,170 @@
 'use client'
 
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { useRef } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import EditorialBackdrop from '@/components/EditorialBackdrop'
 
-export default function HeroSection() {
-  const containerRef = useRef(null)
-  const { scrollY } = useScroll()
-  const imageY = useTransform(scrollY, [0, 500], [0, 80])
-  const opacity = useTransform(scrollY, [0, 400], [1, 0])
+export type HeroBanner = {
+  id: string
+  title: string
+  subtitle: string | null
+  imageUrl: string
+  ctaLabel: string | null
+  ctaHref: string | null
+}
+
+const FALLBACKS: HeroBanner[] = [
+  {
+    id: 'fallback-1',
+    title: 'Pure Comfort',
+    subtitle: 'Mattresses, pillows & furniture for Nigerian homes.',
+    imageUrl: '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
+    ctaLabel: 'View the Collection',
+    ctaHref: '/products',
+  },
+  {
+    id: 'fallback-2',
+    title: 'Rest Well',
+    subtitle: 'Trusted brands. Clear pricing. Delivery you can count on.',
+    imageUrl: '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg',
+    ctaLabel: 'Shop products',
+    ctaHref: '/products',
+  },
+  {
+    id: 'fallback-3',
+    title: 'Live Better',
+    subtitle: 'From bedroom to living space — comfort that fits your home.',
+    imageUrl: '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg',
+    ctaLabel: 'Explore now',
+    ctaHref: '/products',
+  },
+]
+
+/** Full-bleed hero with title text + real multi-image slides. */
+export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }) {
+  const slides = banners.length > 0 ? banners : FALLBACKS
+  const [index, setIndex] = useState(0)
+
+  useEffect(() => {
+    setIndex(0)
+  }, [slides.length])
+
+  useEffect(() => {
+    if (slides.length < 2) return
+    const id = window.setInterval(() => {
+      setIndex((i) => (i + 1) % slides.length)
+    }, 6500)
+    return () => window.clearInterval(id)
+  }, [slides.length])
+
+  const go = (dir: -1 | 1) => {
+    setIndex((i) => (i + dir + slides.length) % slides.length)
+  }
+
+  const slide = slides[Math.min(index, slides.length - 1)]
 
   return (
-    <section ref={containerRef} className="relative min-h-screen bg-white selection:bg-sky-100 flex flex-col justify-center py-20 lg:py-0 overflow-hidden">
+    <section className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-neutral-900">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={slide.id}
+          initial={{ opacity: 0, scale: 1.04 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute inset-0"
+        >
+          <Image
+            src={slide.imageUrl}
+            alt={slide.title}
+            fill
+            priority={index === 0}
+            className="object-cover"
+            sizes="100vw"
+          />
+        </motion.div>
+      </AnimatePresence>
 
-      <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-24 relative z-10 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/30 pointer-events-none" />
+      <EditorialBackdrop text="Comfort" light />
 
-          {/* Left Side: Dramatic High-Contrast Typography */}
-          <div className="lg:col-span-5 order-2 lg:order-1 space-y-10 sm:space-y-12">
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-4"
-            >
-              <span className="text-[10px] sm:text-[11px] font-black tracking-[0.6em] text-sky-600 uppercase">
-                01 / CURATED COLLECTION
-              </span>
-            </motion.div>
-
-            <div className="space-y-0 relative z-20">
-              <h1 className="flex flex-col">
-                <span className="block overflow-hidden pb-1 sm:pb-2">
-                  <motion.span
-                    initial={{ y: "100%" }}
-                    animate={{ y: 0 }}
-                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                    className="block text-4xl sm:text-6xl md:text-[6rem] lg:text-[4rem] xl:text-[5rem] 2xl:text-[6.5rem] font-black leading-[0.85] tracking-[-0.03em] text-blue-950 font-playfair uppercase drop-shadow-sm"
-                  >
-                    PURE
-                  </motion.span>
-                </span>
-                <span className="block overflow-hidden">
-                  <motion.span
-                    initial={{ y: "100%" }}
-                    animate={{ y: 0 }}
-                    transition={{ duration: 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-                    className="block text-4xl sm:text-6xl md:text-[6rem] lg:text-[4rem] xl:text-[5rem] 2xl:text-[6.5rem] font-black leading-[0.85] tracking-[-0.03em] text-sky-600 font-playfair uppercase drop-shadow-sm"
-                  >
-                    COMFORT.
-                  </motion.span>
-                </span>
-              </h1>
-            </div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="flex flex-col items-start gap-8"
-            >
-              <Link href="/products">
-                <button className="bg-blue-950 text-white px-10 py-5 rounded-none font-black text-[10px] tracking-[0.3em] uppercase hover:bg-sky-600 transition-all duration-300 transform active:scale-95 shadow-xl shadow-blue-950/20">
-                  SHOP THE ESSENCE
-                </button>
-              </Link>
-
-              <p className="text-sm font-bold text-slate-400 max-w-[240px] leading-tight">
-                Nigeria&apos;s pinnacle of authentic rest. Strictly factory sealed luxury.
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`copy-${slide.id}`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            className="max-w-3xl"
+          >
+            <p className="text-[10px] sm:text-[11px] font-black tracking-[0.45em] uppercase text-white/70 mb-5">
+              New collection
+            </p>
+            <h1 className="font-playfair text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-[-0.03em] text-white leading-[0.95]">
+              {slide.title}
+            </h1>
+            {slide.subtitle ? (
+              <p className="mt-5 text-sm sm:text-base text-white/80 max-w-lg mx-auto leading-relaxed font-medium">
+                {slide.subtitle}
               </p>
-            </motion.div>
-          </div>
-
-          {/* Right Side: Asymmetric Overlap Layout - EXPANDED */}
-          <div className="lg:col-span-7 order-1 lg:order-2 relative group">
-
-            {/* Main Large Image */}
-            <motion.div
-              style={{ y: imageY }}
-              className="relative aspect-[16/11] lg:aspect-[4/5] overflow-hidden bg-slate-100 shadow-2xl"
-            >
-              <Image
-                src="/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg"
-                alt="Elite Home Luxury"
-                fill
-                priority
-                className="object-cover scale-105"
-              />
-              <div className="absolute inset-0 bg-blue-950/5" />
-            </motion.div>
-
-            {/* Overlapping Detail Box - Reference Style */}
-            <motion.div
-              initial={{ opacity: 0, x: -30, y: 30 }}
-              animate={{ opacity: 1, x: 0, y: 0 }}
-              transition={{ duration: 1, delay: 0.8 }}
-              className="absolute -bottom-6 -left-4 sm:-bottom-12 sm:-left-12 w-32 h-40 sm:w-64 sm:h-72 overflow-hidden border-4 sm:border-8 border-white shadow-2xl z-20"
-            >
-              <Image
-                src="/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg"
-                alt="Elite Detail"
-                fill
-                className="object-cover"
-              />
-            </motion.div>
-
-            {/* Decorative Label - Reference Style */}
-            <div className="absolute top-10 -right-4 flex flex-col items-center gap-4 hidden xl:flex">
-              <div className="w-[1px] h-24 bg-blue-950/10" />
-              <span className="text-[10px] font-black tracking-[0.8em] text-slate-300 uppercase vertical-text transform rotate-180">
-                ELITE STANDARDS 2024
-              </span>
+            ) : null}
+            <div className="mt-9 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+              <Link
+                href={slide.ctaHref || '/products'}
+                className="inline-flex border border-white/90 text-white px-7 sm:px-8 py-3.5 text-[11px] font-medium tracking-[0.14em] uppercase hover:bg-white hover:text-neutral-950 transition-colors duration-300"
+              >
+                {slide.ctaLabel || 'Shop new'}
+              </Link>
+              <Link
+                href="/products"
+                className="inline-flex border border-white/50 text-white/90 px-7 sm:px-8 py-3.5 text-[11px] font-medium tracking-[0.14em] uppercase hover:border-white hover:text-white transition-colors duration-300"
+              >
+                Shop all
+              </Link>
             </div>
-          </div>
-
-        </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
 
-      {/* Progress Scroll Legend */}
-      <motion.div
-        style={{ opacity }}
-        className="absolute left-8 bottom-12 hidden lg:flex items-center gap-8"
-      >
-        <div className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center text-blue-950 text-xs font-black">
-          01
+      {slides.length > 1 ? (
+        <div className="absolute bottom-8 right-6 sm:bottom-12 sm:right-12 z-20 flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            {slides.map((s, i) => (
+              <button
+                key={s.id}
+                type="button"
+                aria-label={`Go to slide ${i + 1}: ${s.title}`}
+                onClick={() => setIndex(i)}
+                className={`h-0.5 transition-all duration-300 ${
+                  i === index ? 'w-8 bg-white' : 'w-4 bg-white/40 hover:bg-white/70'
+                }`}
+              />
+            ))}
+          </div>
+          <div className="flex items-center gap-1 text-white/85">
+            <button
+              type="button"
+              aria-label="Previous slide"
+              onClick={() => go(-1)}
+              className="p-1.5 hover:text-white transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              aria-label="Next slide"
+              onClick={() => go(1)}
+              className="p-1.5 hover:text-white transition-colors"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
-        <div className="h-[1px] w-24 bg-slate-100 relative overflow-hidden">
-          <motion.div
-            animate={{ x: [-96, 96] }}
-            transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-            className="w-full h-full bg-blue-950 absolute left-0"
-          />
-        </div>
-      </motion.div>
+      ) : null}
     </section>
   )
 }

@@ -5,6 +5,13 @@ import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/prisma'
 import { getSession } from '@/actions/auth'
 import { sendN8nEvent } from '@/lib/n8n'
+import { validatePromotionCode } from '@/actions/promotions'
+import {
+    isSuccessfulPaystackCharge,
+    nairaToKobo,
+    verifyPaystackTransaction,
+} from '@/lib/paystack'
+import { sendOrderNotification } from '@/lib/sms'
 
 interface CreateOrderData {
     customerName: string
@@ -27,14 +34,40 @@ interface CreateOrderData {
     promoCode?: string
 }
 
+const CUSTOM_DELIVERY_LOCATION = 'Other Locations'
+
 // Create order
 export async function createOrder(data: CreateOrderData) {
     try {
         const session = await getSession()
 
+        if (!data.items?.length) {
+            return { success: false, error: 'Cart is empty' }
+        }
+
+        if (!data.customerName?.trim() || !data.customerPhone?.trim() || !data.deliveryAddress?.trim()) {
+            return { success: false, error: 'Please fill in your delivery details' }
+        }
+
+        if (!data.customerEmail?.trim()) {
+            return { success: false, error: 'Email is required' }
+        }
+
+        const paymentMethod = data.paymentMethod.toUpperCase()
+        if (paymentMethod !== 'PAYSTACK' && paymentMethod !== 'WHATSAPP') {
+            return { success: false, error: 'Invalid payment method' }
+        }
+
         const variantIds = data.items.map(item => item.variantId)
         const variants = await prisma.productVariant.findMany({
-            where: { id: { in: variantIds } }
+            where: { id: { in: variantIds } },
+            include: {
+                product: {
+                    include: {
+                        categories: true,
+                    },
+                },
+            },
         })
 
         if (variants.length !== data.items.length) {
@@ -42,31 +75,89 @@ export async function createOrder(data: CreateOrderData) {
         }
 
         let computedSubtotal = 0
-        const sanitizedItems = data.items.map(item => {
-            const variant = variants.find((variant) => variant.id === item.variantId)
+        const sanitizedItems: { variantId: string; quantity: number; price: number }[] = []
+
+        for (const item of data.items) {
+            const variant = variants.find((v) => v.id === item.variantId)
             if (!variant) {
-                throw new Error('Invalid variant')
+                return { success: false, error: 'Invalid order items' }
+            }
+
+            if (variant.stock < item.quantity) {
+                return {
+                    success: false,
+                    error: `Not enough stock for ${variant.product.name}`,
+                }
             }
 
             const expectedPrice = variant.promoPrice ?? variant.price
-            if (item.price !== expectedPrice) {
-                throw new Error('Order item prices do not match server pricing')
+            if (Math.abs(item.price - expectedPrice) > 0.01) {
+                return {
+                    success: false,
+                    error: 'Cart prices are out of date. Refresh the page and try again.',
+                }
             }
 
             computedSubtotal += expectedPrice * item.quantity
-            return {
+            sanitizedItems.push({
                 variantId: item.variantId,
                 quantity: item.quantity,
-                price: expectedPrice
-            }
-        })
-
-        if (data.discount && (data.discount < 0 || data.discount > computedSubtotal)) {
-            return { success: false, error: 'Invalid discount amount' }
+                price: expectedPrice,
+            })
         }
 
-        const expectedTotal = computedSubtotal + data.deliveryFee - (data.discount || 0)
-        if (Math.abs(expectedTotal - data.total) > 0.01) {
+        // Recompute delivery fee from DB (never trust client amount for known zones)
+        let deliveryFee = 0
+        let deliveryLocation = data.deliveryLocation.trim()
+        const isCustomDelivery =
+            deliveryLocation.toLowerCase() === CUSTOM_DELIVERY_LOCATION.toLowerCase()
+
+        if (isCustomDelivery) {
+            deliveryFee = 0
+            deliveryLocation = CUSTOM_DELIVERY_LOCATION
+        } else {
+            const zone = await prisma.deliveryLocation.findFirst({
+                where: { name: deliveryLocation, isActive: true },
+            })
+            if (!zone) {
+                return { success: false, error: 'Invalid delivery location' }
+            }
+            deliveryFee = zone.basePrice
+            deliveryLocation = zone.name
+        }
+
+        // Recompute discount from promo code on the server
+        let discount = 0
+        let promoCode: string | null = null
+
+        if (data.promoCode) {
+            const cartItems = variants.map((variant) => ({
+                productId: variant.productId,
+                categoryIds: variant.product.categories.map((c) => c.categoryId),
+            }))
+            const promoResult = await validatePromotionCode(
+                data.promoCode,
+                computedSubtotal,
+                cartItems
+            )
+            if (!promoResult.success || !promoResult.data) {
+                return { success: false, error: promoResult.error || 'Invalid promotion code' }
+            }
+            discount = promoResult.data.discount
+            promoCode = promoResult.data.promotion.code || data.promoCode.toUpperCase()
+        }
+
+        const expectedTotal = computedSubtotal + deliveryFee - discount
+        if (expectedTotal < 0) {
+            return { success: false, error: 'Invalid order total' }
+        }
+
+        // Reject client totals that don't match server-computed values
+        if (
+            Math.abs(expectedTotal - data.total) > 0.01 ||
+            Math.abs(deliveryFee - data.deliveryFee) > 0.01 ||
+            Math.abs(discount - (data.discount || 0)) > 0.01
+        ) {
             return { success: false, error: 'Order total does not match calculated total' }
         }
 
@@ -77,16 +168,16 @@ export async function createOrder(data: CreateOrderData) {
                 orderNumber,
                 userId: session?.id || null,
                 customerName: data.customerName,
-                customerEmail: data.customerEmail.toLowerCase(),
+                customerEmail: (data.customerEmail || '').trim().toLowerCase(),
                 customerPhone: data.customerPhone,
                 deliveryAddress: data.deliveryAddress,
-                deliveryLocation: data.deliveryLocation,
-                deliveryFee: data.deliveryFee,
+                deliveryLocation,
+                deliveryFee,
                 subtotal: computedSubtotal,
                 total: expectedTotal,
-                discount: data.discount || 0,
-                promoCode: data.promoCode || null,
-                paymentMethod: data.paymentMethod.toUpperCase(),
+                discount,
+                promoCode,
+                paymentMethod,
                 notes: data.notes || null,
                 status: 'PENDING',
                 items: {
@@ -127,7 +218,11 @@ export async function createOrder(data: CreateOrderData) {
         return { success: true, data: order }
     } catch (error) {
         console.error('Error creating order:', error)
-        return { success: false, error: 'Failed to create order' }
+        const message =
+            error instanceof Error && error.message
+                ? error.message
+                : 'Failed to create order'
+        return { success: false, error: message }
     }
 }
 
@@ -284,41 +379,88 @@ export async function updateOrderStatus(id: string, status: string) {
     }
 }
 
-// Update payment reference (for Paystack)
-export async function updatePaymentReference(orderNumber: string, reference: string) {
+/**
+ * Confirm a Paystack payment by verifying the transaction with Paystack.
+ * Marks the order PAID only after amount/currency/status checks pass.
+ * Safe to call from the client after Pop callback; webhook remains the backup path.
+ */
+export async function confirmPaystackPayment(reference: string) {
     try {
+        if (!reference || typeof reference !== 'string') {
+            return { success: false, error: 'Invalid payment reference' }
+        }
+
+        const order = await prisma.order.findUnique({ where: { orderNumber: reference } })
+        if (!order) {
+            return { success: false, error: 'Order not found' }
+        }
+
+        if (order.paymentMethod !== 'PAYSTACK') {
+            return { success: false, error: 'Order is not a Paystack payment' }
+        }
+
+        if (order.status === 'PAID') {
+            return { success: true, data: order, alreadyPaid: true }
+        }
+
+        if (order.status !== 'PENDING') {
+            return { success: false, error: 'Order cannot be paid in its current status' }
+        }
+
+        const verified = await verifyPaystackTransaction(reference)
+        if (!verified.success) {
+            return { success: false, error: verified.error }
+        }
+
+        const expectedKobo = nairaToKobo(order.total)
+        if (!isSuccessfulPaystackCharge(verified.data, expectedKobo, 'NGN')) {
+            console.error('Paystack confirm mismatch', {
+                reference,
+                expectedKobo,
+                amount: verified.data.amount,
+                currency: verified.data.currency,
+                status: verified.data.status,
+            })
+            return { success: false, error: 'Payment verification failed' }
+        }
+
         const updated = await prisma.order.updateMany({
-            where: { orderNumber, status: 'PENDING' },
+            where: { orderNumber: reference, status: 'PENDING' },
             data: {
-                paymentReference: reference,
-                status: 'PAID'
-            }
+                paymentReference: verified.data.id.toString(),
+                status: 'PAID',
+            },
         })
 
         if (updated.count === 0) {
+            const current = await prisma.order.findUnique({ where: { orderNumber: reference } })
+            if (current?.status === 'PAID') {
+                return { success: true, data: current, alreadyPaid: true }
+            }
             return { success: false, error: 'Order not found or already processed' }
         }
 
-        const order = await prisma.order.findUnique({ where: { orderNumber } })
-        if (!order) {
+        const paidOrder = await prisma.order.findUnique({ where: { orderNumber: reference } })
+        if (!paidOrder) {
             return { success: false, error: 'Order not found after update' }
         }
 
-        await reduceInventory(order.id)
+        await reduceInventory(paidOrder.id)
+        await sendOrderNotification(paidOrder.customerEmail, paidOrder.orderNumber, paidOrder.total)
         void sendN8nEvent('order.paid', {
-            orderId: order.id,
-            orderNumber: order.orderNumber,
-            customerName: order.customerName,
-            customerEmail: order.customerEmail,
-            total: order.total,
-            status: order.status
+            orderId: paidOrder.id,
+            orderNumber: paidOrder.orderNumber,
+            customerName: paidOrder.customerName,
+            customerEmail: paidOrder.customerEmail,
+            total: paidOrder.total,
+            status: paidOrder.status,
         })
         revalidatePath('/account/orders')
 
-        return { success: true, data: order }
+        return { success: true, data: paidOrder }
     } catch (error) {
-        console.error('Error updating payment reference:', error)
-        return { success: false, error: 'Failed to update payment reference' }
+        console.error('Error confirming Paystack payment:', error)
+        return { success: false, error: 'Failed to confirm payment' }
     }
 }
 

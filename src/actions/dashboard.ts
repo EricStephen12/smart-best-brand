@@ -1,25 +1,19 @@
 'use server'
 
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/prisma'
 
 export async function getDashboardStats() {
     try {
-        const [
-            totalProducts,
-            totalOrders,
-            totalBrands,
-            totalValue
-        ] = await Promise.all([
+        const [totalProducts, totalOrders, totalBrands, paidOrders] = await Promise.all([
             prisma.product.count({ where: { isActive: true } }),
             prisma.order.count(),
-            prisma.brand.count(),
-            prisma.productVariant.aggregate({
-                where: { isActive: true },
-                _sum: {
-                    price: true
-                }
-            })
-        ]);
+            prisma.brand.count({ where: { isActive: true } }),
+            prisma.order.aggregate({
+                where: { status: { in: ['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED'] } },
+                _sum: { total: true },
+                _count: true,
+            }),
+        ])
 
         return {
             success: true,
@@ -27,17 +21,13 @@ export async function getDashboardStats() {
                 totalProducts,
                 totalOrders,
                 totalBrands,
-                totalValue: totalValue._sum.price || 0,
-                // Mock changes for UI aesthetics
-                productChange: '+4 this week',
-                orderChange: '+12% vs LY',
-                brandChange: 'All Active',
-                valueChange: '+15% MoM'
-            }
-        };
+                paidOrderCount: paidOrders._count,
+                revenue: paidOrders._sum.total || 0,
+            },
+        }
     } catch (error) {
-        console.error('Failed to fetch dashboard stats:', error);
-        return { success: false, error: 'Failed to fetch dashboard stats' };
+        console.error('Failed to fetch dashboard stats:', error)
+        return { success: false, error: 'Failed to fetch dashboard stats' }
     }
 }
 
@@ -53,12 +43,12 @@ export async function getRecentOrders(limit = 5, email?: string) {
                 customerName: true,
                 total: true,
                 status: true,
-                createdAt: true
-            }
-        });
-        return { success: true, data: orders };
+                createdAt: true,
+            },
+        })
+        return { success: true, data: orders }
     } catch (error) {
-        console.error('Failed to fetch recent orders:', error);
-        return { success: false, error: 'Failed to fetch recent orders' };
+        console.error('Failed to fetch recent orders:', error)
+        return { success: false, error: 'Failed to fetch recent orders' }
     }
 }

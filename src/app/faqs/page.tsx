@@ -124,11 +124,11 @@ export default function FAQPage() {
                                 Contact Support
                             </a>
                             <a
-                                href="https://wa.me/2349033333333"
+                                href="/contact"
                                 className="btn-primary flex-1 flex items-center justify-center gap-2 !bg-sky-600 !shadow-sky-600/20"
                             >
                                 <MessageCircle className="w-5 h-5" />
-                                WhatsApp Live
+                                Contact us
                             </a>
                         </div>
                     </div>

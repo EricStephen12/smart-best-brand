@@ -1,139 +1,209 @@
 'use client';
 
-import React from 'react';
-import { Mail, Phone, MapPin, MessageCircle, Clock, Send, Globe } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { Mail, Phone, MessageCircle, Clock, Send, Globe } from 'lucide-react';
+import { submitContactInquiry } from '@/actions/contact';
+import { getSupportPhone, getTelHref, getWhatsAppUrl } from '@/lib/contact-channels';
+import toast from 'react-hot-toast';
 
 export default function ContactPage() {
-  return (
-    <div className="pt-32 sm:pt-48 pb-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 lg:gap-32 items-start">
+  const whatsappUrl = getWhatsAppUrl();
+  const supportPhone = getSupportPhone();
+  const telHref = getTelHref();
 
-          {/* Left Column: Info */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="space-y-12 sm:space-y-16"
-          >
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [subject, setSubject] = useState('Product inquiry');
+  const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const result = await submitContactInquiry({ name, phone, email, subject, message });
+      if (!result.success) {
+        toast.error(result.error || 'Could not send message');
+        return;
+      }
+      toast.success('Message sent — we will get back to you soon.');
+      setName('');
+      setPhone('');
+      setEmail('');
+      setMessage('');
+      setSubject('Product inquiry');
+    } catch {
+      toast.error('Could not send message');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="pt-28 sm:pt-36 pb-20 bg-white">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+          <div className="space-y-10">
             <div>
-              <motion.span
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-sky-600 font-black tracking-[0.3em] text-[10px] uppercase mb-6 block font-sans"
-              >
-                04 / Concierge Protocol
-              </motion.span>
-              <h1 className="text-6xl sm:text-8xl font-black text-blue-950 tracking-[-0.04em] mb-8 leading-[0.85] font-display uppercase">
-                ELEVATE YOUR <br />
-                <span className="text-slate-200">INTERIOR.</span>
+              <p className="text-sky-700 text-xs font-semibold mb-3">Contact</p>
+              <h1 className="text-4xl sm:text-5xl font-semibold text-blue-950 tracking-tight mb-4">
+                Talk to Smart Best Brands
               </h1>
-              <p className="text-xl text-slate-500 leading-relaxed font-medium max-w-lg font-inter">
-                Whether you&apos;re furnishing a palace or a penthouse, our concierge team is dedicated to your absolute satisfaction.
+              <p className="text-stone-500 text-base leading-relaxed max-w-lg">
+                Questions about mattresses, pillows, furniture, delivery, or bulk orders? Send a message and we’ll reply during business hours.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
-              <ContactInfo
-                icon={MessageCircle}
-                title="WhatsApp"
-                value="Concierge Chat"
-                link="https://wa.me/2349033333333"
-                color="text-emerald-500"
-              />
-              <ContactInfo
-                icon={Phone}
-                title="Direct Line"
-                value="+234 903 333 3333"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {whatsappUrl && (
+                <ContactInfo
+                  icon={MessageCircle}
+                  title="WhatsApp"
+                  value="Chat with us"
+                  link={whatsappUrl}
+                />
+              )}
+              {supportPhone && telHref && (
+                <ContactInfo
+                  icon={Phone}
+                  title="Phone"
+                  value={supportPhone}
+                  link={telHref}
+                />
+              )}
               <ContactInfo
                 icon={Mail}
-                title="Correspondence"
+                title="Email"
                 value="hello@smartbestbrands.com"
                 link="mailto:hello@smartbestbrands.com"
               />
               <ContactInfo
                 icon={Globe}
-                title="Elite Social"
-                value="Instagram Direct"
+                title="Instagram"
+                value="@smartbestbrands"
                 link="https://instagram.com/smartbestbrands"
               />
             </div>
 
-            <div className="p-10 bg-slate-50 rounded-[2.5rem] border border-slate-100 flex items-start gap-8 relative overflow-hidden group">
-              <div className="bg-white p-4 rounded-2xl shadow-sm relative z-10 transition-transform group-hover:scale-110 duration-500">
-                <Clock className="w-6 h-6 text-sky-600" />
+            <div className="p-6 bg-stone-50 rounded-xl border border-stone-200 flex items-start gap-4">
+              <Clock className="w-5 h-5 text-sky-700 shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-blue-950 text-sm mb-1">Business hours</h4>
+                <p className="text-stone-500 text-sm leading-relaxed">
+                  We typically reply within a few hours, 8AM – 8PM.
+                </p>
               </div>
-              <div className="relative z-10">
-                <h4 className="font-black text-blue-950 text-lg mb-1 tracking-tight uppercase">Elite Response Time</h4>
-                <p className="text-slate-500 font-medium font-inter leading-relaxed">Our specialists typically respond within 15-30 minutes during business hours (8AM - 8PM).</p>
-              </div>
-              {/* Decorative */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-sky-200/10 rounded-full translate-x-1/2 -translate-y-1/2 blur-2xl"></div>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Right Column: Form */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-slate-50 rounded-[3.5rem] p-10 sm:p-16 shadow-2xl shadow-blue-950/5 border border-slate-100 relative"
-          >
-            <h2 className="text-2xl font-black text-blue-950 mb-10 uppercase tracking-widest flex items-center gap-4 font-display">
-              Inquiry Dossier
-              <div className="h-[2px] w-12 bg-sky-600"></div>
-            </h2>
-            <form className="space-y-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 font-sans">Full Patron Name</label>
-                  <input type="text" className="w-full px-6 py-5 bg-white border-2 border-transparent focus:border-sky-600 rounded-2xl transition-all text-blue-950 font-bold placeholder:text-slate-200 outline-none" placeholder="e.g. Adebayo Johnson" />
-                </div>
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 font-sans">Contact Terminal</label>
-                  <input type="text" className="w-full px-6 py-5 bg-white border-2 border-transparent focus:border-sky-600 rounded-2xl transition-all text-blue-950 font-bold placeholder:text-slate-200 outline-none" placeholder="080 1234 5678" />
-                </div>
+          <div className="bg-stone-50 rounded-2xl p-6 sm:p-8 border border-stone-200">
+            <h2 className="text-lg font-semibold text-blue-950 mb-6">Send a message</h2>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Field label="Full name">
+                  <input
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-sky-500 rounded-lg text-sm text-blue-950 outline-none"
+                    placeholder="Your name"
+                  />
+                </Field>
+                <Field label="Phone">
+                  <input
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-sky-500 rounded-lg text-sm text-blue-950 outline-none"
+                    placeholder="080…"
+                  />
+                </Field>
               </div>
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 font-sans">Inquiry Subject</label>
-                <select className="w-full px-6 py-5 bg-white border-2 border-transparent focus:border-sky-600 rounded-2xl transition-all text-blue-950 font-bold appearance-none cursor-pointer outline-none">
-                  <option>Product Acquisition Inquiry</option>
-                  <option>Logistics & Delivery Status</option>
-                  <option>Bulk Institutional Orders</option>
-                  <option>Bespoke Specifications</option>
+              <Field label="Email (optional)">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-sky-500 rounded-lg text-sm text-blue-950 outline-none"
+                  placeholder="you@email.com"
+                />
+              </Field>
+              <Field label="Subject">
+                <select
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-sky-500 rounded-lg text-sm text-blue-950 outline-none"
+                >
+                  <option>Product inquiry</option>
+                  <option>Delivery status</option>
+                  <option>Bulk / corporate order</option>
+                  <option>Custom size request</option>
+                  <option>Other</option>
                 </select>
-              </div>
-              <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 font-sans">Detailed Specification</label>
-                <textarea rows={5} className="w-full px-6 py-5 bg-white border-2 border-transparent focus:border-sky-600 rounded-2xl transition-all text-blue-950 font-bold placeholder:text-slate-200 resize-none outline-none" placeholder="Define your requirement with precision..." />
-              </div>
-              <button type="button" className="btn-elite w-full">
-                <Send className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                Transmit Inquiry
+              </Field>
+              <Field label="Message">
+                <textarea
+                  required
+                  rows={5}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-sky-500 rounded-lg text-sm text-blue-950 outline-none resize-none"
+                  placeholder="How can we help?"
+                />
+              </Field>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full inline-flex items-center justify-center gap-2 bg-blue-950 hover:bg-sky-700 disabled:opacity-50 text-white font-medium text-sm py-3.5 rounded-lg transition-colors"
+              >
+                <Send className="w-4 h-4" />
+                {isSubmitting ? 'Sending…' : 'Send message'}
               </button>
             </form>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function ContactInfo({ icon: Icon, title, value, link, color }: { icon: React.ElementType, title: string, value: string, link?: string, color?: string }) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="group font-sans">
-      <div className="flex items-center gap-4 mb-3">
-        <Icon className={`w-4 h-4 ${color || 'text-sky-600'}`} />
-        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{title}</h4>
-      </div>
-      {link ? (
-        <a href={link} className="text-xl font-black text-blue-950 hover:text-sky-600 transition-colors underline decoration-sky-600 decoration-2 underline-offset-8">
-          {value}
-        </a>
-      ) : (
-        <p className="text-xl font-black text-blue-950">{value}</p>
-      )}
+    <div className="space-y-1.5">
+      <label className="text-xs text-stone-500">{label}</label>
+      {children}
     </div>
   );
+}
+
+function ContactInfo({
+  icon: Icon,
+  title,
+  value,
+  link,
+}: {
+  icon: React.ElementType;
+  title: string;
+  value: string;
+  link?: string;
+}) {
+  const content = (
+    <div className="flex items-start gap-3 p-4 bg-white border border-stone-200 rounded-xl h-full">
+      <Icon className="w-5 h-5 text-sky-700 shrink-0 mt-0.5" />
+      <div>
+        <p className="text-xs text-stone-500 mb-0.5">{title}</p>
+        <p className="text-sm font-medium text-blue-950">{value}</p>
+      </div>
+    </div>
+  );
+
+  if (link) {
+    return (
+      <a href={link} target={link.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
+        {content}
+      </a>
+    );
+  }
+  return content;
 }

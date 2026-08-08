@@ -4,23 +4,25 @@ import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import EditorialBackdrop from '@/components/EditorialBackdrop'
 
 export default function StorySection({ brandCount }: { brandCount?: number }) {
   const containerRef = useRef(null)
 
   return (
-    <section ref={containerRef} className="py-16 sm:py-24 md:py-32 bg-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section ref={containerRef} className="relative py-16 sm:py-24 md:py-28 bg-white overflow-hidden border-y border-blue-950/5">
+      <EditorialBackdrop text="Legacy" size="xl" />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Editorial Layout 1 */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center mb-20 sm:mb-32 md:mb-40">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center mb-16 sm:mb-24 md:mb-28">
 
           {/* Main Large Image */}
           <div className="lg:col-span-7">
             <RevealImage
               src="/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg"
               alt="Luxury Living"
-              className="aspect-[4/5] md:aspect-[16/10] rounded-[4rem]"
+              className="aspect-[4/5] md:aspect-[16/10] rounded-none sm:rounded-3xl"
             />
           </div>
 
@@ -31,7 +33,7 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
               viewport={{ once: true }}
-              className="glass p-8 sm:p-12 md:p-20 rounded-[2rem] sm:rounded-[3rem] space-y-6 sm:space-y-8"
+              className="bg-white/95 backdrop-blur-md border border-blue-950/5 p-8 sm:p-12 md:p-16 rounded-none sm:rounded-3xl space-y-6 sm:space-y-8 shadow-xl shadow-blue-950/5"
             >
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-1 h-8 bg-sky-600 rounded-full" />

@@ -7,11 +7,28 @@ import CustomerOverview from '@/components/account/CustomerOverview';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
 
+type DashboardStats = {
+  totalProducts: number;
+  totalOrders: number;
+  totalBrands: number;
+  paidOrderCount: number;
+  revenue: number;
+};
+
+type RecentOrder = {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  total: number;
+  status: string;
+  createdAt: string | Date;
+};
+
 export default function AccountOverviewPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<any>(null);
-  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
 
   useEffect(() => {
     const loadAccountData = async () => {
@@ -22,13 +39,12 @@ export default function AccountOverviewPage() {
         if (user.role === 'ADMIN') {
           const [statsResult, ordersResult] = await Promise.all([
             getDashboardStats(),
-            getRecentOrders(5)
+            getRecentOrders(8),
           ]);
-          if (statsResult.success) setStats(statsResult.data);
+          if (statsResult.success && statsResult.data) setStats(statsResult.data);
           if (ordersResult.success) setRecentOrders(ordersResult.data || []);
         } else {
-          // Customer only sees their own orders
-          const ordersResult = await getRecentOrders(5, user.email);
+          const ordersResult = await getRecentOrders(8, user.email);
           if (ordersResult.success) setRecentOrders(ordersResult.data || []);
         }
       } catch (error) {
@@ -38,43 +54,39 @@ export default function AccountOverviewPage() {
       }
     };
 
-    loadAccountData();
+    void loadAccountData();
   }, [user, authLoading]);
 
   if (authLoading || loading) {
     return (
-      <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
-        <Loader2 className="w-10 h-10 text-sky-600 animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Loading Account...</p>
+      <div className="h-[50vh] flex flex-col items-center justify-center gap-3">
+        <Loader2 className="w-7 h-7 text-sky-700 animate-spin" />
+        <p className="text-sm text-stone-500">Loading…</p>
       </div>
     );
   }
 
   if (!user) return null;
 
-  return (
-    <div className="font-sans">
-      {user.role === 'ADMIN' ? (
-        <div className="space-y-12">
-          {/* Admin Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-              <h1 className="text-4xl sm:text-5xl font-black text-blue-950 tracking-tight leading-none uppercase mb-2">
-                Control <span className="text-sky-600">Center</span>
-              </h1>
-              <p className="text-slate-400 font-medium font-inter">
-                Review the latest performance metrics for Smart Best Brands.
-              </p>
-            </div>
-            <div className="px-6 py-4 bg-blue-950 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-blue-950/20">
-              System Operational
-            </div>
-          </div>
-          {stats && <AdminOverview stats={stats} recentOrders={recentOrders} />}
+  if (user.role === 'ADMIN') {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-semibold text-blue-950 tracking-tight">
+            Dashboard
+          </h1>
+          <p className="text-stone-500 text-sm mt-1">
+            Orders, products, and store activity.
+          </p>
         </div>
-      ) : (
-        <CustomerOverview user={user} recentOrders={recentOrders} />
-      )}
-    </div>
-  );
+        {stats ? (
+          <AdminOverview stats={stats} recentOrders={recentOrders} />
+        ) : (
+          <p className="text-sm text-stone-500">Couldn’t load dashboard stats.</p>
+        )}
+      </div>
+    );
+  }
+
+  return <CustomerOverview user={user} recentOrders={recentOrders} />;
 }

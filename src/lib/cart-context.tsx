@@ -40,13 +40,20 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       return { ...state, items: action.items }
 
     case 'ADD_ITEM': {
+      const stock = typeof action.variant?.stock === 'number' ? action.variant.stock : Infinity
+      if (stock <= 0) {
+        return state
+      }
+
       const existingItem = state.items.find(item => item.product_variant_id === action.variant.id)
+      const addQty = action.quantity || 1
 
       let newItems;
       if (existingItem) {
+        const nextQty = Math.min(existingItem.quantity + addQty, stock)
         newItems = state.items.map(item =>
           item.product_variant_id === action.variant.id
-            ? { ...item, quantity: item.quantity + (action.quantity || 1) }
+            ? { ...item, quantity: nextQty, variant: action.variant }
             : item
         )
       } else {
@@ -55,7 +62,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
           product_variant_id: action.variant.id,
           variant: action.variant,
           product: action.product,
-          quantity: action.quantity || 1
+          quantity: Math.min(addQty, stock)
         }
         newItems = [...state.items, newItem]
       }
@@ -82,11 +89,11 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       if (action.quantity <= 0) {
         newItems = state.items.filter(item => item.id !== action.itemId)
       } else {
-        newItems = state.items.map(item =>
-          item.id === action.itemId
-            ? { ...item, quantity: action.quantity }
-            : item
-        )
+        newItems = state.items.map(item => {
+          if (item.id !== action.itemId) return item
+          const stock = typeof item.variant?.stock === 'number' ? item.variant.stock : Infinity
+          return { ...item, quantity: Math.min(action.quantity, stock) }
+        })
       }
       localStorage.setItem('sbb-cart', JSON.stringify(newItems))
       return {
