@@ -45,8 +45,8 @@ export default async function EditProductPage({ params }: PageProps) {
                     </Link>
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-sky-600 bg-sky-50 px-2 py-0.5 rounded">Refining Essence</span>
-                            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest leading-none">ID: {product.id.substring(0, 8)}</span>
+                            <span className="text-xs font-semibold text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded">Edit Product</span>
+                            <span className="text-xs text-slate-400">ID: {product.id.substring(0, 8)}</span>
                         </div>
                         <h1 className="text-3xl font-black text-blue-950 tracking-tight leading-none">{product.name}</h1>
                     </div>

@@ -3,8 +3,7 @@ import crypto from 'crypto'
 import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { reduceInventory } from '@/actions/orders'
-import { sendOrderNotification } from '@/lib/sms'
-import { sendN8nEvent } from '@/lib/n8n'
+import { sendCustomerPaymentSuccessEmail, sendAdminPaymentAlert } from '@/lib/sms'
 import { getPaystackSecretKey, nairaToKobo } from '@/lib/paystack'
 
 function verifySignature(payload: string, signature: string | null) {
@@ -35,14 +34,23 @@ async function markOrderPaid(orderNumber: string, paymentReference: string) {
     if (!order) return null
 
     await reduceInventory(order.id)
-    await sendOrderNotification(order.customerEmail, order.orderNumber, order.total)
-    void sendN8nEvent('order.paid', {
-        orderId: order.id,
+    void sendCustomerPaymentSuccessEmail({
         orderNumber: order.orderNumber,
         customerName: order.customerName,
         customerEmail: order.customerEmail,
+        customerPhone: order.customerPhone,
+        deliveryAddress: order.deliveryAddress,
+        deliveryLocation: order.deliveryLocation,
         total: order.total,
+        paymentMethod: order.paymentMethod,
         status: order.status,
+        items: []
+    })
+    void sendAdminPaymentAlert({
+        orderNumber: order.orderNumber,
+        customerName: order.customerName,
+        total: order.total,
+        paymentMethod: order.paymentMethod
     })
     revalidatePath('/account/orders')
     return order

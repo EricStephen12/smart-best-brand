@@ -9,14 +9,18 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  clerkId   String?  @unique
-  name      String?
-  email     String   @unique
-  role      Role     @default(CUSTOMER)
-  createdAt DateTime @default(now())
-  orders    Order[]
-  reviews   Review[]
+  id               String   @id @default(uuid())
+  clerkId          String?  @unique
+  name             String?
+  email            String   @unique
+  phone            String?
+  deliveryAddress  String?
+  deliveryLocation String?
+  passwordHash     String?
+  role             Role     @default(CUSTOMER)
+  createdAt        DateTime @default(now())
+  orders           Order[]
+  reviews          Review[]
 
   @@index([clerkId])
 }
@@ -255,21 +259,54 @@ model ContactInquiry {
 
 /// Singleton row (id = "default") for no-code site content & theme
 model SiteSettings {
-  id              String   @id @default("default")
-  siteName        String   @default("Smart Best Brands")
-  tagline         String   @default("Quality mattresses, pillows & furniture")
-  primaryColor    String   @default("#172554")
-  accentColor     String   @default("#0284c7")
-  backgroundColor String   @default("#f7f6f3")
-  heroTitle       String   @default("Quality mattresses, pillows & furniture")
-  heroSubtitle    String   @default("Authentic comfort for Nigerian homes — shop trusted brands with clear pricing and delivery.")
-  heroCtaLabel    String   @default("Shop products")
-  heroCtaHref     String   @default("/products")
-  footerText      String   @default("Authentic comfort for Nigerian homes. Quality mattresses, pillows, and furniture from trusted brands.")
-  contactEmail    String   @default("hello@smartbestbrands.com")
-  whatsappNumber  String?
-  supportPhone    String?
-  updatedAt       DateTime @updatedAt
+  id                   String   @id @default("default")
+  siteName             String   @default("Smart Best Brands")
+  tagline              String   @default("Quality mattresses, pillows & furniture")
+  logoUrl              String?
+  primaryColor         String   @default("#172554")
+  accentColor          String   @default("#0284c7")
+  backgroundColor      String   @default("#f7f6f3")
+  
+  // Announcement Bar
+  announcementEnabled  Boolean  @default(false)
+  announcementText     String?  @default("Authentic Nigerian home brands — fast nationwide delivery.")
+  announcementLink     String?  @default("/products")
+
+  // Hero Section
+  heroTitle            String   @default("Quality mattresses, pillows & furniture")
+  heroSubtitle         String   @default("Authentic comfort for Nigerian homes — shop trusted brands with clear pricing and delivery.")
+  heroCtaLabel         String   @default("Shop products")
+  heroCtaHref          String   @default("/products")
+
+  // Story Section (Our Legacy)
+  storyBadge           String   @default("Our Legacy")
+  storyTitle           String   @default("Authenticity as a Standard.")
+  storyText            String   @default("Smart Best Brands was established with a singular mission: to bring Nigeria's most trusted home brands under one roof. We understand that your home is your sanctuary, and the foundation of that sanctuary begins with rest.")
+  storySecondaryBadge  String   @default("Craftsmanship")
+  storySecondaryTitle  String   @default("Engineered for Nigerian Living.")
+  storySecondaryText   String   @default("From high-density orthopedic mattresses built for durability in our climate to ergonomic pillows designed for restorative sleep, every piece in our curation meets rigorous standards.")
+  storyImageUrl        String?
+
+  // Mid-Page Promo Banner
+  promoBadge           String   @default("For Nigerian homes")
+  promoTitle           String   @default("Comfort that feels like home")
+  promoCtaLabel        String   @default("Discover now")
+  promoCtaHref         String   @default("/products")
+  promoImageUrl        String?
+
+  // Contact, Location & Socials
+  storeAddress         String   @default("Abuja · Benin City")
+  contactEmail         String   @default("hello@smartbestbrands.com")
+  whatsappNumber       String?
+  supportPhone         String?
+  instagramUrl         String?  @default("https://instagram.com/smartbestbrands")
+  facebookUrl          String?
+  twitterUrl           String?
+  tiktokUrl            String?
+
+  // Footer & Legal
+  footerText           String   @default("Authentic comfort for Nigerian homes. Quality mattresses, pillows, and furniture from trusted brands.")
+  updatedAt            DateTime @updatedAt
 }
 
 enum Role {

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { CreditCard, MessageCircle, Check } from 'lucide-react'
+import { CreditCard, MessageCircle, Check, Building2 } from 'lucide-react'
 import { useCart } from '@/lib/cart-context'
 import { useAuth } from '@/hooks/use-auth'
 import { confirmPaystackPayment, createOrder } from '@/actions/orders'
@@ -32,7 +32,7 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
   const [selectedZone, setSelectedZone] = useState<DeliveryZone>(
     zones[0] || { id: 'custom', name: 'Other Locations', basePrice: 0 }
   )
-  const [paymentMethod, setPaymentMethod] = useState('whatsapp')
+  const [paymentMethod, setPaymentMethod] = useState<'whatsapp' | 'paystack' | 'bank_transfer'>('paystack')
   const [isProcessing, setIsProcessing] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
@@ -54,9 +54,19 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
         ...prev,
         name: prev.name || user.name || '',
         email: prev.email || user.email || '',
+        phone: prev.phone || user.phone || '',
+        address: prev.address || user.deliveryAddress || '',
       }))
+      if (user.deliveryLocation) {
+        const matchedZone = zones.find(
+          (z) => z.name.toLowerCase() === user.deliveryLocation?.toLowerCase()
+        )
+        if (matchedZone) {
+          setSelectedZone(matchedZone)
+        }
+      }
     }
-  }, [user])
+  }, [user, zones])
 
   const cartTotal = state.items.reduce((acc, item) => {
     const price = item.variant?.promoPrice || item.variant?.price || 0
@@ -132,7 +142,12 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
         total: total,
         discount: discount,
         promoCode: appliedPromo?.promotion?.code || undefined,
-        paymentMethod: paymentMethod === 'paystack' ? 'PAYSTACK' : 'WHATSAPP',
+        paymentMethod:
+          paymentMethod === 'paystack'
+            ? 'PAYSTACK'
+            : paymentMethod === 'bank_transfer'
+            ? 'BANK_TRANSFER'
+            : 'WHATSAPP',
         userId: user?.id || undefined,
         items: state.items.map((item) => ({
           variantId: item.product_variant_id,
@@ -149,7 +164,22 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
         return
       }
 
+      if (paymentMethod === 'bank_transfer') {
+        clearCart()
+        router.push(
+          `/checkout/success?order=${encodeURIComponent(result.data.orderNumber)}&method=BANK_TRANSFER`
+        )
+        toast.success('Order placed successfully')
+        return
+      }
+
       if (paymentMethod === 'paystack') {
+        if (result.data.total < 50) {
+          toast.error('Paystack requires a minimum transaction amount of ₦50. Please test with an amount of ₦50 or higher, or select Bank Transfer.')
+          setIsProcessing(false)
+          return
+        }
+
         const paystackKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY
 
         if (!paystackKey) {
@@ -368,49 +398,114 @@ Please confirm delivery timeline.`
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <button
               type="button"
-              onClick={() => setPaymentMethod('whatsapp')}
-              className={`relative p-5 border text-left transition-colors ${
-                paymentMethod === 'whatsapp'
-                  ? 'border-blue-950 bg-white'
-                  : 'border-blue-950/15 hover:border-blue-950/35'
+              onClick={() => setPaymentMethod('paystack')}
+              className={`relative p-4 border text-left transition-all ${
+                paymentMethod === 'paystack'
+                  ? 'border-blue-950 bg-white shadow-sm ring-1 ring-blue-950'
+                  : 'border-blue-950/15 hover:border-blue-950/35 bg-stone-50/50'
               }`}
             >
-              {paymentMethod === 'whatsapp' ? (
-                <Check className="absolute top-4 right-4 w-4 h-4 text-sky-600" />
+              {paymentMethod === 'paystack' ? (
+                <Check className="absolute top-3.5 right-3.5 w-3.5 h-3.5 text-sky-600" />
               ) : null}
-              <MessageCircle className="w-5 h-5 text-green-600 mb-3" />
+              <CreditCard className="w-5 h-5 text-sky-700 mb-2.5" />
               <p className="text-[11px] font-black tracking-[0.14em] uppercase text-blue-950 mb-1">
-                WhatsApp
+                Card / Online
               </p>
-              <p className="text-sm text-stone-500 leading-relaxed">
-                Place the order and finish details with us on chat.
+              <p className="text-xs text-stone-500 leading-relaxed">
+                Pay instantly with debit card via Paystack.
               </p>
             </button>
 
             <button
               type="button"
-              onClick={() => setPaymentMethod('paystack')}
-              className={`relative p-5 border text-left transition-colors ${
-                paymentMethod === 'paystack'
-                  ? 'border-blue-950 bg-white'
-                  : 'border-blue-950/15 hover:border-blue-950/35'
+              onClick={() => setPaymentMethod('bank_transfer')}
+              className={`relative p-4 border text-left transition-all ${
+                paymentMethod === 'bank_transfer'
+                  ? 'border-blue-950 bg-white shadow-sm ring-1 ring-blue-950'
+                  : 'border-blue-950/15 hover:border-blue-950/35 bg-stone-50/50'
               }`}
             >
-              {paymentMethod === 'paystack' ? (
-                <Check className="absolute top-4 right-4 w-4 h-4 text-sky-600" />
+              {paymentMethod === 'bank_transfer' ? (
+                <Check className="absolute top-3.5 right-3.5 w-3.5 h-3.5 text-sky-600" />
               ) : null}
-              <CreditCard className="w-5 h-5 text-sky-700 mb-3" />
+              <Building2 className="w-5 h-5 text-blue-950 mb-2.5" />
               <p className="text-[11px] font-black tracking-[0.14em] uppercase text-blue-950 mb-1">
-                Card / transfer
+                Bank Transfer
               </p>
-              <p className="text-sm text-stone-500 leading-relaxed">
-                Pay securely online with Paystack.
+              <p className="text-xs text-stone-500 leading-relaxed">
+                Direct wire transfer to company account.
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setPaymentMethod('whatsapp')}
+              className={`relative p-4 border text-left transition-all ${
+                paymentMethod === 'whatsapp'
+                  ? 'border-blue-950 bg-white shadow-sm ring-1 ring-blue-950'
+                  : 'border-blue-950/15 hover:border-blue-950/35 bg-stone-50/50'
+              }`}
+            >
+              {paymentMethod === 'whatsapp' ? (
+                <Check className="absolute top-3.5 right-3.5 w-3.5 h-3.5 text-sky-600" />
+              ) : null}
+              <MessageCircle className="w-5 h-5 text-green-600 mb-2.5" />
+              <p className="text-[11px] font-black tracking-[0.14em] uppercase text-blue-950 mb-1">
+                WhatsApp
+              </p>
+              <p className="text-xs text-stone-500 leading-relaxed">
+                Place order and finalize directly with our desk.
               </p>
             </button>
           </div>
+
+          {paymentMethod === 'bank_transfer' && (
+            <div className="p-5 bg-stone-50 border border-blue-950/10 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
+                  Company Account Details
+                </span>
+                <span className="text-[9px] font-bold text-sky-800 uppercase tracking-widest bg-sky-50 px-2 py-0.5 border border-sky-200">
+                  Direct Wire
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-blue-950 pt-1">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Bank Name</p>
+                  <p className="font-semibold text-sm text-blue-950">Moniepoint MFB / Zenith Bank</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Account Name</p>
+                  <p className="font-semibold text-sm text-blue-950">Smart Best Brands Nigeria</p>
+                </div>
+                <div className="sm:col-span-2">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Account Number</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="font-mono text-base font-bold text-blue-950 bg-white px-3 py-1.5 border border-blue-950/15 tracking-wider select-all">
+                      08064619479
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText('08064619479')
+                        toast.success('Account number copied!')
+                      }}
+                      className="px-3 py-1.5 border border-blue-950 text-blue-950 text-[10px] font-bold uppercase tracking-widest hover:bg-blue-950 hover:text-white transition-colors"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <p className="text-[11px] text-stone-500 border-t border-blue-950/8 pt-3 leading-relaxed">
+                Please place your order to reserve your items. Use your generated Order Number as the transfer narration. You will receive an official receipt immediately.
+              </p>
+            </div>
+          )}
         </section>
       </div>
 
@@ -515,10 +610,15 @@ Please confirm delivery timeline.`
                 <MessageCircle className="w-4 h-4" />
                 Place order on WhatsApp
               </>
+            ) : paymentMethod === 'bank_transfer' ? (
+              <>
+                <Building2 className="w-4 h-4" />
+                Complete Bank Transfer Order
+              </>
             ) : (
               <>
                 <CreditCard className="w-4 h-4" />
-                Pay now
+                Pay now with Paystack
               </>
             )}
           </button>

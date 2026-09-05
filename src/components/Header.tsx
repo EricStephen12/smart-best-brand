@@ -44,6 +44,23 @@ export default function Header() {
           : 'bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm'
       }`}
     >
+      {/* Top Announcement Bar */}
+      {settings.announcementEnabled && settings.announcementText && (
+        <div className="bg-[var(--brand-primary)] text-white text-center py-2 px-4 text-xs font-semibold tracking-wide border-b border-white/10 transition-colors">
+          {settings.announcementLink ? (
+            <Link
+              href={settings.announcementLink}
+              className="inline-flex items-center justify-center gap-2 hover:text-sky-300 transition-colors"
+            >
+              <span>{settings.announcementText}</span>
+              <span className="text-[10px] opacity-75 underline font-normal">Learn more &rarr;</span>
+            </Link>
+          ) : (
+            <span>{settings.announcementText}</span>
+          )}
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 sm:h-24">
           <nav className="hidden md:flex items-center space-x-10 flex-1">
@@ -66,15 +83,25 @@ export default function Header() {
           </div>
 
           <Link href="/" className="flex items-center flex-shrink-0 px-1 sm:px-8 group overflow-hidden">
-            <div
-              className={`tracking-widest transition-all duration-500 leading-none font-black whitespace-nowrap ${
-                overHero ? 'text-white' : 'text-blue-950'
-              } ${isScrolled ? 'text-sm sm:text-xl' : 'text-base sm:text-2xl'}`}
-              style={{ fontFamily: 'var(--font-montserrat)' }}
-            >
-              {brand.lead}
-              <span className={overHero ? 'text-white/80' : 'text-brand-accent'}>{brand.accent}</span>
-            </div>
+            {settings.logoUrl ? (
+              <img
+                src={settings.logoUrl}
+                alt={settings.siteName}
+                className={`w-auto object-contain transition-all duration-500 ${
+                  isScrolled ? 'h-7 sm:h-8' : 'h-9 sm:h-11'
+                }`}
+              />
+            ) : (
+              <div
+                className={`tracking-widest transition-all duration-500 leading-none font-black whitespace-nowrap ${
+                  overHero ? 'text-white' : 'text-blue-950'
+                } ${isScrolled ? 'text-sm sm:text-xl' : 'text-base sm:text-2xl'}`}
+                style={{ fontFamily: 'var(--font-montserrat)' }}
+              >
+                {brand.lead}
+                <span className={overHero ? 'text-white/80' : 'text-brand-accent'}>{brand.accent}</span>
+              </div>
+            )}
           </Link>
 
           <div className="flex items-center justify-end gap-4 sm:gap-10 flex-1">

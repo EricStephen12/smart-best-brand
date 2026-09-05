@@ -36,8 +36,8 @@ export default function OrdersPage() {
   if (authLoading || loading) {
     return (
       <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
-        <Loader2 className="w-10 h-10 text-sky-600 animate-spin" />
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Fetching Orders...</p>
+        <Loader2 className="w-8 h-8 text-sky-700 animate-spin" />
+        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Loading Orders...</p>
       </div>
     );
   }
@@ -47,23 +47,23 @@ export default function OrdersPage() {
   const isAdmin = user.role === 'ADMIN';
 
   return (
-    <div className="space-y-10 pb-20 font-sans">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+    <div className="space-y-8 pb-20 font-sans">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-4xl font-black text-blue-950 tracking-tight uppercase leading-none mb-1">
-            {isAdmin ? 'Store Dispatch' : 'Order Dossier'}
+          <h1 className="text-2xl sm:text-3xl font-bold text-blue-950 tracking-tight">
+            {isAdmin ? 'Orders Management' : 'My Orders'}
           </h1>
-          <p className="text-slate-400 font-medium font-inter">
+          <p className="text-slate-500 text-sm mt-1">
             {isAdmin
-              ? 'Manage and fulfill elite global order essences.'
-              : 'Review your personalized collection of purchase history.'}
+              ? 'Manage store orders, fulfillment status, and customer shipments.'
+              : 'Track, review, and view details for all your purchases.'}
           </p>
         </div>
 
         {isAdmin && (
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-6 py-4 bg-white border border-slate-100 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-400 hover:text-blue-950 transition-all shadow-xl shadow-blue-900/5">
-              Export Dossier
+            <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-stone-200 rounded-xl font-semibold text-xs uppercase tracking-wider text-slate-600 hover:text-blue-950 hover:border-slate-300 transition-all shadow-sm">
+              Export Orders
             </button>
           </div>
         )}
@@ -72,16 +72,24 @@ export default function OrdersPage() {
       {orders.length > 0 ? (
         <OrdersList initialOrders={orders} />
       ) : (
-        <div className="py-24 text-center bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-blue-950/5">
-          <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200">
-            <Package className="w-10 h-10 italic" />
+        <div className="py-20 text-center bg-white rounded-3xl border border-stone-200/80 shadow-sm px-6">
+          <div className="w-16 h-16 bg-stone-50 rounded-2xl flex items-center justify-center mx-auto mb-5 text-stone-300">
+            <Package className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-black text-blue-950 uppercase tracking-tight mb-2">Empty Archives</h2>
-          <p className="text-slate-400 font-medium max-w-sm mx-auto">
+          <h2 className="text-lg font-bold text-blue-950 mb-1.5">No Orders Found</h2>
+          <p className="text-slate-500 text-sm max-w-md mx-auto mb-6">
             {isAdmin
-              ? 'No orders have been dispatched from the store yet.'
-              : 'Your purchase history is currently a clean slate. Start your journey in the shop.'}
+              ? 'No customer orders have been recorded in the store yet.'
+              : 'You have not placed any orders yet. Discover our collection of premium mattresses and furniture.'}
           </p>
+          {!isAdmin && (
+            <a
+              href="/products"
+              className="inline-flex items-center justify-center px-6 py-3 bg-blue-950 hover:bg-sky-800 text-white rounded-xl text-sm font-semibold transition-colors"
+            >
+              Browse Products
+            </a>
+          )}
         </div>
       )}
     </div>

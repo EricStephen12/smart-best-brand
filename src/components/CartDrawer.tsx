@@ -57,8 +57,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     {/* Header */}
                     <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
                       <div className="flex items-start justify-between">
-                        <Dialog.Title className="text-sm font-black text-blue-950 uppercase tracking-[0.3em]">
-                          Selection Dossier
+                        <Dialog.Title className="text-sm font-black text-blue-950 uppercase tracking-[0.2em]">
+                          Shopping Bag
                         </Dialog.Title>
                         <div className="ml-3 flex h-7 items-center">
                           <button

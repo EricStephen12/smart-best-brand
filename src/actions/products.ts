@@ -251,10 +251,89 @@ export async function updateProduct(id: string, formData: FormData) {
 
         const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
 
-        // Delete existing categories and variants
+        // 1. Reconcile categories
         await prisma.productCategory.deleteMany({ where: { productId: id } })
-        await prisma.productVariant.deleteMany({ where: { productId: id } })
+        if (categoryIds.length > 0) {
+            await prisma.productCategory.createMany({
+                data: categoryIds.map((categoryId: string) => ({
+                    productId: id,
+                    categoryId,
+                }))
+            })
+        }
 
+        // 2. Safely reconcile variants without violating foreign key constraints from OrderItem
+        const existingVariants = await prisma.productVariant.findMany({
+            where: { productId: id },
+            include: { _count: { select: { orderItems: true } } }
+        })
+
+        const processedVariantIds = new Set<string>()
+
+        for (const variant of variants) {
+            const price = parseFloat(variant.price) || 0
+            const promoPrice = variant.promoPrice ? parseFloat(variant.promoPrice) : null
+            const stock = parseInt(variant.stock || '0', 10)
+            const sku = variant.sku || null
+            const sizeId = variant.sizeId
+
+            // Match by ID first, then by sizeId if no ID provided
+            let matched = variant.id
+                ? existingVariants.find(ev => ev.id === variant.id)
+                : null
+
+            if (!matched && sizeId) {
+                matched = existingVariants.find(ev => ev.sizeId === sizeId && !processedVariantIds.has(ev.id))
+            }
+
+            if (matched) {
+                processedVariantIds.add(matched.id)
+                await prisma.productVariant.update({
+                    where: { id: matched.id },
+                    data: {
+                        sizeId,
+                        price,
+                        promoPrice,
+                        stock,
+                        sku,
+                        isActive: true,
+                    }
+                })
+            } else {
+                const created = await prisma.productVariant.create({
+                    data: {
+                        productId: id,
+                        sizeId,
+                        price,
+                        promoPrice,
+                        stock,
+                        sku,
+                        isActive: true,
+                    }
+                })
+                processedVariantIds.add(created.id)
+            }
+        }
+
+        // 3. For any existing variant not in the incoming list:
+        for (const oldVariant of existingVariants) {
+            if (!processedVariantIds.has(oldVariant.id)) {
+                if (oldVariant._count.orderItems > 0) {
+                    // It has orders! Soft-deactivate to preserve past order history and avoid FK violation
+                    await prisma.productVariant.update({
+                        where: { id: oldVariant.id },
+                        data: { isActive: false }
+                    })
+                } else {
+                    // Safe to delete because no order references it
+                    await prisma.productVariant.delete({
+                        where: { id: oldVariant.id }
+                    })
+                }
+            }
+        }
+
+        // 4. Update product core fields
         const product = await prisma.product.update({
             where: { id },
             data: {
@@ -271,20 +350,6 @@ export async function updateProduct(id: string, formData: FormData) {
                 isActive,
                 features,
                 images,
-                categories: {
-                    create: categoryIds.map((categoryId: string) => ({
-                        categoryId
-                    }))
-                },
-                variants: {
-                    create: variants.map((variant: any) => ({
-                        sizeId: variant.sizeId,
-                        price: parseFloat(variant.price),
-                        promoPrice: variant.promoPrice ? parseFloat(variant.promoPrice) : null,
-                        stock: parseInt(variant.stock || '0'),
-                        sku: variant.sku || null
-                    }))
-                }
             },
             include: {
                 variants: {
@@ -303,13 +368,31 @@ export async function updateProduct(id: string, formData: FormData) {
         return { success: true, data: product }
     } catch (error) {
         console.error('Error updating product:', error)
-        return { success: false, error: 'Failed to update product' }
+        return { success: false, error: error instanceof Error ? error.message : 'Failed to update product' }
     }
 }
 
 // Delete product
 export async function deleteProduct(id: string) {
     try {
+        const orderItemCount = await prisma.orderItem.count({
+            where: { variant: { productId: id } }
+        })
+
+        if (orderItemCount > 0) {
+            // Cannot hard-delete because orders reference this product's variants.
+            // Soft-deactivate instead so order history remains valid.
+            await prisma.product.update({
+                where: { id },
+                data: { isActive: false }
+            })
+            revalidatePath('/account/products')
+            revalidatePath('/products')
+            return { success: true }
+        }
+
+        await prisma.productCategory.deleteMany({ where: { productId: id } })
+        await prisma.productVariant.deleteMany({ where: { productId: id } })
         await prisma.product.delete({
             where: { id }
         })

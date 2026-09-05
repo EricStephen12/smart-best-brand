@@ -14,14 +14,14 @@ export default async function AdminProductsPage() {
     <div className="space-y-10 font-sans">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black text-blue-950 tracking-tight leading-none mb-2 uppercase">Product Inventory</h1>
-          <p className="text-slate-400 font-medium font-inter">Manage your elite mattress and furniture catalog with technical precision.</p>
+          <h1 className="text-3xl font-bold text-blue-950 tracking-tight leading-none mb-1.5">Product Inventory</h1>
+          <p className="text-slate-500 text-sm">Manage your mattress, pillow, and furniture catalog.</p>
         </div>
         <Link
           href="/account/products/create"
-          className="bg-blue-950 hover:bg-sky-600 text-white px-8 py-4 rounded-2xl flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-2xl shadow-blue-950/20 transform active:scale-95"
+          className="bg-blue-950 hover:bg-sky-800 text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-xs transition-all shadow-sm"
         >
-          <Plus className="w-4 h-4" /> Establish New Essence
+          <Plus className="w-4 h-4" /> Add New Product
         </Link>
       </div>
 

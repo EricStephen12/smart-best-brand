@@ -4,14 +4,19 @@ import crypto from 'crypto'
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/prisma'
 import { getSession } from '@/actions/auth'
-import { sendN8nEvent } from '@/lib/n8n'
 import { validatePromotionCode } from '@/actions/promotions'
 import {
     isSuccessfulPaystackCharge,
     nairaToKobo,
     verifyPaystackTransaction,
 } from '@/lib/paystack'
-import { sendOrderNotification } from '@/lib/sms'
+import {
+    sendCustomerOrderReceipt,
+    sendCustomerPaymentSuccessEmail,
+    sendOrderStatusUpdateEmail,
+    sendAdminOrderAlert,
+    sendAdminPaymentAlert,
+} from '@/lib/sms'
 
 interface CreateOrderData {
     customerName: string
@@ -34,6 +39,15 @@ interface CreateOrderData {
     promoCode?: string
 }
 
+function generateOrderNumber(): string {
+    const now = new Date()
+    const yy = String(now.getFullYear()).slice(-2)
+    const mm = String(now.getMonth() + 1).padStart(2, '0')
+    const dd = String(now.getDate()).padStart(2, '0')
+    const rand = crypto.randomInt(10000, 99999)
+    return `SBB-${yy}${mm}${dd}-${rand}`
+}
+
 const CUSTOM_DELIVERY_LOCATION = 'Other Locations'
 
 // Create order
@@ -54,7 +68,7 @@ export async function createOrder(data: CreateOrderData) {
         }
 
         const paymentMethod = data.paymentMethod.toUpperCase()
-        if (paymentMethod !== 'PAYSTACK' && paymentMethod !== 'WHATSAPP') {
+        if (paymentMethod !== 'PAYSTACK' && paymentMethod !== 'WHATSAPP' && paymentMethod !== 'BANK_TRANSFER') {
             return { success: false, error: 'Invalid payment method' }
         }
 
@@ -161,7 +175,7 @@ export async function createOrder(data: CreateOrderData) {
             return { success: false, error: 'Order total does not match calculated total' }
         }
 
-        const orderNumber = `ORD-${crypto.randomUUID()}`
+        const orderNumber = generateOrderNumber()
 
         const order = await prisma.order.create({
             data: {
@@ -198,20 +212,65 @@ export async function createOrder(data: CreateOrderData) {
             }
         })
 
-        void sendN8nEvent('order.created', {
+        // Auto-save delivery details to user profile if authenticated
+        if (session?.id) {
+            try {
+                await prisma.user.update({
+                    where: { id: session.id },
+                    data: {
+                        phone: data.customerPhone.trim(),
+                        deliveryAddress: data.deliveryAddress.trim(),
+                        deliveryLocation,
+                    }
+                })
+            } catch (profileErr) {
+                console.warn('Could not auto-save delivery details to user profile:', profileErr)
+            }
+        }
+
+        // Send direct admin alert for every new order
+        void sendAdminOrderAlert({
             orderNumber: order.orderNumber,
             customerName: order.customerName,
-            customerEmail: order.customerEmail,
             customerPhone: order.customerPhone,
+            customerEmail: order.customerEmail,
+            deliveryAddress: order.deliveryAddress,
             deliveryLocation: order.deliveryLocation,
+            paymentMethod: order.paymentMethod,
             total: order.total,
             status: order.status,
             items: order.items.map(item => ({
-                variantId: item.variantId,
+                name: item.variant.product.name,
+                size: item.variant.size?.label,
                 quantity: item.quantity,
                 price: item.price
             }))
         })
+
+        // Dispatch branded Resend order receipt to customer for Bank Transfer and WhatsApp
+        // (For Paystack, receipt is dispatched only after card payment is confirmed)
+        if (paymentMethod !== 'PAYSTACK') {
+            void sendCustomerOrderReceipt({
+                orderNumber: order.orderNumber,
+                customerName: order.customerName,
+                customerEmail: order.customerEmail,
+                customerPhone: order.customerPhone,
+                deliveryAddress: order.deliveryAddress,
+                deliveryLocation: order.deliveryLocation,
+                deliveryFee: order.deliveryFee,
+                subtotal: order.subtotal,
+                discount: order.discount,
+                total: order.total,
+                paymentMethod: order.paymentMethod,
+                status: order.status,
+                items: order.items.map(item => ({
+                    name: item.variant.product.name,
+                    size: item.variant.size?.label,
+                    quantity: item.quantity,
+                    price: item.price
+                }))
+            })
+        }
 
         revalidatePath('/account/orders')
 
@@ -361,13 +420,15 @@ export async function updateOrderStatus(id: string, status: string) {
             data: { status: status as any }
         })
 
-        void sendN8nEvent('order.status', {
-            orderId: order.id,
+        // Resend automation: dispatch customer status update email automatically
+        void sendOrderStatusUpdateEmail({
             orderNumber: order.orderNumber,
             customerName: order.customerName,
             customerEmail: order.customerEmail,
-            total: order.total,
-            status: order.status
+            status: order.status,
+            deliveryAddress: order.deliveryAddress,
+            deliveryLocation: order.deliveryLocation,
+            total: order.total
         })
 
         revalidatePath('/account/orders')
@@ -440,20 +501,48 @@ export async function confirmPaystackPayment(reference: string) {
             return { success: false, error: 'Order not found or already processed' }
         }
 
-        const paidOrder = await prisma.order.findUnique({ where: { orderNumber: reference } })
+        const paidOrder = await prisma.order.findUnique({
+            where: { orderNumber: reference },
+            include: {
+                items: {
+                    include: {
+                        variant: {
+                            include: {
+                                product: true,
+                                size: true
+                            }
+                        }
+                    }
+                }
+            }
+        })
         if (!paidOrder) {
             return { success: false, error: 'Order not found after update' }
         }
 
         await reduceInventory(paidOrder.id)
-        await sendOrderNotification(paidOrder.customerEmail, paidOrder.orderNumber, paidOrder.total)
-        void sendN8nEvent('order.paid', {
-            orderId: paidOrder.id,
+        void sendCustomerPaymentSuccessEmail({
             orderNumber: paidOrder.orderNumber,
             customerName: paidOrder.customerName,
             customerEmail: paidOrder.customerEmail,
+            customerPhone: paidOrder.customerPhone,
+            deliveryAddress: paidOrder.deliveryAddress,
+            deliveryLocation: paidOrder.deliveryLocation,
             total: paidOrder.total,
+            paymentMethod: paidOrder.paymentMethod,
             status: paidOrder.status,
+            items: paidOrder.items.map(item => ({
+                name: item.variant.product.name,
+                size: item.variant.size?.label,
+                quantity: item.quantity,
+                price: item.price
+            }))
+        })
+        void sendAdminPaymentAlert({
+            orderNumber: paidOrder.orderNumber,
+            customerName: paidOrder.customerName,
+            total: paidOrder.total,
+            paymentMethod: paidOrder.paymentMethod
         })
         revalidatePath('/account/orders')
 

@@ -31,8 +31,8 @@ export default async function CreateProductPage() {
                         <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                     </Link>
                     <div>
-                        <h1 className="text-3xl font-black text-blue-950 tracking-tight uppercase leading-none mb-1">Add New Essence</h1>
-                        <p className="text-sm font-medium text-slate-400">Define a new brand product in the elite global catalog.</p>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-blue-950 tracking-tight mb-1">Add New Product</h1>
+                        <p className="text-sm text-slate-500">Create and list a new product in the store catalog.</p>
                     </div>
                 </div>
             </div>

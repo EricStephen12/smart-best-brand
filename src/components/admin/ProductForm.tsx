@@ -61,10 +61,12 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
     const [isNegotiable, setIsNegotiable] = useState(initialData?.isNegotiable || false);
     const [variants, setVariants] = useState<Variant[]>(
         initialData?.variants?.map((v: any) => ({
+            id: v.id,
             sizeId: v.sizeId,
             price: v.price.toString(),
             promoPrice: v.promoPrice?.toString() || '',
-            stock: v.stock.toString()
+            stock: v.stock.toString(),
+            sku: v.sku || ''
         })) || [{ sizeId: '', price: '', promoPrice: '', stock: '10' }]
     );
 
@@ -118,7 +120,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                 : await createProduct(formData);
 
             if (result.success) {
-                toast.success(initialData ? 'Product updated successfully' : 'Product established successfully');
+                toast.success(initialData ? 'Product updated successfully' : 'Product created successfully');
                 router.push('/account/products');
             } else {
                 toast.error(result.error || 'Operation failed');
@@ -150,7 +152,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
 
                     <div className="space-y-8">
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Product Nomenclature</label>
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Product Name</label>
                             <input
                                 type="text"
                                 required
@@ -163,7 +165,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Brand Origin</label>
+                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Brand</label>
                                 <select
                                     required
                                     value={brandId}
@@ -220,13 +222,13 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                         </div>
 
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Editorial Narrative</label>
+                            <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 ml-1">Product Description</label>
                             <textarea
                                 rows={4}
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 className="w-full bg-slate-50 border-2 border-transparent focus:border-sky-600 focus:bg-white rounded-2xl px-6 py-4 text-sm font-medium text-blue-950 outline-none transition-all resize-none"
-                                placeholder="Describe the essence of this elite comfort..."
+                                placeholder="Enter detailed description of the product..."
                             />
                         </div>
                     </div>
@@ -457,9 +459,9 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                 className="w-full bg-sky-600 hover:bg-sky-500 text-white py-5 rounded-2xl flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-2xl shadow-sky-600/20 active:scale-95 disabled:opacity-50"
                             >
                                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                {initialData ? 'Commit Updates' : 'Establish Product'}
+                                {initialData ? 'Save Changes' : 'Create Product'}
                             </button>
-                            <p className="text-[9px] text-center font-bold text-sky-400/60 uppercase tracking-widest mt-6 italic">Finalizes entry in global inventory</p>
+                            <p className="text-[9px] text-center font-bold text-sky-400/60 uppercase tracking-widest mt-6 italic">Saves product and inventory updates</p>
                         </div>
                     </div>
                 </div>

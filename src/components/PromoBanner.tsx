@@ -1,12 +1,23 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSiteSettings } from '@/components/site-settings-context'
 
 export default function PromoBanner() {
+  const settings = useSiteSettings()
+
+  const badge = settings.promoBadge || 'For Nigerian homes'
+  const title = settings.promoTitle || 'Comfort that feels like home'
+  const ctaLabel = settings.promoCtaLabel || 'Discover now'
+  const ctaHref = settings.promoCtaHref || '/products'
+  const imageUrl = settings.promoImageUrl || '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg'
+
   return (
     <section className="relative min-h-[42vh] sm:min-h-[50vh] flex items-center justify-center overflow-hidden">
       <Image
-        src="/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg"
-        alt="Comfort for Nigerian homes"
+        src={imageUrl}
+        alt={title}
         fill
         className="object-cover"
         sizes="100vw"
@@ -22,17 +33,17 @@ export default function PromoBanner() {
         <div className="flex items-center justify-center gap-3 mb-5">
           <span className="w-1 h-5 rounded-full bg-sky-400" />
           <p className="text-[10px] font-black tracking-[0.4em] uppercase text-sky-300">
-            For Nigerian homes
+            {badge}
           </p>
         </div>
         <h2 className="font-playfair text-3xl sm:text-5xl font-semibold text-white tracking-tight mb-8">
-          Comfort that feels like home
+          {title}
         </h2>
         <Link
-          href="/products"
+          href={ctaHref}
           className="inline-flex border border-white/90 text-white px-8 py-3.5 text-[11px] font-medium tracking-[0.14em] uppercase hover:bg-white hover:text-[var(--brand-primary)] transition-colors"
         >
-          Discover now
+          {ctaLabel}
         </Link>
       </div>
     </section>

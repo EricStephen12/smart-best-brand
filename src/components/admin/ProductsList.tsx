@@ -85,10 +85,10 @@ export default function ProductsList({ initialProducts }: ProductsListProps) {
                 <table className="w-full text-left">
                     <thead>
                         <tr className="bg-slate-50/50">
-                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Product Essence</th>
-                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Inventory Status</th>
-                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Financials</th>
-                            <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-right">Actions</th>
+                            <th className="px-8 py-6 text-xs font-semibold uppercase tracking-wider text-slate-500">Product</th>
+                            <th className="px-8 py-6 text-xs font-semibold uppercase tracking-wider text-slate-500">Inventory Status</th>
+                            <th className="px-8 py-6 text-xs font-semibold uppercase tracking-wider text-slate-500">Pricing</th>
+                            <th className="px-8 py-6 text-xs font-semibold uppercase tracking-wider text-slate-500 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">

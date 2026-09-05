@@ -65,71 +65,71 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
 
     return (
         <div className="space-y-8">
-            <div className="bg-white rounded-3xl border border-slate-100 p-4 shadow-sm">
+            <div className="bg-white rounded-2xl border border-stone-200/80 p-3 shadow-sm">
                 <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
                         type="text"
-                        placeholder="Search order ID or patron name..."
-                        className="w-full pl-12 pr-6 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold text-blue-950 outline-none focus:ring-4 focus:ring-sky-600/10 transition-all font-sans"
+                        placeholder="Search by order number or customer name..."
+                        className="w-full pl-10 pr-4 py-3 bg-stone-50/70 border border-stone-200 rounded-xl text-sm font-medium text-blue-950 placeholder-stone-400 outline-none focus:ring-2 focus:ring-blue-950/20 focus:border-blue-950 transition-all font-sans"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
             </div>
 
-            <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-blue-950/5 overflow-hidden">
+            <div className="bg-white rounded-2xl border border-stone-200/80 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-slate-50/50 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                <th className="px-8 py-6">Identity</th>
-                                <th className="px-8 py-6">Patron</th>
-                                <th className="px-8 py-6">Timeline</th>
-                                <th className="px-8 py-6">Condition</th>
-                                <th className="px-8 py-6">Value</th>
-                                <th className="px-8 py-6 text-right">Protocol</th>
+                            <tr className="bg-stone-50 border-b border-stone-200 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                <th className="px-6 py-4">Order #</th>
+                                <th className="px-6 py-4">Customer</th>
+                                <th className="px-6 py-4">Date</th>
+                                <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4">Total</th>
+                                <th className="px-6 py-4 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50">
+                        <tbody className="divide-y divide-stone-100">
                             {filteredOrders.map((order) => (
-                                <tr key={order.id} className="hover:bg-slate-50/50 transition-colors group">
-                                    <td className="px-8 py-6">
+                                <tr key={order.id} className="hover:bg-stone-50/70 transition-colors group">
+                                    <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600">
+                                            <div className="w-8 h-8 bg-sky-50 rounded-lg flex items-center justify-center text-sky-700">
                                                 <Package className="w-4 h-4" />
                                             </div>
-                                            <span className="font-black text-blue-950">{order.orderNumber}</span>
+                                            <span className="font-semibold text-blue-950 text-sm">{order.orderNumber}</span>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-6">
+                                    <td className="px-6 py-4">
                                         <div>
-                                            <p className="font-bold text-blue-950 leading-tight">{order.customerName}</p>
-                                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">{order.deliveryLocation}</p>
+                                            <p className="font-semibold text-blue-950 text-sm leading-tight">{order.customerName}</p>
+                                            <p className="text-xs text-slate-400 mt-0.5">{order.deliveryLocation}</p>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-6">
+                                    <td className="px-6 py-4">
                                         <div className="flex flex-col">
-                                            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+                                            <span className="text-xs font-medium text-slate-600">
                                                 {new Date(order.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                             </span>
-                                            <span className="text-[9px] font-bold text-slate-300 italic">{new Date(order.createdAt).toLocaleTimeString()}</span>
+                                            <span className="text-[11px] text-slate-400">{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-6">
+                                    <td className="px-6 py-4">
                                         <StatusBadge status={order.status.toLowerCase()} />
                                     </td>
-                                    <td className="px-8 py-6 font-black text-blue-950">
-                                        ₦ {order.total.toLocaleString()}
+                                    <td className="px-6 py-4 font-bold text-blue-950 text-sm">
+                                        ₦{order.total.toLocaleString()}
                                     </td>
-                                    <td className="px-8 py-6 text-right">
-                                        <div className="flex items-center justify-end gap-4">
-                                            {isAdmin ? (
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex items-center justify-end gap-3">
+                                            {isAdmin && (
                                                 <select
                                                     value={order.status}
                                                     onChange={(e) => handleStatusChange(order.id, e.target.value)}
                                                     disabled={updatingId === order.id}
-                                                    className="bg-slate-50 border-none rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 focus:ring-4 focus:ring-sky-600/10 outline-none cursor-pointer disabled:opacity-50"
+                                                    className="bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700 focus:ring-2 focus:ring-blue-950/20 outline-none cursor-pointer disabled:opacity-50"
                                                 >
                                                     <option value="PENDING">Pending</option>
                                                     <option value="PAID">Paid</option>
@@ -138,14 +138,13 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
                                                     <option value="DELIVERED">Delivered</option>
                                                     <option value="CANCELLED">Cancelled</option>
                                                 </select>
-                                            ) : (
-                                                <StatusBadge status={order.status.toLowerCase()} />
                                             )}
                                             <Link
                                                 href={`/account/orders/${order.id}`}
-                                                className="p-2 hover:bg-slate-50 rounded-xl text-slate-300 hover:text-sky-600 transition-all shadow-sm"
+                                                className="p-2 hover:bg-stone-100 rounded-lg text-slate-400 hover:text-blue-950 transition-all"
+                                                title="View Details"
                                             >
-                                                <Eye className="w-5 h-5" />
+                                                <Eye className="w-4 h-4" />
                                             </Link>
                                         </div>
                                     </td>
@@ -153,8 +152,8 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
                             ))}
                             {filteredOrders.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="px-8 py-20 text-center">
-                                        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No dispatches found in archives.</p>
+                                    <td colSpan={6} className="px-6 py-14 text-center">
+                                        <p className="text-sm font-medium text-slate-500">No matching orders found.</p>
                                     </td>
                                 </tr>
                             )}

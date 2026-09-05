@@ -5,9 +5,19 @@ import { useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import EditorialBackdrop from '@/components/EditorialBackdrop'
+import { useSiteSettings } from '@/components/site-settings-context'
 
 export default function StorySection({ brandCount }: { brandCount?: number }) {
   const containerRef = useRef(null)
+  const settings = useSiteSettings()
+
+  const storyBadge = settings.storyBadge || 'Our Legacy'
+  const storyTitle = settings.storyTitle || 'Authenticity as a Standard.'
+  const storyText = settings.storyText || "Smart Best Brands was established with a singular mission: to bring Nigeria's most trusted home brands under one roof. We understand that your home is your sanctuary, and the foundation of that sanctuary begins with rest."
+  const secondaryBadge = settings.storySecondaryBadge || 'Our Promise'
+  const secondaryTitle = settings.storySecondaryTitle || 'Curating the Invisible Details.'
+  const secondaryText = settings.storySecondaryText || 'By partnering directly with industry leaders like Vitafoam, Mouka Foam, and Royal Foam, we ensure that every product you purchase is 100% authentic and backed by a full manufacturer warranty.'
+  const mainImage = settings.storyImageUrl || '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg'
 
   return (
     <section ref={containerRef} className="relative py-16 sm:py-24 md:py-28 bg-white overflow-hidden border-y border-blue-950/5">
@@ -20,8 +30,8 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
           {/* Main Large Image */}
           <div className="lg:col-span-7">
             <RevealImage
-              src="/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg"
-              alt="Luxury Living"
+              src={mainImage}
+              alt={storyTitle}
               className="aspect-[4/5] md:aspect-[16/10] rounded-none sm:rounded-3xl"
             />
           </div>
@@ -37,14 +47,13 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
             >
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-1 h-8 bg-sky-600 rounded-full" />
-                <span className="text-sm sm:text-xl md:text-2xl font-black tracking-[0.5em] text-sky-600 uppercase">Our Legacy</span>
+                <span className="text-sm sm:text-xl md:text-2xl font-black tracking-[0.5em] text-sky-600 uppercase">{storyBadge}</span>
               </div>
               <h3 className="text-4xl md:text-6xl font-black text-blue-950 tracking-[-0.04em] leading-[0.9]">
-                Authenticity as a <br />
-                <span className="text-sky-600 font-display italic">Standard.</span>
+                {storyTitle}
               </h3>
               <p className="text-lg text-slate-500 font-medium leading-[1.6]">
-                Smart Best Brands was established with a singular mission: to bring Nigeria&apos;s most trusted home brands under one roof. We understand that your home is your sanctuary, and the foundation of that sanctuary begins with rest.
+                {storyText}
               </p>
               <div className="pt-4">
                 <div className="w-12 h-[1px] bg-blue-950"></div>
@@ -68,16 +77,15 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
               <div>
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-1 h-8 bg-sky-600 rounded-full" />
-                  <span className="text-sm sm:text-xl md:text-2xl font-black tracking-[0.5em] text-sky-600 uppercase">Our Promise</span>
+                  <span className="text-sm sm:text-xl md:text-2xl font-black tracking-[0.5em] text-sky-600 uppercase">{secondaryBadge}</span>
                 </div>
                 <h3 className="text-4xl md:text-6xl font-black text-blue-950 tracking-[-0.04em] leading-[0.9]">
-                  Curating the <br />
-                  <span className="text-blue-950/20">Invisible Details.</span>
+                  {secondaryTitle}
                 </h3>
               </div>
 
               <p className="text-lg text-slate-500 font-medium leading-[1.6]">
-                By partnering directly with industry leaders like Vitafoam, Mouka Foam, and Royal Foam, we ensure that every product you purchase is 100% authentic and backed by a full manufacturer warranty.
+                {secondaryText}
               </p>
 
               <div className="flex gap-12">

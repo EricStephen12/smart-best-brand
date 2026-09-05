@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Instagram, MessageCircle, MapPin, Mail, Phone } from 'lucide-react'
+import { Instagram, Facebook, Twitter, MessageCircle, MapPin, Mail, Phone } from 'lucide-react'
 import { getTelHref, getWhatsAppUrl } from '@/lib/contact-channels'
 import { useSiteSettings } from '@/components/site-settings-context'
 import { brandNameParts } from '@/lib/site-settings'
@@ -62,7 +62,7 @@ export default function Footer() {
             <div className="space-y-3 text-sm text-white/60">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 mt-0.5 text-sky-500 shrink-0" />
-                <p>Abuja · Benin City</p>
+                <p>{settings.storeAddress || 'Abuja · Benin City'}</p>
               </div>
               <a
                 href={`mailto:${settings.contactEmail}`}
@@ -78,23 +78,53 @@ export default function Footer() {
                 </a>
               ) : null}
             </div>
-            <div className="flex gap-3 mt-5">
-              <a
-                href="https://instagram.com/smartbestbrands"
-                aria-label="Instagram"
-                className="w-10 h-10 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors"
-              >
-                <Instagram className="w-4 h-4" />
-              </a>
-              {whatsappUrl ? (
+
+            {/* Social Media Links */}
+            <div className="flex flex-wrap gap-3 mt-5">
+              {settings.instagramUrl && (
+                <a
+                  href={settings.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="w-10 h-10 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors rounded-lg"
+                >
+                  <Instagram className="w-4 h-4" />
+                </a>
+              )}
+              {settings.facebookUrl && (
+                <a
+                  href={settings.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="w-10 h-10 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors rounded-lg"
+                >
+                  <Facebook className="w-4 h-4" />
+                </a>
+              )}
+              {settings.twitterUrl && (
+                <a
+                  href={settings.twitterUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Twitter / X"
+                  className="w-10 h-10 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors rounded-lg"
+                >
+                  <Twitter className="w-4 h-4" />
+                </a>
+              )}
+              {whatsappUrl && (
                 <a
                   href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label="WhatsApp"
-                  className="w-10 h-10 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors"
+                  className="w-10 h-10 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors rounded-lg"
                 >
                   <MessageCircle className="w-4 h-4" />
                 </a>
-              ) : null}
+              )}
             </div>
           </div>
         </div>
