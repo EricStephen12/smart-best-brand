@@ -1,13 +1,20 @@
-import { requireAdmin } from '@/lib/auth'
+import { ensureAppUser } from '@/lib/auth'
 import { getUsersList } from '@/actions/users'
 import UsersList from '@/components/admin/UsersList'
+import { redirect } from 'next/navigation'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata = {
   title: 'Staff & User Management | Admin Backoffice',
 }
 
 export default async function AdminCustomersPage() {
-  const admin = await requireAdmin()
+  const admin = await ensureAppUser()
+  if (!admin || admin.role !== 'ADMIN') {
+    redirect('/login?redirect=/account/customers')
+  }
+
   const result = await getUsersList()
   const users = result.success && result.data ? result.data : []
 
