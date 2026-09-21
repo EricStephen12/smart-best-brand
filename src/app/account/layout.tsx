@@ -25,6 +25,7 @@ import {
   ChevronRight,
   Shield,
   User as UserIcon,
+  Users,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -206,6 +207,7 @@ export default function AccountLayout({
         <NavItem href="/account/brands" icon={Tags} active={pathname.startsWith('/account/brands')} onClick={closeSidebar}>Brands</NavItem>
         <NavItem href="/account/categories" icon={Grid} active={pathname.startsWith('/account/categories')} onClick={closeSidebar}>Categories</NavItem>
         <NavItem href="/account/sizes" icon={Ruler} active={pathname.startsWith('/account/sizes')} onClick={closeSidebar}>Sizes</NavItem>
+        <NavItem href="/account/customers" icon={Users} active={pathname.startsWith('/account/customers')} onClick={closeSidebar}>Users &amp; Roles</NavItem>
         <NavItem href="/account/delivery-locations" icon={MapPin} active={pathname.startsWith('/account/delivery-locations')} onClick={closeSidebar}>Delivery Regions</NavItem>
         <NavItem href="/account/promotions" icon={Percent} active={pathname.startsWith('/account/promotions')} onClick={closeSidebar}>Promotions</NavItem>
         <NavItem href="/account/banners" icon={ImageIcon} active={pathname.startsWith('/account/banners')} onClick={closeSidebar}>Banners</NavItem>

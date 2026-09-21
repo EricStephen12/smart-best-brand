@@ -432,7 +432,7 @@ export async function getOrderById(id: string) {
 }
 
 // Update order status
-export async function updateOrderStatus(id: string, status: string) {
+export async function updateOrderStatus(id: string, status: string, trackingNote?: string) {
     try {
         const session = await getSession()
         if (!session) {
@@ -502,10 +502,12 @@ export async function updateOrderStatus(id: string, status: string) {
             status: order.status,
             deliveryAddress: order.deliveryAddress,
             deliveryLocation: order.deliveryLocation,
-            total: order.total
+            total: order.total,
+            trackingNote: trackingNote?.trim() || undefined
         })
 
         revalidatePath('/account/orders')
+        revalidatePath(`/account/orders/${id}`)
 
         return { success: true, data: order }
     } catch (error) {

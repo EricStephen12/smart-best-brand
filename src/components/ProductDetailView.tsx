@@ -14,6 +14,10 @@ import {
   ShieldCheck,
   Truck,
   ChevronRight,
+  ChevronDown,
+  RotateCcw,
+  Sparkles,
+  BadgePercent,
 } from 'lucide-react'
 import CustomRequestModal from '@/components/CustomRequestModal'
 import ProductReviews, { type ReviewItem } from '@/components/ProductReviews'
@@ -55,6 +59,7 @@ export default function ProductDetailView({
   const [selectedVariant, setSelectedVariant] = useState(initialVariant)
   const [activeImage, setActiveImage] = useState(product?.images?.[0] || '/images/placeholder.jpg')
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false)
+  const [openPolicyTab, setOpenPolicyTab] = useState<string | null>('delivery')
   const { isInWishlist, toggleWishlist } = useWishlist()
 
   if (!product) return null
@@ -73,6 +78,17 @@ export default function ProductDetailView({
   const handleWhatsAppOrder = () => {
     const isCustom = !selectedVariant.price || selectedVariant.price === 0
     const text = `Hello Smart Best Brands, I would like to ${isCustom ? 'request a custom size' : `order ${product.name} (${selectedVariant.size.label})`}${product.isNegotiable ? ' and discuss the price' : ''}.${!isCustom ? ` Price: ₦${(selectedVariant.promoPrice || selectedVariant.price).toLocaleString()}.` : ''} ${window.location.href}`
+    const url = getWhatsAppUrl(text)
+    if (!url) {
+      toast.error('WhatsApp is not configured. Please use Contact.')
+      return
+    }
+    window.open(url, '_blank')
+  }
+
+  const handleNegotiateWhatsApp = () => {
+    const isCustom = !selectedVariant.price || selectedVariant.price === 0
+    const text = `Hello Smart Best Brands, I would like to negotiate the price of ${product.name} (${selectedVariant.size?.label || 'Standard'})${!isCustom ? ` currently listed at ₦${(selectedVariant.promoPrice || selectedVariant.price).toLocaleString()}` : ''}. What is your best discount for this item? ${window.location.href}`
     const url = getWhatsAppUrl(text)
     if (!url) {
       toast.error('WhatsApp is not configured. Please use Contact.')
@@ -280,6 +296,16 @@ export default function ProductDetailView({
                   <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current text-rose-600' : ''}`} />
                 </button>
               </div>
+              {product.isNegotiable ? (
+                <button
+                  type="button"
+                  onClick={handleNegotiateWhatsApp}
+                  className="w-full inline-flex items-center justify-center gap-2 border border-sky-600 bg-sky-50 text-sky-950 text-[11px] font-black tracking-[0.18em] uppercase py-3.5 hover:bg-sky-100 transition-colors"
+                >
+                  <BadgePercent className="w-4 h-4 text-sky-700" />
+                  Negotiate Price on WhatsApp
+                </button>
+              ) : null}
               <button
                 type="button"
                 onClick={handleWhatsAppOrder}
@@ -290,15 +316,109 @@ export default function ProductDetailView({
               </button>
             </div>
 
-            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-stone-500">
-              <span className="inline-flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-sky-700" />
-                Authentic
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <Truck className="w-4 h-4 text-sky-700" />
-                Delivery available
-              </span>
+            {/* Item Policies & Guarantees Accordion */}
+            <div className="pt-6 border-t border-stone-200/80 space-y-3">
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-stone-400">
+                Guarantees &amp; Item Policies
+              </p>
+
+              <div className="border border-stone-200 rounded-xl divide-y divide-stone-100 overflow-hidden bg-white text-sm">
+                {/* 1. Delivery & Shipping */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setOpenPolicyTab(openPolicyTab === 'delivery' ? null : 'delivery')}
+                    className="w-full flex items-center justify-between p-4 text-left font-semibold text-blue-950 hover:bg-stone-50 transition-colors"
+                  >
+                    <span className="flex items-center gap-2.5 text-xs tracking-wide uppercase">
+                      <Truck className="w-4 h-4 text-sky-700" />
+                      Delivery &amp; Transit Timelines
+                    </span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                        openPolicyTab === 'delivery' ? 'rotate-180 text-blue-950' : ''
+                      }`}
+                    />
+                  </button>
+                  {openPolicyTab === 'delivery' && (
+                    <div className="px-4 pb-4 text-xs text-slate-600 space-y-2 leading-relaxed bg-stone-50/50">
+                      <p>
+                        • <strong>Abuja &amp; Lagos:</strong> 24–48 hours (same-day dispatch available on morning orders).
+                      </p>
+                      <p>
+                        • <strong>Other States:</strong> 3–5 business days via insured haulage.
+                      </p>
+                      <p>
+                        • <strong>Inspection:</strong> You are encouraged to inspect the item packaging upon delivery before our courier team departs.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Returns & Replacement */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setOpenPolicyTab(openPolicyTab === 'return' ? null : 'return')}
+                    className="w-full flex items-center justify-between p-4 text-left font-semibold text-blue-950 hover:bg-stone-50 transition-colors"
+                  >
+                    <span className="flex items-center gap-2.5 text-xs tracking-wide uppercase">
+                      <RotateCcw className="w-4 h-4 text-emerald-700" />
+                      7-Day Return &amp; Exchange Policy
+                    </span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                        openPolicyTab === 'return' ? 'rotate-180 text-blue-950' : ''
+                      }`}
+                    />
+                  </button>
+                  {openPolicyTab === 'return' && (
+                    <div className="px-4 pb-4 text-xs text-slate-600 space-y-2 leading-relaxed bg-stone-50/50">
+                      <p>
+                        • <strong>Return Window:</strong> Returns or exchanges accepted within 7 days of delivery.
+                      </p>
+                      <p>
+                        • <strong>Hygiene Standard:</strong> For mattresses, the original factory clear polythene seal must remain intact and unopened.
+                      </p>
+                      <p>
+                        • <strong>Factory Flaws:</strong> If any manufacturing defect or transit damage is detected upon unboxing, we provide an immediate 100% free replacement.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Factory Warranty */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setOpenPolicyTab(openPolicyTab === 'warranty' ? null : 'warranty')}
+                    className="w-full flex items-center justify-between p-4 text-left font-semibold text-blue-950 hover:bg-stone-50 transition-colors"
+                  >
+                    <span className="flex items-center gap-2.5 text-xs tracking-wide uppercase">
+                      <ShieldCheck className="w-4 h-4 text-amber-700" />
+                      100% Factory Warranty &amp; Authenticity
+                    </span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                        openPolicyTab === 'warranty' ? 'rotate-180 text-blue-950' : ''
+                      }`}
+                    />
+                  </button>
+                  {openPolicyTab === 'warranty' && (
+                    <div className="px-4 pb-4 text-xs text-slate-600 space-y-2 leading-relaxed bg-stone-50/50">
+                      <p>
+                        • <strong>Direct Sourcing:</strong> Genuine factory-sealed products directly from certified Mouka, Vitafoam, and Royal Foam manufacturing plants.
+                      </p>
+                      <p>
+                        • <strong>Manufacturer Certificate:</strong> Includes official manufacturer warranty documentation.
+                      </p>
+                      <p>
+                        • <strong>Dedicated Support:</strong> Our team coordinates directly with the factory service center if you ever need warranty service.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getOrderById } from '@/actions/orders';
+import { getOrderById, updateOrderStatus } from '@/actions/orders';
 import { useAuth } from '@/hooks/use-auth';
 import {
     ChevronLeft,
@@ -15,6 +15,7 @@ import {
     XCircle,
     Loader2,
     Printer,
+    ShieldCheck,
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
@@ -25,6 +26,9 @@ export default function OrderDetailsPage() {
     const { user } = useAuth();
     const [order, setOrder] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [adminStatus, setAdminStatus] = useState<string>('');
+    const [trackingNote, setTrackingNote] = useState<string>('');
+    const [isUpdatingStatus, setIsUpdatingStatus] = useState<boolean>(false);
 
     useEffect(() => {
         const loadOrder = async () => {
@@ -39,6 +43,7 @@ export default function OrderDetailsPage() {
                         return;
                     }
                     setOrder(result.data);
+                    setAdminStatus(result.data.status);
                 } else {
                     toast.error('Order not found');
                     router.push('/account/orders');
@@ -53,6 +58,25 @@ export default function OrderDetailsPage() {
 
         if (user) loadOrder();
     }, [params.id, user, router]);
+
+    const handleUpdateStatus = async () => {
+        if (!order || !adminStatus) return;
+        setIsUpdatingStatus(true);
+        try {
+            const result = await updateOrderStatus(order.id, adminStatus, trackingNote);
+            if (result.success && result.data) {
+                setOrder((prev: any) => ({ ...prev, ...result.data }));
+                toast.success(`Order status updated to ${adminStatus} and email notification dispatched`);
+                setTrackingNote('');
+            } else {
+                toast.error(result.error || 'Failed to update order status');
+            }
+        } catch {
+            toast.error('Unexpected error updating order');
+        } finally {
+            setIsUpdatingStatus(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -236,6 +260,75 @@ export default function OrderDetailsPage() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Admin Backoffice Order Management */}
+                        {user?.role === 'ADMIN' && (
+                            <div className="bg-blue-950 text-white rounded-2xl p-6 shadow-sm space-y-4 print:hidden">
+                                <div className="flex items-center gap-2.5 pb-3 border-b border-white/10">
+                                    <ShieldCheck className="w-5 h-5 text-sky-400" />
+                                    <h3 className="text-sm font-bold uppercase tracking-wider text-white">
+                                        Admin Order Desk
+                                    </h3>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <div>
+                                        <label className="text-[10px] font-bold uppercase tracking-wider text-sky-300 block mb-1.5">
+                                            Update Order Status
+                                        </label>
+                                        <select
+                                            value={adminStatus}
+                                            onChange={(e) => setAdminStatus(e.target.value)}
+                                            disabled={isUpdatingStatus}
+                                            className="w-full bg-blue-900 border border-blue-800 text-white rounded-xl px-3 py-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 cursor-pointer disabled:opacity-50"
+                                        >
+                                            <option value="PENDING">PENDING (Awaiting Payment)</option>
+                                            <option value="PAID">PAID (Payment Confirmed)</option>
+                                            <option value="PROCESSING">PROCESSING (Preparing Dispatch)</option>
+                                            <option value="SHIPPED">SHIPPED (In Transit)</option>
+                                            <option value="DELIVERED">DELIVERED (Fulfilled)</option>
+                                            <option value="CANCELLED">CANCELLED (Void / Restocked)</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-[10px] font-bold uppercase tracking-wider text-sky-300 block mb-1.5">
+                                            Tracking / Delivery Note (Optional)
+                                        </label>
+                                        <textarea
+                                            value={trackingNote}
+                                            onChange={(e) => setTrackingNote(e.target.value)}
+                                            placeholder="e.g. Driver Emeka: 08012345678, dispatched at 10:30am..."
+                                            rows={2}
+                                            disabled={isUpdatingStatus}
+                                            className="w-full bg-blue-900/80 border border-blue-800 text-white placeholder-blue-300/50 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-sky-400 disabled:opacity-50"
+                                        />
+                                        <p className="text-[10px] text-blue-300/70 mt-1">
+                                            This note will be included directly in the customer's status update email.
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={handleUpdateStatus}
+                                        disabled={isUpdatingStatus || (!trackingNote && adminStatus === order.status)}
+                                        className="w-full bg-sky-600 hover:bg-sky-500 text-white py-3 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-md cursor-pointer"
+                                    >
+                                        {isUpdatingStatus ? (
+                                            <>
+                                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                <span>Updating Order…</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                                <span>Update &amp; Notify Customer</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
