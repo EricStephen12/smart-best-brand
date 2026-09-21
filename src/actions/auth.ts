@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
 import { decodeJwt } from 'jose'
 import prisma from '@/lib/prisma'
 import { ensureAppUser, type AppUser } from '@/lib/auth'
@@ -311,7 +312,25 @@ export async function forgotPasswordAction(email: string): Promise<{ success: bo
       user.passwordHash || 'no-prior-password'
     )
 
-    const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
+    let siteUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '')
+
+    if (!siteUrl) {
+      try {
+        const headerList = await headers()
+        const host = headerList.get('x-forwarded-host') || headerList.get('host')
+        const proto = headerList.get('x-forwarded-proto') || 'https'
+        if (host && !host.includes('localhost')) {
+          siteUrl = `${proto}://${host}`
+        }
+      } catch {
+        // Fallback if headers are not accessible
+      }
+    }
+
+    if (!siteUrl) {
+      siteUrl = 'https://smartbestbrands.com'
+    }
+
     const resetUrl = `${siteUrl}/reset-password?token=${encodeURIComponent(token)}`
 
     await sendPasswordResetEmail(user.email, resetUrl)
