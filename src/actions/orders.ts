@@ -37,6 +37,7 @@ interface CreateOrderData {
     notes?: string
     discount?: number
     promoCode?: string
+    idempotencyKey?: string
 }
 
 function generateOrderNumber(): string {
@@ -44,7 +45,7 @@ function generateOrderNumber(): string {
     const yy = String(now.getFullYear()).slice(-2)
     const mm = String(now.getMonth() + 1).padStart(2, '0')
     const dd = String(now.getDate()).padStart(2, '0')
-    const rand = crypto.randomInt(10000, 99999)
+    const rand = crypto.randomBytes(3).toString('hex').toUpperCase()
     return `SBB-${yy}${mm}${dd}-${rand}`
 }
 
@@ -54,6 +55,28 @@ const CUSTOM_DELIVERY_LOCATION = 'Other Locations'
 export async function createOrder(data: CreateOrderData) {
     try {
         const session = await getSession()
+
+        // Idempotency check: if order was already submitted with this key, return it
+        if (data.idempotencyKey) {
+            const existing = await prisma.order.findUnique({
+                where: { idempotencyKey: data.idempotencyKey },
+                include: {
+                    items: {
+                        include: {
+                            variant: {
+                                include: {
+                                    product: true,
+                                    size: true,
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+            if (existing) {
+                return { success: true, data: existing, alreadyCreated: true }
+            }
+        }
 
         if (!data.items?.length) {
             return { success: false, error: 'Cart is empty' }
@@ -126,6 +149,8 @@ export async function createOrder(data: CreateOrderData) {
         const isCustomDelivery =
             deliveryLocation.toLowerCase() === CUSTOM_DELIVERY_LOCATION.toLowerCase()
 
+        const totalQuantity = data.items.reduce((acc, item) => acc + item.quantity, 0)
+
         if (isCustomDelivery) {
             deliveryFee = 0
             deliveryLocation = CUSTOM_DELIVERY_LOCATION
@@ -136,7 +161,8 @@ export async function createOrder(data: CreateOrderData) {
             if (!zone) {
                 return { success: false, error: 'Invalid delivery location' }
             }
-            deliveryFee = zone.basePrice
+            const bulkyHandlingFee = Math.max(0, totalQuantity - 1) * 2500
+            deliveryFee = zone.basePrice + bulkyHandlingFee
             deliveryLocation = zone.name
         }
 
@@ -152,7 +178,8 @@ export async function createOrder(data: CreateOrderData) {
             const promoResult = await validatePromotionCode(
                 data.promoCode,
                 computedSubtotal,
-                cartItems
+                cartItems,
+                data.customerEmail
             )
             if (!promoResult.success || !promoResult.data) {
                 return { success: false, error: promoResult.error || 'Invalid promotion code' }
@@ -180,6 +207,7 @@ export async function createOrder(data: CreateOrderData) {
         const order = await prisma.order.create({
             data: {
                 orderNumber,
+                idempotencyKey: data.idempotencyKey || null,
                 userId: session?.id || null,
                 customerName: data.customerName,
                 customerEmail: (data.customerEmail || '').trim().toLowerCase(),
@@ -415,10 +443,56 @@ export async function updateOrderStatus(id: string, status: string) {
             return { success: false, error: 'Unauthorized' }
         }
 
-        const order = await prisma.order.update({
+        const existingOrder = await prisma.order.findUnique({
             where: { id },
-            data: { status: status as any }
+            include: { items: true }
         })
+
+        if (!existingOrder) {
+            return { success: false, error: 'Order not found' }
+        }
+
+        // Restock inventory if an order whose inventory was deducted is cancelled
+        if (status === 'CANCELLED' && existingOrder.inventoryDeductedAt) {
+            await prisma.$transaction(async (tx) => {
+                for (const item of existingOrder.items) {
+                    await tx.productVariant.update({
+                        where: { id: item.variantId },
+                        data: {
+                            stock: { increment: item.quantity }
+                        }
+                    })
+                }
+                await tx.order.update({
+                    where: { id },
+                    data: {
+                        status: 'CANCELLED',
+                        inventoryDeductedAt: null
+                    }
+                })
+            })
+        } else {
+            await prisma.order.update({
+                where: { id },
+                data: { status: status as any }
+            })
+
+            // If manually marked PAID by admin, ensure inventory deduction & promo redemption count increment
+            if (status === 'PAID' && existingOrder.status !== 'PAID') {
+                if (!existingOrder.inventoryDeductedAt) {
+                    await reduceInventory(id)
+                }
+                if (existingOrder.promoCode) {
+                    await prisma.promotion.updateMany({
+                        where: { code: existingOrder.promoCode.toUpperCase() },
+                        data: { usedCount: { increment: 1 } }
+                    })
+                }
+            }
+        }
+
+        const order = await prisma.order.findUnique({ where: { id } })
+        if (!order) return { success: false, error: 'Order not found' }
 
         // Resend automation: dispatch customer status update email automatically
         void sendOrderStatusUpdateEmail({
@@ -520,7 +594,15 @@ export async function confirmPaystackPayment(reference: string) {
             return { success: false, error: 'Order not found after update' }
         }
 
-        await reduceInventory(paidOrder.id)
+        if (!paidOrder.inventoryDeductedAt) {
+            await reduceInventory(paidOrder.id)
+        }
+        if (paidOrder.promoCode) {
+            await prisma.promotion.updateMany({
+                where: { code: paidOrder.promoCode.toUpperCase() },
+                data: { usedCount: { increment: 1 } }
+            })
+        }
         void sendCustomerPaymentSuccessEmail({
             orderNumber: paidOrder.orderNumber,
             customerName: paidOrder.customerName,
@@ -553,44 +635,61 @@ export async function confirmPaystackPayment(reference: string) {
     }
 }
 
-// Reduce inventory when order is paid
+// Reduce inventory when order is paid (idempotent + transactional)
 export async function reduceInventory(orderId: string) {
     try {
-        const order = await prisma.order.findUnique({
-            where: { id: orderId },
-            include: { items: true }
-        })
+        return await prisma.$transaction(async (tx) => {
+            const order = await tx.order.findUnique({
+                where: { id: orderId },
+                include: { items: true }
+            })
 
-        if (!order) return { success: false, error: 'Order not found' }
+            if (!order) return { success: false, error: 'Order not found' }
 
-        const variantIds = order.items.map(item => item.variantId)
-        const variants = await prisma.productVariant.findMany({
-            where: { id: { in: variantIds } }
-        })
-
-        for (const item of order.items) {
-            const variant = variants.find((variant) => variant.id === item.variantId)
-            if (!variant) {
-                return { success: false, error: 'Product variant not found' }
+            // Idempotency: do not deduct multiple times
+            if (order.inventoryDeductedAt) {
+                return { success: true, alreadyDeducted: true }
             }
-            if (variant.stock < item.quantity) {
-                return { success: false, error: 'Insufficient stock for one or more items' }
-            }
-        }
 
-        const updates = order.items.map(item =>
-            prisma.productVariant.update({
-                where: { id: item.variantId },
-                data: {
-                    stock: {
-                        decrement: item.quantity
+            const variantIds = order.items.map(item => item.variantId)
+            const variants = await tx.productVariant.findMany({
+                where: { id: { in: variantIds } },
+                include: { product: true }
+            })
+
+            for (const item of order.items) {
+                const variant = variants.find((v) => v.id === item.variantId)
+                if (!variant) {
+                    return { success: false, error: 'Product variant not found' }
+                }
+                if (variant.stock < item.quantity) {
+                    console.error(
+                        `[Oversell Warning] Order ${order.orderNumber}: Product "${variant.product?.name}" variant ${variant.id} has stock ${variant.stock}, needed ${item.quantity}`
+                    )
+                }
+            }
+
+            for (const item of order.items) {
+                const variant = variants.find((v) => v.id === item.variantId)
+                const currentStock = variant ? variant.stock : 0
+                const nextStock = Math.max(0, currentStock - item.quantity)
+                await tx.productVariant.update({
+                    where: { id: item.variantId },
+                    data: {
+                        stock: nextStock
                     }
+                })
+            }
+
+            await tx.order.update({
+                where: { id: orderId },
+                data: {
+                    inventoryDeductedAt: new Date()
                 }
             })
-        )
 
-        await Promise.all(updates)
-        return { success: true }
+            return { success: true }
+        })
     } catch (error) {
         console.error('Inventory reduction error:', error)
         return { success: false, error }

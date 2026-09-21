@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/prisma'
 import { mockSizes } from '@/lib/mockData'
+import { requireAdmin } from '@/lib/auth'
 
 // Get all sizes
 export async function getAllSizes() {
@@ -28,6 +29,7 @@ export async function getAllSizes() {
 // Create size
 export async function createSize(formData: FormData) {
     try {
+        await requireAdmin()
         const label = formData.get('label') as string
         const width = formData.get('width') ? parseFloat(formData.get('width') as string) : null
         const length = formData.get('length') ? parseFloat(formData.get('length') as string) : null
@@ -53,6 +55,7 @@ export async function createSize(formData: FormData) {
 // Update size
 export async function updateSize(id: string, formData: FormData) {
     try {
+        await requireAdmin()
         const label = formData.get('label') as string
         const width = formData.get('width') ? parseFloat(formData.get('width') as string) : null
         const length = formData.get('length') ? parseFloat(formData.get('length') as string) : null
@@ -79,6 +82,19 @@ export async function updateSize(id: string, formData: FormData) {
 // Delete size
 export async function deleteSize(id: string) {
     try {
+        await requireAdmin()
+
+        const variantCount = await prisma.productVariant.count({
+            where: { sizeId: id }
+        })
+
+        if (variantCount > 0) {
+            return {
+                success: false,
+                error: `Cannot delete this size because it is currently linked to ${variantCount} product variant${variantCount > 1 ? 's' : ''}. Please remove or reassign the variant from the product first.`
+            }
+        }
+
         await prisma.size.delete({
             where: { id }
         })
@@ -87,8 +103,18 @@ export async function deleteSize(id: string) {
         revalidatePath('/products')
 
         return { success: true }
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error deleting size:', error)
-        return { success: false, error: 'Failed to delete size' }
+        if (error?.code === 'P2003') {
+            return {
+                success: false,
+                error: 'Cannot delete this size because it is linked to existing products or orders.'
+            }
+        }
+        return {
+            success: false,
+            error: error instanceof Error ? error.message : 'Failed to delete size'
+        }
     }
 }
+

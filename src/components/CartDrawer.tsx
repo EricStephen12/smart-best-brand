@@ -79,8 +79,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                               <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <ShoppingCartIcon className="h-10 w-10 text-slate-200" />
                               </div>
-                              <h3 className="text-sm font-black text-blue-950 uppercase tracking-widest mb-2 font-display">Your collection is empty</h3>
-                              <p className="text-xs text-slate-400 font-medium font-inter">Begin curation by selecting our premium pieces.</p>
+                              <h3 className="text-sm font-black text-blue-950 uppercase tracking-widest mb-2 font-display">Your cart is empty</h3>
+                              <p className="text-xs text-slate-400 font-medium font-inter">Browse our products to add items to your cart.</p>
                             </div>
                           ) : (
                             <ul role="list" className="-my-6 divide-y divide-slate-100">
@@ -132,7 +132,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                         onClick={() => removeFromCart(item.id)}
                                         className="text-[10px] font-black text-sky-600 hover:text-sky-700 uppercase tracking-widest transition-colors"
                                       >
-                                        Dismiss
+                                        Remove
                                       </button>
                                     </div>
                                   </div>
@@ -148,11 +148,11 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     {cartItems.length > 0 && (
                       <div className="border-t border-slate-100 px-8 py-10 sm:px-10 bg-slate-50/50">
                         <div className="flex justify-between items-baseline mb-2">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Acquisition Total</p>
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Subtotal</p>
                           <p className="text-2xl font-black text-blue-950 tabular-nums">₦{subtotal.toLocaleString()}</p>
                         </div>
                         <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-10">
-                          Logistics calculated at final verification.
+                          Delivery fee calculated at checkout.
                         </p>
                         <div className="">
                           <motion.button
@@ -163,7 +163,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             }}
                             className="btn-elite w-full py-6"
                           >
-                            Proceed to Checkpoint
+                            Proceed to Checkout
                           </motion.button>
                         </div>
                         <div className="mt-8 flex justify-center text-center">
@@ -172,7 +172,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             className="text-[9px] font-black text-slate-400 hover:text-blue-950 uppercase tracking-[0.3em] transition-all flex items-center gap-2 group"
                             onClick={onClose}
                           >
-                            Resume Curation
+                            Continue Shopping
                             <span aria-hidden="true" className="group-hover:translate-x-1 transition-transform"> &rarr;</span>
                           </button>
                         </div>

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/prisma'
+import { requireAdmin } from '@/lib/auth'
 
 // Get all delivery locations
 export async function getAllDeliveryLocations() {
@@ -33,6 +34,7 @@ export async function getActiveDeliveryLocations() {
 // Create delivery location
 export async function createDeliveryLocation(formData: FormData) {
     try {
+        await requireAdmin()
         const name = formData.get('name') as string
         const basePrice = parseFloat(formData.get('basePrice') as string)
 
@@ -57,6 +59,7 @@ export async function createDeliveryLocation(formData: FormData) {
 // Update delivery location
 export async function updateDeliveryLocation(id: string, formData: FormData) {
     try {
+        await requireAdmin()
         const name = formData.get('name') as string
         const basePrice = parseFloat(formData.get('basePrice') as string)
         const isActive = formData.get('isActive') === 'true'
@@ -83,6 +86,7 @@ export async function updateDeliveryLocation(id: string, formData: FormData) {
 // Delete delivery location
 export async function deleteDeliveryLocation(id: string) {
     try {
+        await requireAdmin()
         await prisma.deliveryLocation.delete({
             where: { id }
         })

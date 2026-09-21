@@ -46,7 +46,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
         initialData?.categories?.map((c: any) => c.categoryId) || []
     );
 
-    // Elite Attributes
+    // Product Specifications
     const [type, setType] = useState(initialData?.type || 'Mattress');
     const [materials, setMaterials] = useState(initialData?.materials || '');
     const [firmness, setFirmness] = useState(initialData?.firmness || 'Standard Medium');
@@ -324,12 +324,12 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                         <div className="w-10 h-10 bg-blue-950 rounded-xl flex items-center justify-center text-white">
                             <Settings className="w-5 h-5" />
                         </div>
-                        <h2 className="text-xl font-black text-blue-950 uppercase tracking-tight">Elite Attributes</h2>
+                        <h2 className="text-xl font-black text-blue-950 uppercase tracking-tight">Specifications</h2>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Composition Materials</label>
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Materials</label>
                             <input
                                 type="text"
                                 value={materials}
@@ -339,7 +339,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                             />
                         </div>
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Firmness Protocol</label>
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Mattress Firmness</label>
                             <select
                                 value={firmness}
                                 onChange={(e) => setFirmness(e.target.value)}
@@ -352,7 +352,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                             </select>
                         </div>
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Finishing Treatment</label>
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">Finishing / Fabric</label>
                             <input
                                 type="text"
                                 value={finishing}
@@ -419,7 +419,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                         value={images}
                         onChange={setImages}
                         maxFiles={5}
-                        label="Galleria Curations"
+                        label="Product Images"
                     />
                 </div>
 
@@ -427,14 +427,14 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                 <div className="bg-blue-950 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-blue-950/20 sticky top-8">
                     <div className="flex items-center gap-4 mb-10">
                         <CreditCard className="w-6 h-6 text-sky-400" />
-                        <h2 className="text-xl font-black uppercase tracking-tight">Strategy</h2>
+                        <h2 className="text-xl font-black uppercase tracking-tight">Pricing & Settings</h2>
                     </div>
 
                     <div className="space-y-8">
                         <div className="pt-4 flex items-center justify-between border-t border-white/10 group cursor-pointer" onClick={() => setIsNegotiable(!isNegotiable)}>
                             <div className="space-y-1">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-white">Negotiation Protocol</span>
-                                <p className="text-[8px] font-bold text-sky-400 uppercase tracking-tight">Allow pricing dialogue</p>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-white">Allow Price Negotiation</span>
+                                <p className="text-[8px] font-bold text-sky-400 uppercase tracking-tight">Let customers discuss price on WhatsApp</p>
                             </div>
                             <div className={`w-12 h-6 rounded-full transition-all relative ${isNegotiable ? 'bg-sky-600' : 'bg-blue-900'}`}>
                                 <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all shadow-lg ${isNegotiable ? 'left-7' : 'left-1'}`} />
@@ -444,11 +444,11 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                         <div className="space-y-4 pt-4 border-t border-white/10">
                             <div className="flex justify-between text-[10px] font-black uppercase tracking-widest opacity-60">
                                 <span>Variants Linked</span>
-                                <span>{variants.length} Standards</span>
+                                <span>{variants.length} Sizes</span>
                             </div>
                             <div className="flex justify-between text-[10px] font-black uppercase tracking-widest opacity-60">
-                                <span>Media Assets</span>
-                                <span>{images.length} Curations</span>
+                                <span>Images Uploaded</span>
+                                <span>{images.length} Images</span>
                             </div>
                         </div>
 

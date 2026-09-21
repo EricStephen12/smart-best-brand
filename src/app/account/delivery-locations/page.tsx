@@ -16,7 +16,7 @@ export default async function DeliveryLocationsPage() {
                     <h1 className="text-4xl font-black text-blue-950 tracking-tight uppercase leading-none mb-2">
                         Logistics <span className="text-sky-600">&</span> Delivery
                     </h1>
-                    <p className="text-slate-400 font-medium font-inter">Expand your elite reach by managing delivery jurisdictions.</p>
+                    <p className="text-slate-400 font-medium font-inter">Manage delivery locations, cities, and shipping fees for your store.</p>
                 </div>
             </div>
 

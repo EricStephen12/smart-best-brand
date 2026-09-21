@@ -176,7 +176,7 @@ export default function CreatePromotionPage() {
                                 <div className="space-y-4 pt-4 border-t border-slate-100 animate-in fade-in slide-in-from-top-4 duration-500">
                                     <div className="flex items-center justify-between">
                                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4">
-                                            Select {appliesTo === 'PRODUCTS' ? 'Elite Products' : 'Catalog Categories'}
+                                            Select {appliesTo === 'PRODUCTS' ? 'Products' : 'Categories'}
                                         </label>
                                         <span className="text-[10px] font-black text-sky-600 bg-sky-50 px-3 py-1 rounded-full">{selectedIds.length} Selected</span>
                                     </div>
@@ -286,7 +286,7 @@ export default function CreatePromotionPage() {
                         </div>
                         <div className="space-y-8 font-sans">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-sky-400/60 block ml-1">Launch Protocol</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-sky-400/60 block ml-1">Start Date</label>
                                 <input
                                     type="date"
                                     value={startDate}
@@ -295,7 +295,7 @@ export default function CreatePromotionPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-sky-400/60 block ml-1">Expiration Protocols</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-sky-400/60 block ml-1">End Date</label>
                                 <input
                                     type="date"
                                     value={endDate}
@@ -314,8 +314,8 @@ export default function CreatePromotionPage() {
                                     <CheckCircle2 className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-emerald-700 uppercase tracking-widest leading-none">Ready for Launch</p>
-                                    <p className="text-[8px] font-black text-emerald-600/60 uppercase mt-1">System validation complete</p>
+                                    <p className="text-[10px] font-black text-emerald-700 uppercase tracking-widest leading-none">Ready to Publish</p>
+                                    <p className="text-[8px] font-black text-emerald-600/60 uppercase mt-1">Save promotion settings</p>
                                 </div>
                             </div>
                             <button

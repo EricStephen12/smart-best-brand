@@ -140,7 +140,7 @@ export default function DeliveryLocationsList({ initialLocations }: DeliveryLoca
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input
                             type="text"
-                            placeholder="Query jurisdictions..."
+                            placeholder="Search locations..."
                             className="w-full bg-slate-50 border-none rounded-2xl py-4 pl-12 pr-6 text-sm font-medium outline-none focus:ring-4 focus:ring-sky-600/10 transition-all font-sans"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -152,8 +152,8 @@ export default function DeliveryLocationsList({ initialLocations }: DeliveryLoca
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-slate-50/50">
-                                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Jurisdiction</th>
-                                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Logistics Fee</th>
+                                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Location</th>
+                                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Delivery Fee</th>
                                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
                             </tr>
                         </thead>
@@ -222,12 +222,12 @@ export default function DeliveryLocationsList({ initialLocations }: DeliveryLoca
                                 className="bg-white w-full max-w-lg rounded-[2.5rem] p-10 shadow-2xl pointer-events-auto relative"
                             >
                                 <h2 className="text-3xl font-black text-blue-950 tracking-tight mb-8">
-                                    {isAdding ? 'Establish Zone' : 'Edit Privilege'}
+                                    {isAdding ? 'Add Location' : 'Edit Location'}
                                 </h2>
 
                                 <div className="space-y-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Jurisdiction Name</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Location Name</label>
                                         <input
                                             type="text"
                                             value={name}
@@ -237,7 +237,7 @@ export default function DeliveryLocationsList({ initialLocations }: DeliveryLoca
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Base Logistics Fee (₦)</label>
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">Delivery Fee (₦)</label>
                                         <input
                                             type="number"
                                             value={basePrice}
@@ -253,7 +253,7 @@ export default function DeliveryLocationsList({ initialLocations }: DeliveryLoca
                                             disabled={loading}
                                             className="flex-1 bg-blue-950 hover:bg-sky-600 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl shadow-blue-950/20 active:scale-95 disabled:opacity-50"
                                         >
-                                            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirm Protocol'}
+                                            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Location'}
                                         </button>
                                         <button
                                             onClick={() => { setIsAdding(false); setEditingLocation(null); }}

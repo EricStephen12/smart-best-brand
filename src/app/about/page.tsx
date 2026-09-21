@@ -18,8 +18,8 @@ export default async function AboutPage() {
                         Driven by <br /><span className="text-sky-600">Comfort.</span>
                     </h1>
                     <p className="text-slate-400 text-lg md:text-xl font-medium leading-relaxed font-inter">
-                        Nigeria&apos;s premier destination for authentic bedding and home essentials.
-                        We bring the best brands directly to your doorstep with white-glove precision.
+                        Your trusted store for 100% original mattresses, pillows, and furniture in Nigeria.
+                        We deliver trusted brands directly to your home with care.
                     </p>
                 </div>
                 <div className="absolute inset-0 opacity-10">
@@ -61,7 +61,7 @@ export default async function AboutPage() {
             {brands && brands.length > 0 && (
                 <section className="py-32 bg-slate-50">
                     <div className="max-w-7xl mx-auto px-6 text-center">
-                        <h2 className="text-blue-950 font-black tracking-[0.4em] text-[10px] uppercase mb-20 opacity-40">Our Established Partner Brands</h2>
+                        <h2 className="text-blue-950 font-black tracking-[0.4em] text-[10px] uppercase mb-20 opacity-40">Our Partner Brands</h2>
                         <div className="flex flex-wrap justify-center items-center gap-16 md:gap-24 grayscale hover:grayscale-0 transition-all duration-[1.5s] ease-out">
                             {brands.map((brand: any) => (
                                 <span key={brand.id} className="text-3xl md:text-4xl font-black text-blue-950/20 hover:text-sky-600/40 transition-colors cursor-default uppercase tracking-tighter">

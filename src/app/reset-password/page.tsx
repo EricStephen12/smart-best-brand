@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
+import React, { useState, useTransition, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Lock, Eye, EyeOff, Loader2, CheckCircle2, ArrowRight } from 'lucide-react'
 import { resetPasswordAction } from '@/actions/auth'
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token') || ''
@@ -169,5 +169,13 @@ export default function ResetPasswordPage() {
         </div>
       </motion.div>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[85vh] bg-[#f7f6f3]" />}>
+      <ResetPasswordForm />
+    </Suspense>
   )
 }

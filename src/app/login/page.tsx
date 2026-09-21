@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useEffect, useTransition, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -18,7 +18,7 @@ function getSafeRedirectUrl(param: string | null): string {
   }
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const searchParams = useSearchParams()
   const targetUrl = getSafeRedirectUrl(searchParams.get('redirect_url'))
 
@@ -180,5 +180,13 @@ export default function LoginPage() {
         </div>
       </motion.div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[85vh] bg-[#f7f6f3]" />}>
+      <LoginForm />
+    </Suspense>
   )
 }

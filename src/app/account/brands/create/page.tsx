@@ -49,8 +49,8 @@ export default function CreateBrandPage() {
                     <ArrowLeft className="w-5 h-5" />
                 </Link>
                 <div>
-                    <h1 className="text-3xl font-black text-blue-950 tracking-tight leading-none mb-2">Add Elite Brand</h1>
-                    <p className="text-sm font-medium text-slate-400">Establish a new brand partnership identity.</p>
+                    <h1 className="text-3xl font-black text-blue-950 tracking-tight leading-none mb-2">Add Brand</h1>
+                    <p className="text-sm font-medium text-slate-400">Add a new mattress or furniture brand to your store.</p>
                 </div>
             </div>
 

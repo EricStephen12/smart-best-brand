@@ -36,12 +36,27 @@ interface OrdersListProps {
 export default function OrdersList({ initialOrders }: OrdersListProps) {
     const [orders, setOrders] = useState(initialOrders);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
     const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-    const filteredOrders = orders.filter(order =>
-        order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customerName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const statusCounts = {
+        ALL: orders.length,
+        PENDING: orders.filter(o => o.status === 'PENDING').length,
+        PAID: orders.filter(o => o.status === 'PAID').length,
+        PROCESSING: orders.filter(o => o.status === 'PROCESSING').length,
+        SHIPPED: orders.filter(o => o.status === 'SHIPPED').length,
+        DELIVERED: orders.filter(o => o.status === 'DELIVERED').length,
+        CANCELLED: orders.filter(o => o.status === 'CANCELLED').length,
+    };
+
+    const filteredOrders = orders.filter(order => {
+        const matchesSearch =
+            order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.customerName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesStatus =
+            selectedStatus === 'ALL' || order.status.toUpperCase() === selectedStatus;
+        return matchesSearch && matchesStatus;
+    });
 
     const handleStatusChange = async (id: string, newStatus: string) => {
         setUpdatingId(id);
@@ -76,6 +91,40 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
+            </div>
+
+            {/* Status Filter Tabs */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                {(['ALL', 'PENDING', 'PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'] as const).map((st) => {
+                    const active = selectedStatus === st;
+                    const count = statusCounts[st];
+                    const isPending = st === 'PENDING' && count > 0;
+                    return (
+                        <button
+                            key={st}
+                            type="button"
+                            onClick={() => setSelectedStatus(st)}
+                            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                                active
+                                    ? 'bg-blue-950 text-white shadow-sm'
+                                    : 'bg-white text-slate-600 hover:bg-stone-100 border border-stone-200/80'
+                            }`}
+                        >
+                            <span>{st === 'ALL' ? 'All' : st.charAt(0) + st.slice(1).toLowerCase()}</span>
+                            <span
+                                className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                    active
+                                        ? 'bg-white/20 text-white'
+                                        : isPending
+                                        ? 'bg-amber-100 text-amber-800'
+                                        : 'bg-stone-100 text-slate-500'
+                                }`}
+                            >
+                                {count}
+                            </span>
+                        </button>
+                    );
+                })}
             </div>
 
             <div className="bg-white rounded-2xl border border-stone-200/80 shadow-sm overflow-hidden">

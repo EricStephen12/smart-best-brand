@@ -4,10 +4,12 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useCart } from '@/lib/cart-context'
+import { useWishlist } from '@/lib/wishlist-context'
 import {
   ArrowLeft,
   Star,
   ShoppingCart,
+  Heart,
   MessageCircle,
   ShieldCheck,
   Truck,
@@ -53,8 +55,11 @@ export default function ProductDetailView({
   const [selectedVariant, setSelectedVariant] = useState(initialVariant)
   const [activeImage, setActiveImage] = useState(product?.images?.[0] || '/images/placeholder.jpg')
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false)
+  const { isInWishlist, toggleWishlist } = useWishlist()
 
   if (!product) return null
+
+  const isWishlisted = isInWishlist(product.id)
 
   const stock = typeof selectedVariant.stock === 'number' ? selectedVariant.stock : 0
   const availability = stockLabel(stock)
@@ -251,15 +256,30 @@ export default function ProductDetailView({
             ) : null}
 
             <div className="space-y-3 pt-1">
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                disabled={!canAddToCart}
-                className="w-full inline-flex items-center justify-center gap-2 bg-blue-950 text-white text-[11px] font-black tracking-[0.18em] uppercase py-4 hover:bg-sky-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                Add to cart
-              </button>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  disabled={!canAddToCart}
+                  className="flex-1 inline-flex items-center justify-center gap-2 bg-blue-950 text-white text-[11px] font-black tracking-[0.18em] uppercase py-4 hover:bg-sky-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  {stock <= 0 ? 'Sold out' : 'Add to bag'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleWishlist(product)}
+                  aria-label={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+                  title={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
+                  className={`px-4 sm:px-5 py-4 border transition-colors flex items-center justify-center ${
+                    isWishlisted
+                      ? 'bg-rose-50 border-rose-300 text-rose-600'
+                      : 'border-blue-950/20 text-blue-950 hover:border-blue-950 hover:bg-stone-50'
+                  }`}
+                >
+                  <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current text-rose-600' : ''}`} />
+                </button>
+              </div>
               <button
                 type="button"
                 onClick={handleWhatsAppOrder}

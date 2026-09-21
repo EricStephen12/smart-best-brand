@@ -95,7 +95,7 @@ function emailLayout(content: string, previewText?: string): string {
         <div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 24px; text-align: center; font-size: 12px; color: #64748b; line-height: 1.6;">
             <p style="margin: 0 0 8px 0; font-weight: 600; color: #0b192c;">Smart Best Brands Nigeria</p>
             <p style="margin: 0 0 12px 0;">Official distributor of premium Mouka, Vitafoam, Royal mattresses & luxury furniture.</p>
-            <p style="margin: 0;">Need assistance? Reply directly to this email or chat with our concierge.</p>
+            <p style="margin: 0;">Need assistance? Reply directly to this email or chat with our team on WhatsApp.</p>
         </div>
     </div>
 </body>
@@ -301,7 +301,7 @@ export async function sendOrderStatusUpdateEmail(data: OrderStatusEmailData) {
         case 'DELIVERED':
             statusTitle = 'Order Successfully Delivered'
             statusColor = '#059669'
-            statusMessage = 'Your order has been delivered! We hope you thoroughly enjoy the comfort and restful sleep of your new pieces. If you have any inquiries or warranty questions, our concierge is here to assist.'
+            statusMessage = 'Your order has been delivered! We hope you enjoy the comfort of your new mattress and home items. If you have any questions or warranty issues, our team is always here to help.'
             subject = `Delivered: Your Order ${data.orderNumber} ✨`
             break
         case 'CANCELLED':
@@ -511,3 +511,72 @@ export async function sendOrderNotification(email: string, orderNumber: string, 
         items: []
     })
 }
+
+export interface CartRecoveryEmailData {
+    customerEmail: string
+    customerName?: string
+    items: {
+        name: string
+        size?: string | null
+        quantity: number
+        price: number
+    }[]
+    total: number
+    recoveryUrl: string
+}
+
+export async function sendCartRecoveryEmail(data: CartRecoveryEmailData) {
+    const itemsRows = data.items
+        .map(
+            (item) => `
+        <tr>
+            <td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;">
+                <p style="margin: 0; font-weight: 600; font-size: 14px; color: #0b192c;">${item.name}</p>
+                ${item.size ? `<p style="margin: 2px 0 0 0; font-size: 12px; color: #64748b;">Size: ${item.size}</p>` : ''}
+            </td>
+            <td style="padding: 12px 10px; border-bottom: 1px solid #f1f5f9; text-align: center; font-size: 13px; color: #64748b;">
+                ×${item.quantity}
+            </td>
+            <td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: 600; font-size: 14px; color: #0b192c;">
+                ₦${(item.price * item.quantity).toLocaleString()}
+            </td>
+        </tr>`
+        )
+        .join('')
+
+    const content = `
+        <h2 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 700; color: #0b192c;">
+            You left something comfortable behind, ${data.customerName || 'Friend'}!
+        </h2>
+        <p style="margin: 0 0 24px 0; font-size: 14px; line-height: 1.6; color: #475569;">
+            We noticed you didn't finish your order at Smart Best Brands. Your selected items are currently reserved for you in your cart. Complete your order now before your items go out of stock!
+        </p>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tbody>
+                ${itemsRows}
+                <tr>
+                    <td colspan="2" style="padding: 16px 0 0 0; font-size: 14px; font-weight: 700; color: #0b192c;">Total:</td>
+                    <td style="padding: 16px 0 0 0; text-align: right; font-size: 16px; font-weight: 800; color: #0284c7;">₦${data.total.toLocaleString()}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="text-align: center; margin: 32px 0 16px 0;">
+            <a href="${data.recoveryUrl}" style="display: inline-block; background-color: #0b192c; color: #ffffff; padding: 14px 28px; border-radius: 6px; font-size: 14px; font-weight: 700; text-decoration: none; letter-spacing: 0.05em; text-transform: uppercase;">
+                Complete My Order Now &rarr;
+            </a>
+        </div>
+
+        <p style="margin: 16px 0 0 0; font-size: 12px; text-align: center; color: #94a3b8;">
+            Need help placing your order? Reply directly to this email or chat with our team on WhatsApp.
+        </p>
+    `
+
+    return sendEmail(
+        data.customerEmail,
+        'Did you leave something behind? Your Smart Best Brands cart is waiting',
+        emailLayout(content, 'Complete your order before stock runs out!')
+    )
+}
+

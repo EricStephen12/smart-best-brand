@@ -15,29 +15,29 @@ import {
 const deliverySteps = [
   {
     number: "01",
-    title: "Quality Curation",
-    description: "Every order undergoes a rigorous quality inspection at our central hub before being meticulously packaged for transit.",
+    title: "Carefully Inspected",
+    description: "Every order is inspected and properly packaged before leaving our store or factory partner.",
     icon: Package
   },
   {
     number: "02",
-    title: "Elite Handling",
-    description: "Our specialized logistics partners treat your furniture with the utmost care, ensuring safe passage to your doorstep.",
+    title: "Handled With Care",
+    description: "Our delivery team transports mattresses and furniture safely so they arrive in perfect, brand-new condition.",
     icon: ShieldCheck
   },
   {
     number: "03",
-    title: "Precise Delivery",
-    description: "Scheduled delivery windows that respect your time, with real-time updates as your collection approaches.",
+    title: "Coordinated Delivery",
+    description: "We agree on a delivery day and time that works for you, with WhatsApp updates when your driver is on the way.",
     icon: Truck
   }
 ];
 
 const zones = [
-  { city: "Abuja", price: "₦5,000 - ₦15,000", time: "24-48 Hours", note: "Priority white-glove service available." },
+  { city: "Abuja", price: "₦5,000 - ₦15,000", time: "24-48 Hours", note: "Direct doorstep delivery." },
   { city: "Benin City", price: "₦5,000 - ₦12,000", time: "24-48 Hours", note: "Local hub fulfillment." },
-  { city: "Lagos", price: "₦15,000 - ₦35,000", time: "3-5 Business Days", note: "Inter-state logistics." },
-  { city: "Other Locations", price: "Calculated at Checkout", time: "5-7 Business Days", note: "National coverage via partners." }
+  { city: "Lagos", price: "₦15,000 - ₦35,000", time: "3-5 Business Days", note: "Inter-state delivery." },
+  { city: "Other Locations", price: "Calculated at Checkout", time: "5-7 Business Days", note: "Nationwide partner delivery." }
 ];
 
 export default function DeliveryPage() {
@@ -52,10 +52,10 @@ export default function DeliveryPage() {
             className="max-w-3xl"
           >
             <h1 className="text-5xl sm:text-7xl font-black text-white tracking-tight mb-8 leading-none">
-              ELITE <span className="text-sky-400">LOGISTICS.</span>
+              DELIVERY & <span className="text-sky-400">SHIPPING.</span>
             </h1>
             <p className="text-xl text-sky-100/80 font-medium leading-relaxed max-w-2xl">
-              Our commitment to excellence extends beyond our products. We ensure a seamless, premium delivery experience for every piece in your collection.
+              We deliver genuine mattresses and furniture safely to your doorstep across Abuja, Benin City, Lagos, and nationwide.
             </p>
           </motion.div>
         </div>
@@ -95,7 +95,7 @@ export default function DeliveryPage() {
       <div className="bg-slate-50 py-24 sm:py-32 font-sans">
         <div className="max-w-7xl mx-auto px-4">
           <div className="mb-16">
-            <h2 className="text-4xl font-black text-blue-950 mb-4 uppercase tracking-tighter font-display">Logistic Domains</h2>
+            <h2 className="text-4xl font-black text-blue-950 mb-4 uppercase tracking-tighter font-display">Delivery Locations & Rates</h2>
             <div className="w-20 h-2 bg-sky-600"></div>
           </div>
 
@@ -104,10 +104,10 @@ export default function DeliveryPage() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-blue-950 text-white">
-                    <th className="p-8 font-black uppercase tracking-[0.2em] text-[10px]">Region</th>
-                    <th className="p-8 font-black uppercase tracking-[0.2em] text-[10px]">Investment</th>
-                    <th className="p-8 font-black uppercase tracking-[0.2em] text-[10px]">Timeline</th>
-                    <th className="p-8 font-black uppercase tracking-[0.2em] text-[10px]">Service Protocol</th>
+                    <th className="p-8 font-black uppercase tracking-[0.2em] text-[10px]">Location</th>
+                    <th className="p-8 font-black uppercase tracking-[0.2em] text-[10px]">Delivery Fee</th>
+                    <th className="p-8 font-black uppercase tracking-[0.2em] text-[10px]">Estimated Time</th>
+                    <th className="p-8 font-black uppercase tracking-[0.2em] text-[10px]">Details</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -150,10 +150,10 @@ export default function DeliveryPage() {
               <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-sky-600">
                 <ShieldCheck className="w-6 h-6" />
               </div>
-              Invoiced Transit
+              Safe & Insured Delivery
             </h4>
             <p className="text-slate-500 leading-relaxed font-medium font-inter">
-              Every item is insured from the moment it leaves our warehouse until it is placed in your home. We take full responsibility for the safety of your purchase.
+              Every item is protected from the moment it leaves our warehouse until it is placed safely in your home.
             </p>
           </div>
           <div>
@@ -161,20 +161,20 @@ export default function DeliveryPage() {
               <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-sky-600">
                 <HeadphonesIcon className="w-6 h-6" />
               </div>
-              Precision Tracking
+              WhatsApp Updates
             </h4>
             <p className="text-slate-500 leading-relaxed font-medium font-inter">
-              Our concierge team is available via WhatsApp to provide live updates on your order status and coordinate the perfect delivery time for you.
+              Our team stays in touch on WhatsApp to provide live updates on your order status and coordinate the best delivery time.
             </p>
           </div>
         </div>
 
         <div className="mt-20 p-12 sm:p-20 bg-blue-950 rounded-[3rem] text-center text-white relative overflow-hidden group">
           <div className="relative z-10">
-            <h2 className="text-4xl sm:text-5xl font-black mb-6 tracking-tight font-display uppercase">The Elite Standard</h2>
-            <p className="text-sky-200/80 mb-12 max-w-sm mx-auto font-medium text-lg font-inter leading-relaxed">Ready to curate your palace? Experience the pinnacle of authentic rest.</p>
+            <h2 className="text-4xl sm:text-5xl font-black mb-6 tracking-tight font-display uppercase">Ready to Sleep Better?</h2>
+            <p className="text-sky-200/80 mb-12 max-w-sm mx-auto font-medium text-lg font-inter leading-relaxed">Find the right mattress or pillow for your home today.</p>
             <a href="/products" className="btn-elite inline-flex !rounded-[2rem] px-16 group/btn">
-              Explore Collections
+              Shop All Products
               <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-2 transition-transform" />
             </a>
           </div>

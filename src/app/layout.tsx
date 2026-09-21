@@ -3,6 +3,7 @@ import { Playfair_Display, Inter, Crimson_Text, Montserrat } from "next/font/goo
 import "./globals.css";
 import Layout from "@/components/Layout";
 import { CartProvider } from "@/lib/cart-context";
+import { WishlistProvider } from "@/lib/wishlist-context";
 import { SiteSettingsProvider } from "@/components/site-settings-context";
 import { getSiteSettings } from "@/actions/site-settings";
 import { buildThemeCss } from "@/lib/site-settings";
@@ -13,29 +14,37 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+  fallback: ["Georgia", "serif"],
 });
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+  fallback: ["system-ui", "-apple-system", "sans-serif"],
 });
 
 const crimson = Crimson_Text({
   variable: "--font-crimson",
   subsets: ["latin"],
   weight: ["400", "600"],
+  display: "swap",
+  fallback: ["Georgia", "serif"],
 });
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+  fallback: ["system-ui", "-apple-system", "sans-serif"],
 });
 
 export const metadata: Metadata = {
   title: "Smart Best Brands - Premium Home & Comfort",
-  description: "Authentic premium mattresses, pillows, and furniture from Nigeria&apos;s leading brands. Smart Best Brands - quality you can trust.",
+  description: "Authentic premium mattresses, pillows, and furniture from Nigeria's leading brands. Smart Best Brands - quality you can trust.",
 };
 
 export default async function RootLayout({
@@ -54,25 +63,27 @@ export default async function RootLayout({
         <style dangerouslySetInnerHTML={{ __html: themeCss }} />
         <SiteSettingsProvider settings={siteSettings}>
           <CartProvider>
-            <Layout>
-              {children}
-            </Layout>
-            <Toaster
-              position="bottom-right"
-              toastOptions={{
-                style: {
-                  background: '#0f172a',
-                  color: '#fff',
-                  borderRadius: '1rem',
-                  fontSize: '12px',
-                  fontWeight: 'bold',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  padding: '1rem 2rem',
-                  border: '1px solid rgba(255,255,255,0.1)'
-                }
-              }}
-            />
+            <WishlistProvider>
+              <Layout>
+                {children}
+              </Layout>
+              <Toaster
+                position="bottom-right"
+                toastOptions={{
+                  style: {
+                    background: '#0f172a',
+                    color: '#fff',
+                    borderRadius: '1rem',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    padding: '1rem 2rem',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                  }
+                }}
+              />
+            </WishlistProvider>
           </CartProvider>
         </SiteSettingsProvider>
         <Script src="https://js.paystack.co/v1/inline.js" strategy="beforeInteractive" />

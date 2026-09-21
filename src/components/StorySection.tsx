@@ -11,17 +11,17 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
   const containerRef = useRef(null)
   const settings = useSiteSettings()
 
-  const storyBadge = settings.storyBadge || 'Our Legacy'
-  const storyTitle = settings.storyTitle || 'Authenticity as a Standard.'
-  const storyText = settings.storyText || "Smart Best Brands was established with a singular mission: to bring Nigeria's most trusted home brands under one roof. We understand that your home is your sanctuary, and the foundation of that sanctuary begins with rest."
+  const storyBadge = settings.storyBadge || 'Who We Are'
+  const storyTitle = settings.storyTitle || 'Original Mattresses, Directly to Your Home.'
+  const storyText = settings.storyText || "We started Smart Best Brands to make buying genuine mattresses simple in Nigeria. No fake foam, no hidden fees—just original brands like Mouka, Vitafoam, and Royal Foam delivered directly to your doorstep."
   const secondaryBadge = settings.storySecondaryBadge || 'Our Promise'
-  const secondaryTitle = settings.storySecondaryTitle || 'Curating the Invisible Details.'
-  const secondaryText = settings.storySecondaryText || 'By partnering directly with industry leaders like Vitafoam, Mouka Foam, and Royal Foam, we ensure that every product you purchase is 100% authentic and backed by a full manufacturer warranty.'
+  const secondaryTitle = settings.storySecondaryTitle || '100% Authentic, Direct From the Factory.'
+  const secondaryText = settings.storySecondaryText || 'We source directly from authorized factory distributors so you never have to worry about counterfeits. Every mattress comes in its original factory packaging with a real manufacturer warranty.'
   const mainImage = settings.storyImageUrl || '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg'
 
   return (
     <section ref={containerRef} className="relative py-16 sm:py-24 md:py-28 bg-white overflow-hidden border-y border-blue-950/5">
-      <EditorialBackdrop text="Legacy" size="xl" />
+      <EditorialBackdrop text="Rest" size="xl" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Editorial Layout 1 */}
@@ -91,17 +91,17 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
               <div className="flex gap-12">
                 <div>
                   <h4 className="font-black text-4xl text-blue-950 leading-none mb-2">{brandCount ? brandCount.toString().padStart(2, '0') : '07'}</h4>
-                  <p className="text-[9px] font-black tracking-widest text-slate-300 uppercase">Legacy Brands</p>
+                  <p className="text-[9px] font-black tracking-widest text-slate-300 uppercase">Trusted Brands</p>
                 </div>
                 <div>
                   <h4 className="font-black text-4xl text-blue-950 leading-none mb-2">24/7</h4>
-                  <p className="text-[9px] font-black tracking-widest text-slate-300 uppercase">White Glove Support</p>
+                  <p className="text-[9px] font-black tracking-widest text-slate-300 uppercase">Real Support</p>
                 </div>
               </div>
 
               <div className="pt-6">
                 <Link href="/about" className="text-[10px] font-black tracking-[0.3em] text-blue-950 uppercase border-b-2 border-sky-600 pb-2 hover:text-sky-600 transition-colors inline-block">
-                  Meet the Artisans
+                  Learn More About Us
                 </Link>
               </div>
             </motion.div>
@@ -113,14 +113,14 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
               <div className="col-span-8">
                 <RevealImage
                   src="/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg"
-                  alt="Elite Detail"
+                  alt="Mattress Detail"
                   className="aspect-square rounded-[3rem]"
                 />
               </div>
               <div className="col-span-4 self-end -mb-12">
                 <RevealImage
                   src="/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg"
-                  alt="Elite Texture"
+                  alt="Fabric Texture"
                   className="aspect-[3/4] rounded-2xl"
                 />
               </div>

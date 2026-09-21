@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/prisma'
 import { mockBrands } from '@/lib/mockData'
+import { requireAdmin } from '@/lib/auth'
 
 // Get all brands
 export async function getAllBrands() {
@@ -51,6 +52,7 @@ export async function getBrandBySlug(slug: string) {
 // Create brand
 export async function createBrand(formData: FormData) {
     try {
+        await requireAdmin()
         const name = formData.get('name') as string
         const logoUrl = formData.get('logoUrl') as string
         const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
@@ -77,6 +79,7 @@ export async function createBrand(formData: FormData) {
 // Update brand
 export async function updateBrand(id: string, formData: FormData) {
     try {
+        await requireAdmin()
         const name = formData.get('name') as string
         const logoUrl = formData.get('logoUrl') as string
         const isActive = formData.get('isActive') === 'true'
@@ -105,6 +108,7 @@ export async function updateBrand(id: string, formData: FormData) {
 // Delete brand
 export async function deleteBrand(id: string) {
     try {
+        await requireAdmin()
         await prisma.brand.delete({
             where: { id }
         })

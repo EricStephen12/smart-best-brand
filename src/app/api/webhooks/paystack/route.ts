@@ -30,10 +30,34 @@ async function markOrderPaid(orderNumber: string, paymentReference: string) {
         return null
     }
 
-    const order = await prisma.order.findUnique({ where: { orderNumber } })
+    const order = await prisma.order.findUnique({
+        where: { orderNumber },
+        include: {
+            items: {
+                include: {
+                    variant: {
+                        include: {
+                            product: true,
+                            size: true,
+                        },
+                    },
+                },
+            },
+        },
+    })
     if (!order) return null
 
-    await reduceInventory(order.id)
+    if (!order.inventoryDeductedAt) {
+        await reduceInventory(order.id)
+    }
+
+    if (order.promoCode) {
+        await prisma.promotion.updateMany({
+            where: { code: order.promoCode.toUpperCase() },
+            data: { usedCount: { increment: 1 } }
+        })
+    }
+
     void sendCustomerPaymentSuccessEmail({
         orderNumber: order.orderNumber,
         customerName: order.customerName,
@@ -44,14 +68,21 @@ async function markOrderPaid(orderNumber: string, paymentReference: string) {
         total: order.total,
         paymentMethod: order.paymentMethod,
         status: order.status,
-        items: []
+        items: order.items.map((item) => ({
+            name: item.variant.product.name,
+            size: item.variant.size?.label,
+            quantity: item.quantity,
+            price: item.price,
+        })),
     })
+
     void sendAdminPaymentAlert({
         orderNumber: order.orderNumber,
         customerName: order.customerName,
         total: order.total,
-        paymentMethod: order.paymentMethod
+        paymentMethod: order.paymentMethod,
     })
+
     revalidatePath('/account/orders')
     return order
 }
@@ -81,6 +112,16 @@ export async function POST(req: Request) {
 
         if (event === 'charge.success' && respData?.reference) {
             const orderNumber = respData.reference
+            const eventId = respData.id ? `paystack-${respData.id}` : `paystack-ref-${orderNumber}`
+
+            // Idempotency: Check if webhook event was already processed
+            const alreadyProcessed = await prisma.webhookEvent.findUnique({
+                where: { eventId },
+            })
+            if (alreadyProcessed) {
+                return new NextResponse('OK', { status: 200 })
+            }
+
             const order = await prisma.order.findUnique({ where: { orderNumber } })
 
             if (!order) {
@@ -89,6 +130,11 @@ export async function POST(req: Request) {
             }
 
             if (order.status === 'PAID') {
+                await prisma.webhookEvent.upsert({
+                    where: { eventId },
+                    create: { eventId, eventType: event },
+                    update: {},
+                })
                 return new NextResponse('OK', { status: 200 })
             }
 
@@ -110,6 +156,13 @@ export async function POST(req: Request) {
             }
 
             await markOrderPaid(orderNumber, respData.id?.toString() || orderNumber)
+
+            // Record event processed
+            await prisma.webhookEvent.upsert({
+                where: { eventId },
+                create: { eventId, eventType: event },
+                update: {},
+            })
         }
 
         return new NextResponse('OK', { status: 200 })

@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ShoppingCartIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { ShoppingCartIcon, HeartIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import CartDrawer from './CartDrawer'
 import { useCart } from '@/lib/cart-context'
+import { useWishlist } from '@/lib/wishlist-context'
 import { useSiteSettings } from '@/components/site-settings-context'
 import { brandNameParts } from '@/lib/site-settings'
 
@@ -14,6 +15,7 @@ export default function Header() {
   const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { state, toggleCart } = useCart()
+  const { items: wishlistItems } = useWishlist()
   const [isScrolled, setIsScrolled] = useState(false)
   const settings = useSiteSettings()
   const brand = brandNameParts(settings.siteName)
@@ -38,7 +40,7 @@ export default function Header() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
-      className={`${isHome ? 'fixed' : 'sticky'} top-0 left-0 right-0 z-50 transition-all duration-500 will-change-transform ${
+      className={`${isHome ? 'fixed' : 'sticky'} top-0 left-0 right-0 z-50 print:hidden transition-all duration-500 will-change-transform ${
         overHero
           ? 'bg-transparent border-transparent'
           : 'bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm'
@@ -114,6 +116,22 @@ export default function Header() {
               </Link>
             </nav>
 
+            <Link
+              href="/account/wishlist"
+              className={`p-2 transition-colors relative ${
+                overHero ? 'text-white hover:text-white/80' : 'text-blue-950 hover:text-[var(--brand-accent)]'
+              }`}
+              aria-label="Wishlist"
+              title="Saved items"
+            >
+              <HeartIcon className="h-6 w-6" />
+              {wishlistItems.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-black rounded-full h-4 w-4 flex items-center justify-center shadow-lg">
+                  {wishlistItems.length}
+                </span>
+              )}
+            </Link>
+
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
@@ -144,6 +162,7 @@ export default function Header() {
           <div className="py-8 space-y-6 border-t border-white/10 bg-white">
             {[
               { label: 'Shop', href: '/products' },
+              { label: 'Wishlist', href: '/account/wishlist' },
               { label: 'About', href: '/about' },
               { label: 'Contact', href: '/contact' },
               { label: 'Account', href: '/account' },

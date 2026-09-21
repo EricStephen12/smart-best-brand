@@ -2,6 +2,8 @@
 
 import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react'
 
+import { syncCartToDb } from '@/actions/cart'
+
 interface CartItem {
   id: string
   product_variant_id: string
@@ -30,6 +32,7 @@ interface CartContextType {
   updateQuantity: (itemId: string, quantity: number) => void
   clearCart: () => void
   toggleCart: () => void
+  loadCart: (items: CartItem[]) => void
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -125,6 +128,16 @@ const initialState: CartState = {
   isOpen: false
 }
 
+function getGuestToken(): string {
+  if (typeof window === 'undefined') return ''
+  let token = localStorage.getItem('sbb-guest-token')
+  if (!token) {
+    token = `gst_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
+    localStorage.setItem('sbb-guest-token', token)
+  }
+  return token
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, initialState)
 
@@ -138,6 +151,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     }
   }, [])
+
+  // Debounced server synchronization for cart abandonment recovery
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        const guestToken = getGuestToken()
+        const syncItems = state.items.map((item) => ({
+          variantId: item.product_variant_id,
+          quantity: item.quantity,
+        }))
+        void syncCartToDb({
+          items: syncItems,
+          guestToken,
+        })
+      } catch (err) {
+        console.warn('Cart background sync error:', err)
+      }
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [state.items])
 
   const addToCart = (product: any, variant: any, quantity = 1) => {
     dispatch({ type: 'ADD_ITEM', product, variant, quantity })
@@ -159,6 +192,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'TOGGLE_CART' })
   }
 
+  const loadCart = (items: CartItem[]) => {
+    localStorage.setItem('sbb-cart', JSON.stringify(items))
+    dispatch({ type: 'LOAD_CART', items })
+  }
+
   return (
     <CartContext.Provider value={{
       state,
@@ -166,7 +204,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeFromCart,
       updateQuantity,
       clearCart,
-      toggleCart
+      toggleCart,
+      loadCart,
     }}>
       {children}
     </CartContext.Provider>

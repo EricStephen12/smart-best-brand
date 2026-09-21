@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/prisma'
 import { mockCategories } from '@/lib/mockData'
+import { requireAdmin } from '@/lib/auth'
 
 // Get all categories
 export async function getAllCategories() {
@@ -28,6 +29,7 @@ export async function getAllCategories() {
 // Create category
 export async function createCategory(formData: FormData) {
     try {
+        await requireAdmin()
         const name = formData.get('name') as string
         const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
 
@@ -51,6 +53,7 @@ export async function createCategory(formData: FormData) {
 // Update category
 export async function updateCategory(id: string, formData: FormData) {
     try {
+        await requireAdmin()
         const name = formData.get('name') as string
         const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
 
@@ -75,6 +78,7 @@ export async function updateCategory(id: string, formData: FormData) {
 // Delete category
 export async function deleteCategory(id: string) {
     try {
+        await requireAdmin()
         await prisma.category.delete({
             where: { id }
         })

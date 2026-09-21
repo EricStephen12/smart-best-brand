@@ -13,11 +13,11 @@ export default function NotFound() {
         </div>
 
         <h1 className="font-playfair text-4xl sm:text-5xl lg:text-6xl font-semibold text-blue-950 tracking-tight mb-5">
-          The piece you seek is unavailable.
+          Page Not Found
         </h1>
 
         <p className="text-stone-500 text-sm sm:text-base leading-relaxed max-w-md mx-auto mb-10">
-          The link you followed may have expired, or the page may have been repositioned. Explore our curated collections or return to the main gallery.
+          The page you are looking for might have been moved or doesn't exist. Browse our products or return to the homepage.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
@@ -25,7 +25,7 @@ export default function NotFound() {
             href="/products"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-950 text-white px-8 py-3.5 text-[11px] font-black tracking-[0.2em] uppercase hover:bg-sky-700 transition-colors"
           >
-            Explore catalog
+            Shop products
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
           <Link
@@ -42,11 +42,11 @@ export default function NotFound() {
           </Link>
           <span>·</span>
           <Link href="/contact" className="hover:text-blue-950 transition-colors underline underline-offset-4">
-            Contact concierge
+            Contact support
           </Link>
           <span>·</span>
           <Link href="/account" className="hover:text-blue-950 transition-colors underline underline-offset-4">
-            Client account
+            My account
           </Link>
         </div>
       </div>

@@ -58,7 +58,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
     backgroundColor: '#f7f6f3',
 
     announcementEnabled: false,
-    announcementText: 'Authentic Nigerian home brands — fast nationwide delivery.',
+    announcementText: 'Original Nigerian mattresses & furniture — fast delivery to your door.',
     announcementLink: '/products',
 
     heroTitle: 'Quality mattresses, pillows & furniture',
@@ -67,14 +67,14 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
     heroCtaLabel: 'Shop products',
     heroCtaHref: '/products',
 
-    storyBadge: 'Our Legacy',
-    storyTitle: 'Authenticity as a Standard.',
+    storyBadge: 'Who We Are',
+    storyTitle: 'Original Mattresses, Directly to Your Home.',
     storyText:
-        "Smart Best Brands was established with a singular mission: to bring Nigeria's most trusted home brands under one roof. We understand that your home is your sanctuary, and the foundation of that sanctuary begins with rest.",
-    storySecondaryBadge: 'Craftsmanship',
-    storySecondaryTitle: 'Engineered for Nigerian Living.',
+        "We started Smart Best Brands to make buying genuine mattresses simple in Nigeria. No fake foam, no hidden fees—just original brands like Mouka, Vitafoam, and Royal Foam delivered directly to your doorstep.",
+    storySecondaryBadge: 'Our Promise',
+    storySecondaryTitle: '100% Authentic, Direct From the Factory.',
     storySecondaryText:
-        'From high-density orthopedic mattresses built for durability in our climate to ergonomic pillows designed for restorative sleep, every piece in our curation meets rigorous standards.',
+        'We source directly from authorized factory distributors so you never have to worry about counterfeits. Every mattress comes in its original factory packaging with a real manufacturer warranty.',
     storyImageUrl: null,
 
     promoBadge: 'For Nigerian homes',

@@ -93,10 +93,10 @@ export default function AccountLayout({
   // ─────────────────────────────────────────────────────────────
   if (!isAdmin) {
     return (
-      <div className="bg-[#f7f6f3] min-h-[85vh] py-8 sm:py-12 px-4 sm:px-6 lg:px-8 font-sans">
-        <div className="max-w-5xl mx-auto space-y-8">
+      <div className="bg-[#f7f6f3] print:bg-white min-h-[85vh] py-8 sm:py-12 px-4 sm:px-6 lg:px-8 print:p-0 font-sans">
+        <div className="max-w-5xl mx-auto space-y-8 print:max-w-none print:space-y-0">
           {/* Customer Profile Header */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 print:hidden">
             <div className="flex items-center gap-4 sm:gap-5">
               <div className="w-14 h-14 rounded-2xl bg-blue-950 text-white font-black text-xl flex items-center justify-center shadow-md shrink-0">
                 {userInitial}
@@ -135,6 +135,16 @@ export default function AccountLayout({
                 }`}
               >
                 My Orders
+              </Link>
+              <Link
+                href="/account/wishlist"
+                className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                  pathname.startsWith('/account/wishlist')
+                    ? 'bg-blue-950 text-white shadow-sm'
+                    : 'bg-stone-100 text-slate-600 hover:bg-stone-200/80 hover:text-blue-950'
+                }`}
+              >
+                Wishlist
               </Link>
               <Link
                 href="/account/settings"
@@ -240,8 +250,8 @@ export default function AccountLayout({
   );
 
   return (
-    <div className="flex h-screen bg-[#f7f6f3] text-blue-950 font-sans">
-      <aside className="w-64 hidden md:flex flex-col flex-shrink-0 shadow-sm">
+    <div className="flex h-screen bg-[#f7f6f3] text-blue-950 font-sans print:h-auto print:bg-white">
+      <aside className="w-64 hidden md:flex flex-col flex-shrink-0 shadow-sm print:hidden">
         {sidebarContent}
       </aside>
 
@@ -268,8 +278,8 @@ export default function AccountLayout({
         )}
       </AnimatePresence>
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="md:hidden bg-white border-b border-stone-200/80 px-5 py-3.5 flex items-center justify-between">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden print:overflow-visible">
+        <header className="md:hidden bg-white border-b border-stone-200/80 px-5 py-3.5 flex items-center justify-between print:hidden">
           <Link href="/" className="font-playfair font-black text-base text-blue-950">
             Smart Best Brands
           </Link>
@@ -290,8 +300,8 @@ export default function AccountLayout({
           </div>
         </header>
 
-        <main className="flex-1 overflow-auto">
-          <div className="max-w-6xl mx-auto p-4 sm:p-6 md:p-8">
+        <main className="flex-1 overflow-auto print:overflow-visible">
+          <div className="max-w-6xl mx-auto p-4 sm:p-6 md:p-8 print:p-0 print:max-w-none">
             {children}
           </div>
         </main>

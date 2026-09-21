@@ -6,7 +6,8 @@ import { useCart } from '@/lib/cart-context'
 import { useAuth } from '@/hooks/use-auth'
 import { confirmPaystackPayment, createOrder } from '@/actions/orders'
 import { validatePromotionCode } from '@/actions/promotions'
-import { useRouter } from 'next/navigation'
+import { recoverCartByToken, syncCartToDb } from '@/actions/cart'
+import { useRouter, useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 
@@ -26,9 +27,12 @@ const labelClass =
   'text-[10px] font-black uppercase tracking-[0.22em] text-stone-400 mb-2 block'
 
 export default function CheckoutForm({ zones }: CheckoutFormProps) {
-  const { state, clearCart } = useCart()
+  const { state, clearCart, loadCart } = useCart()
   const { user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const recoverToken = searchParams?.get('recover')
+
   const [selectedZone, setSelectedZone] = useState<DeliveryZone>(
     zones[0] || { id: 'custom', name: 'Other Locations', basePrice: 0 }
   )
@@ -47,6 +51,51 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
     promotion: { code?: string | null; title: string }
   } | null>(null)
   const [isValidatingCoupon, setIsValidatingCoupon] = useState(false)
+  const idempotencyKeyRef = React.useRef<string>('')
+
+  React.useEffect(() => {
+    if (!idempotencyKeyRef.current) {
+      idempotencyKeyRef.current = `chk_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+    }
+  }, [])
+
+  // Auto-restore abandoned cart if URL has recover query parameter
+  React.useEffect(() => {
+    if (recoverToken) {
+      void (async () => {
+        const res = await recoverCartByToken(recoverToken)
+        if (res.success && res.data) {
+          if (res.data.items?.length) {
+            loadCart(res.data.items)
+          }
+          if (res.data.email || res.data.phone) {
+            setFormData((prev) => ({
+              ...prev,
+              email: prev.email || res.data?.email || '',
+              phone: prev.phone || res.data?.phone || '',
+            }))
+          }
+          toast.success('Your cart has been restored!')
+        }
+      })()
+    }
+  }, [recoverToken])
+
+  const handleContactBlur = () => {
+    if (formData.email || formData.phone) {
+      const guestToken = typeof window !== 'undefined' ? localStorage.getItem('sbb-guest-token') : null
+      const syncItems = state.items.map((i) => ({
+        variantId: i.product_variant_id,
+        quantity: i.quantity,
+      }))
+      void syncCartToDb({
+        items: syncItems,
+        email: formData.email,
+        phone: formData.phone,
+        guestToken,
+      })
+    }
+  }
 
   React.useEffect(() => {
     if (user) {
@@ -73,8 +122,12 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
     return acc + price * item.quantity
   }, 0)
 
+  const totalCartQuantity = state.items.reduce((acc, item) => acc + item.quantity, 0)
+  const isCustomDelivery = selectedZone?.name?.toLowerCase() === 'other locations'
+  const bulkyHandlingFee = isCustomDelivery ? 0 : Math.max(0, totalCartQuantity - 1) * 2500
+  const deliveryFee = (selectedZone?.basePrice || 0) + bulkyHandlingFee
   const discount = appliedPromo?.discount || 0
-  const total = cartTotal + (selectedZone?.basePrice || 0) - discount
+  const total = cartTotal + deliveryFee - discount
 
   const handleApplyCoupon = async () => {
     if (!couponCode) return
@@ -86,7 +139,7 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
           i.product?.categories?.map((c: { categoryId: string }) => c.categoryId) || [],
       }))
 
-      const result = await validatePromotionCode(couponCode, cartTotal, items)
+      const result = await validatePromotionCode(couponCode, cartTotal, items, formData.email)
       if (result.success && result.data) {
         setAppliedPromo(result.data)
         toast.success(`Discount applied: ₦${result.data.discount.toLocaleString()}`)
@@ -137,7 +190,7 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
         customerPhone: formData.phone,
         deliveryAddress: formData.address,
         deliveryLocation: selectedZone.name,
-        deliveryFee: selectedZone.basePrice,
+        deliveryFee: deliveryFee,
         subtotal: cartTotal,
         total: total,
         discount: discount,
@@ -149,6 +202,7 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
             ? 'BANK_TRANSFER'
             : 'WHATSAPP',
         userId: user?.id || undefined,
+        idempotencyKey: idempotencyKeyRef.current || `chk_${Date.now()}`,
         items: state.items.map((item) => ({
           variantId: item.product_variant_id,
           quantity: item.quantity,
@@ -305,6 +359,7 @@ Please confirm delivery timeline.`
                 placeholder="0800 000 0000"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onBlur={handleContactBlur}
               />
             </div>
           </div>
@@ -318,6 +373,7 @@ Please confirm delivery timeline.`
               placeholder="you@email.com"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onBlur={handleContactBlur}
             />
           </div>
 
@@ -458,7 +514,7 @@ Please confirm delivery timeline.`
                 WhatsApp
               </p>
               <p className="text-xs text-stone-500 leading-relaxed">
-                Place order and finalize directly with our desk.
+                Place your order and chat directly with us on WhatsApp.
               </p>
             </button>
           </div>
@@ -470,7 +526,7 @@ Please confirm delivery timeline.`
                   Company Account Details
                 </span>
                 <span className="text-[9px] font-bold text-sky-800 uppercase tracking-widest bg-sky-50 px-2 py-0.5 border border-sky-200">
-                  Direct Wire
+                  Bank Transfer
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-blue-950 pt-1">
@@ -555,9 +611,15 @@ Please confirm delivery timeline.`
               <span className="text-blue-950 font-medium">
                 {selectedZone?.id === 'custom'
                   ? 'To confirm'
-                  : `₦${selectedZone?.basePrice.toLocaleString()}`}
+                  : `₦${deliveryFee.toLocaleString()}`}
               </span>
             </div>
+            {bulkyHandlingFee > 0 && selectedZone?.id !== 'custom' ? (
+              <div className="flex justify-between text-xs text-stone-500 italic">
+                <span>Bulky Item Freight ({totalCartQuantity - 1} extra {totalCartQuantity - 1 === 1 ? 'item' : 'items'})</span>
+                <span>Included (+₦{bulkyHandlingFee.toLocaleString()})</span>
+              </div>
+            ) : null}
             {discount > 0 ? (
               <div className="flex justify-between text-sm text-sky-700">
                 <span>Discount</span>

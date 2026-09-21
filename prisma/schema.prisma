@@ -21,6 +21,7 @@ model User {
   createdAt        DateTime @default(now())
   orders           Order[]
   reviews          Review[]
+  carts            Cart[]
 
   @@index([clerkId])
 }
@@ -98,6 +99,7 @@ model ProductVariant {
   sku        String?     @unique
   isActive   Boolean     @default(true)
   orderItems OrderItem[]
+  cartItems  CartItem[]
   product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   size       Size        @relation(fields: [sizeId], references: [id])
 
@@ -118,29 +120,32 @@ model ProductCategory {
 }
 
 model Order {
-  id               String      @id @default(uuid())
-  orderNumber      String      @unique
-  userId           String?
-  customerName     String
-  customerEmail    String
-  customerPhone    String
-  deliveryAddress  String
-  deliveryLocation String
-  deliveryFee      Float
-  subtotal         Float
-  total            Float
-  discount         Float       @default(0)
-  promoCode        String?
-  status           OrderStatus @default(PENDING)
-  paymentMethod    String
-  paymentReference String?
-  notes            String?
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
-  user             User?       @relation(fields: [userId], references: [id])
-  items            OrderItem[]
+  id                  String      @id @default(uuid())
+  orderNumber         String      @unique
+  idempotencyKey      String?     @unique
+  userId              String?
+  customerName        String
+  customerEmail       String
+  customerPhone       String
+  deliveryAddress     String
+  deliveryLocation    String
+  deliveryFee         Float
+  subtotal            Float
+  total               Float
+  discount            Float       @default(0)
+  promoCode           String?
+  status              OrderStatus @default(PENDING)
+  paymentMethod       String
+  paymentReference    String?
+  inventoryDeductedAt DateTime?
+  notes               String?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  user                User?       @relation(fields: [userId], references: [id])
+  items               OrderItem[]
 
   @@index([orderNumber])
+  @@index([idempotencyKey])
   @@index([userId])
   @@index([status])
   @@index([createdAt])
@@ -170,20 +175,24 @@ model DeliveryLocation {
 }
 
 model Promotion {
-  id            String              @id @default(uuid())
-  title         String
-  description   String?
-  code          String?             @unique
-  discountType  String
-  discountValue Float
-  minPurchase   Float?
-  startDate     DateTime?
-  endDate       DateTime?
-  isActive      Boolean             @default(true)
-  createdAt     DateTime            @default(now())
-  appliesTo     String              @default("ALL")
-  categories    PromotionCategory[]
-  products      PromotionProduct[]
+  id                   String              @id @default(uuid())
+  title                String
+  description          String?
+  code                 String?             @unique
+  discountType         String
+  discountValue        Float
+  minPurchase          Float?
+  maxDiscount          Float?
+  maxUses              Int?
+  usedCount            Int                 @default(0)
+  singleUsePerCustomer Boolean             @default(false)
+  startDate            DateTime?
+  endDate              DateTime?
+  isActive             Boolean             @default(true)
+  createdAt            DateTime            @default(now())
+  appliesTo            String              @default("ALL")
+  categories           PromotionCategory[]
+  products             PromotionProduct[]
 
   @@index([code])
   @@index([isActive])
@@ -269,7 +278,7 @@ model SiteSettings {
   
   // Announcement Bar
   announcementEnabled  Boolean  @default(false)
-  announcementText     String?  @default("Authentic Nigerian home brands — fast nationwide delivery.")
+  announcementText     String?  @default("Original Nigerian mattresses & furniture — fast delivery to your door.")
   announcementLink     String?  @default("/products")
 
   // Hero Section
@@ -278,13 +287,13 @@ model SiteSettings {
   heroCtaLabel         String   @default("Shop products")
   heroCtaHref          String   @default("/products")
 
-  // Story Section (Our Legacy)
-  storyBadge           String   @default("Our Legacy")
-  storyTitle           String   @default("Authenticity as a Standard.")
-  storyText            String   @default("Smart Best Brands was established with a singular mission: to bring Nigeria's most trusted home brands under one roof. We understand that your home is your sanctuary, and the foundation of that sanctuary begins with rest.")
-  storySecondaryBadge  String   @default("Craftsmanship")
-  storySecondaryTitle  String   @default("Engineered for Nigerian Living.")
-  storySecondaryText   String   @default("From high-density orthopedic mattresses built for durability in our climate to ergonomic pillows designed for restorative sleep, every piece in our curation meets rigorous standards.")
+  // Story Section (Who We Are)
+  storyBadge           String   @default("Who We Are")
+  storyTitle           String   @default("Original Mattresses, Directly to Your Home.")
+  storyText            String   @default("We started Smart Best Brands to make buying genuine mattresses simple in Nigeria. No fake foam, no hidden fees—just original brands like Mouka, Vitafoam, and Royal Foam delivered directly to your doorstep.")
+  storySecondaryBadge  String   @default("Our Promise")
+  storySecondaryTitle  String   @default("100% Authentic, Direct From the Factory.")
+  storySecondaryText   String   @default("We source directly from authorized factory distributors so you never have to worry about counterfeits. Every mattress comes in its original factory packaging with a real manufacturer warranty.")
   storyImageUrl        String?
 
   // Mid-Page Promo Banner
@@ -322,3 +331,48 @@ enum OrderStatus {
   DELIVERED
   CANCELLED
 }
+
+model WebhookEvent {
+  id        String   @id @default(uuid())
+  eventId   String   @unique
+  eventType String
+  createdAt DateTime @default(now())
+
+  @@index([eventId])
+}
+
+model Cart {
+  id                       String     @id @default(uuid())
+  userId                   String?
+  guestToken               String?    @unique
+  email                    String?
+  phone                    String?
+  recoveryToken            String?    @unique
+  lastAbandonedEmailSentAt DateTime?
+  isRecovered              Boolean    @default(false)
+  createdAt                DateTime   @default(now())
+  updatedAt                DateTime   @updatedAt
+  user                     User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  items                    CartItem[]
+
+  @@index([userId])
+  @@index([guestToken])
+  @@index([recoveryToken])
+  @@index([updatedAt])
+}
+
+model CartItem {
+  id        String         @id @default(uuid())
+  cartId    String
+  variantId String
+  quantity  Int            @default(1)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  cart      Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, variantId])
+  @@index([cartId])
+  @@index([variantId])
+}
+

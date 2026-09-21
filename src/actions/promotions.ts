@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/prisma'
+import { requireAdmin } from '@/lib/auth'
 
 // Get all promotions
 export async function getAllPromotions() {
@@ -25,12 +26,16 @@ export async function getAllPromotions() {
 // Create promotion
 export async function createPromotion(formData: FormData) {
     try {
+        await requireAdmin()
         const title = formData.get('title') as string
         const description = formData.get('description') as string
         const code = formData.get('code') as string
         const discountType = formData.get('discountType') as string
         const discountValue = parseFloat(formData.get('discountValue') as string)
         const minPurchase = formData.get('minPurchase') ? parseFloat(formData.get('minPurchase') as string) : null
+        const maxDiscount = formData.get('maxDiscount') ? parseFloat(formData.get('maxDiscount') as string) : null
+        const maxUses = formData.get('maxUses') ? parseInt(formData.get('maxUses') as string, 10) : null
+        const singleUsePerCustomer = formData.get('singleUsePerCustomer') === 'true'
         const startDate = formData.get('startDate') ? new Date(formData.get('startDate') as string) : null
         const endDate = formData.get('endDate') ? new Date(formData.get('endDate') as string) : null
 
@@ -46,6 +51,9 @@ export async function createPromotion(formData: FormData) {
                 discountType,
                 discountValue,
                 minPurchase,
+                maxDiscount,
+                maxUses,
+                singleUsePerCustomer,
                 startDate,
                 endDate,
                 isActive: true,
@@ -72,12 +80,16 @@ export async function createPromotion(formData: FormData) {
 // Update promotion
 export async function updatePromotion(id: string, formData: FormData) {
     try {
+        await requireAdmin()
         const title = formData.get('title') as string
         const description = formData.get('description') as string
         const code = formData.get('code') as string
         const discountType = formData.get('discountType') as string
         const discountValue = parseFloat(formData.get('discountValue') as string)
         const minPurchase = formData.get('minPurchase') ? parseFloat(formData.get('minPurchase') as string) : null
+        const maxDiscount = formData.get('maxDiscount') ? parseFloat(formData.get('maxDiscount') as string) : null
+        const maxUses = formData.get('maxUses') ? parseInt(formData.get('maxUses') as string, 10) : null
+        const singleUsePerCustomer = formData.get('singleUsePerCustomer') === 'true'
         const startDate = formData.get('startDate') ? new Date(formData.get('startDate') as string) : null
         const endDate = formData.get('endDate') ? new Date(formData.get('endDate') as string) : null
         const isActive = formData.get('isActive') === 'true'
@@ -99,6 +111,9 @@ export async function updatePromotion(id: string, formData: FormData) {
                 discountType,
                 discountValue,
                 minPurchase,
+                maxDiscount,
+                maxUses,
+                singleUsePerCustomer,
                 startDate,
                 endDate,
                 isActive,
@@ -126,7 +141,8 @@ export async function updatePromotion(id: string, formData: FormData) {
 export async function validatePromotionCode(
     code: string,
     subtotal: number,
-    cartItems?: { productId: string, categoryIds: string[] }[]
+    cartItems?: { productId: string, categoryIds: string[] }[],
+    customerEmail?: string
 ) {
     try {
         const now = new Date()
@@ -155,6 +171,25 @@ export async function validatePromotionCode(
 
         if (!promotion) {
             return { success: false, error: 'Invalid or expired promotion code' }
+        }
+
+        // Global redemption cap check
+        if (promotion.maxUses && promotion.usedCount >= promotion.maxUses) {
+            return { success: false, error: 'This promotion code has reached its maximum redemption limit' }
+        }
+
+        // Single use per customer check
+        if (promotion.singleUsePerCustomer && customerEmail?.trim()) {
+            const previousUsage = await prisma.order.findFirst({
+                where: {
+                    customerEmail: customerEmail.trim().toLowerCase(),
+                    promoCode: promotion.code,
+                    status: { not: 'CANCELLED' }
+                }
+            })
+            if (previousUsage) {
+                return { success: false, error: 'You have already used this promotion code on a previous order' }
+            }
         }
 
         // Shopify Standard: Scope Validation
@@ -196,6 +231,11 @@ export async function validatePromotionCode(
             discount = promotion.discountValue
         }
 
+        // Enforce maximum discount cap in Naira
+        if (promotion.maxDiscount && discount > promotion.maxDiscount) {
+            discount = promotion.maxDiscount
+        }
+
         return {
             success: true,
             data: {
@@ -212,6 +252,7 @@ export async function validatePromotionCode(
 // Delete promotion
 export async function deletePromotion(id: string) {
     try {
+        await requireAdmin()
         await prisma.promotion.delete({
             where: { id }
         })

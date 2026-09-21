@@ -170,7 +170,7 @@ export default function SizesList({ initialSizes }: SizesListProps) {
                             className="bg-blue-950 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-blue-950/20 sticky top-8"
                         >
                             <h2 className="text-2xl font-black mb-8 leading-tight">
-                                {isAdding ? 'Define New' : 'Edit Elite'} <br /> Standard Size
+                                {isAdding ? 'Add New' : 'Edit'} <br /> Size
                             </h2>
 
                             <div className="space-y-6">

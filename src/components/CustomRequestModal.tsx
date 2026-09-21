@@ -56,17 +56,17 @@ export default function CustomRequestModal({ isOpen, onClose, productName }: Cus
                                 <div className="flex items-center gap-4 mb-8">
                                     <div className="w-1 h-8 bg-sky-600 rounded-full" />
                                     <span className="text-xs sm:text-sm font-black text-sky-600 uppercase tracking-[0.4em]">
-                                        Bespoke Specification
+                                        Custom Size Order
                                     </span>
                                 </div>
 
                                 <h2 className="text-4xl sm:text-5xl font-black text-blue-950 tracking-tight leading-none mb-4">
-                                    Custom Request <br />
-                                    <span className="text-sky-600 font-display italic">Protocol.</span>
+                                    Need a <br />
+                                    <span className="text-sky-600 font-display italic">Custom Size?</span>
                                 </h2>
 
                                 <p className="text-lg text-slate-500 font-medium leading-relaxed mb-12">
-                                    At Smart Best Brands, we offer custom-fit solutions for unique bed frames and spatial requirements.
+                                    Have an imported bed frame or unique room dimensions? We can order custom-sized mattresses directly from the factory for you.
                                 </p>
 
                                 {/* Steps Grid */}
@@ -78,13 +78,13 @@ export default function CustomRequestModal({ isOpen, onClose, productName }: Cus
                                     />
                                     <StepCard
                                         icon={ShieldCheck}
-                                        title="Validate"
-                                        desc="We verify technical feasibility with the brand."
+                                        title="Confirm"
+                                        desc="We verify dimensions and get an exact quote from the factory."
                                     />
                                     <StepCard
                                         icon={Clock}
-                                        title="Produce"
-                                        desc="Factory delivery usually takes 5-10 business days."
+                                        title="Deliver"
+                                        desc="The factory produces your size and we deliver in 5–10 days."
                                     />
                                 </div>
 
@@ -94,11 +94,11 @@ export default function CustomRequestModal({ isOpen, onClose, productName }: Cus
                                     className="w-full bg-blue-950 text-white py-6 rounded-3xl font-black text-xs tracking-[0.3em] uppercase flex items-center justify-center gap-4 hover:bg-sky-600 transition-all shadow-xl shadow-blue-950/20 active:scale-98"
                                 >
                                     <MessageCircle className="w-5 h-5" />
-                                    Request Custom Quote via Concierge
+                                    Request Quote on WhatsApp
                                 </button>
 
                                 <p className="text-center mt-6 text-[10px] font-black text-slate-300 uppercase tracking-widest">
-                                    Direct connection to a dedicated procurement manager
+                                    Direct chat with our team on WhatsApp
                                 </p>
                             </div>
                         </motion.div>

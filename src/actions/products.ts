@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/prisma'
 import { mockProducts, mockBrands, mockCategories } from '@/lib/mockData'
+import { requireAdmin } from '@/lib/auth'
 
 interface ProductFilters {
     brandId?: string
@@ -163,6 +164,7 @@ export async function getProductBySlug(slug: string) {
 // Create product with variants
 export async function createProduct(formData: FormData) {
     try {
+        await requireAdmin()
         const name = formData.get('name') as string
         const description = formData.get('description') as string
         const brandId = formData.get('brandId') as string
@@ -233,6 +235,7 @@ export async function createProduct(formData: FormData) {
 // Update product
 export async function updateProduct(id: string, formData: FormData) {
     try {
+        await requireAdmin()
         const name = formData.get('name') as string
         const description = formData.get('description') as string
         const brandId = formData.get('brandId') as string
@@ -375,6 +378,7 @@ export async function updateProduct(id: string, formData: FormData) {
 // Delete product
 export async function deleteProduct(id: string) {
     try {
+        await requireAdmin()
         const orderItemCount = await prisma.orderItem.count({
             where: { variant: { productId: id } }
         })

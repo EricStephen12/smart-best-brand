@@ -4,6 +4,13 @@ import { jwtVerify } from 'jose'
 
 const SESSION_COOKIE_NAME = 'sbb_session'
 
+interface SessionPayload {
+  sub?: string
+  email?: string
+  role?: 'ADMIN' | 'CUSTOMER'
+  name?: string | null
+}
+
 function getJwtSecret(): Uint8Array {
   const secret =
     process.env.AUTH_SECRET ||
@@ -12,21 +19,36 @@ function getJwtSecret(): Uint8Array {
   return new TextEncoder().encode(secret)
 }
 
-async function isAuthenticated(req: NextRequest): Promise<boolean> {
+async function getSession(req: NextRequest): Promise<SessionPayload | null> {
   const cookie = req.cookies.get(SESSION_COOKIE_NAME)
-  if (!cookie?.value) return false
+  if (!cookie?.value) return null
 
   try {
     const { payload } = await jwtVerify(cookie.value, getJwtSecret())
-    return Boolean(payload?.sub)
+    if (!payload?.sub) return null
+    return payload as SessionPayload
   } catch {
-    return false
+    return null
   }
 }
 
+const ADMIN_MANAGEMENT_ROUTES = [
+  '/account/products',
+  '/account/brands',
+  '/account/categories',
+  '/account/sizes',
+  '/account/promotions',
+  '/account/delivery-locations',
+  '/account/customers',
+  '/account/banners',
+  '/account/reviews',
+  '/account/site',
+]
+
 export default async function proxy(req: NextRequest) {
   const { pathname, search } = req.nextUrl
-  const authenticated = await isAuthenticated(req)
+  const session = await getSession(req)
+  const authenticated = Boolean(session?.sub)
 
   // Protect /account routes
   if (pathname.startsWith('/account')) {
@@ -34,6 +56,12 @@ export default async function proxy(req: NextRequest) {
       const loginUrl = new URL('/login', req.url)
       loginUrl.searchParams.set('redirect_url', `${pathname}${search}`)
       return NextResponse.redirect(loginUrl)
+    }
+
+    // Protect Admin routes from regular customers
+    const isAdminRoute = ADMIN_MANAGEMENT_ROUTES.some((route) => pathname.startsWith(route))
+    if (isAdminRoute && session?.role !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/account', req.url))
     }
   }
 

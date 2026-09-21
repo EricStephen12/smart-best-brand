@@ -27,7 +27,7 @@ const faqs = [
     },
     {
         question: "Can I order a custom size mattress?",
-        answer: "Yes, we specialize in bespoke mattress requests. If you have a custom bed frame or unique space requirements, we can facilitate special orders through our brand partners like Vitafoam and Mouka Foam. Please select 'Custom Dimensions' on the product page or message our concierge directly to discuss your specific measurements."
+        answer: "Yes, we arrange custom mattress sizes. If you have a custom bed frame or special space requirements, we can place a custom order directly with Vitafoam, Mouka, or Royal Foam. Choose 'Custom size' on the product page or message us on WhatsApp with your measurements."
     }
 ];
 
@@ -43,7 +43,7 @@ export default function FAQPage() {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-sky-600 font-black tracking-[0.3em] text-xs uppercase mb-4 block"
                     >
-                        Assistance & Logistics
+                        Help & FAQs
                     </motion.span>
                     <motion.h1
                         initial={{ opacity: 0, y: 20 }}
@@ -114,7 +114,7 @@ export default function FAQPage() {
                     <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
                         <div>
                             <h2 className="text-3xl sm:text-4xl font-black mb-4 tracking-tight uppercase">Still have <br /> questions?</h2>
-                            <p className="text-sky-200/80 font-medium text-lg font-inter">Our elite concierge team is ready to assist you personally.</p>
+                            <p className="text-sky-200/80 font-medium text-lg font-inter">Our team is ready to help you anytime on WhatsApp or phone.</p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-4">
                             <a
