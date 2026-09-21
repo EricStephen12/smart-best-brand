@@ -2,7 +2,12 @@
 
 import React, { useEffect, useState } from 'react'
 import { getSiteSettings, updateSiteSettings } from '@/actions/site-settings'
-import type { SiteSettingsData } from '@/lib/site-settings'
+import {
+    HEADING_FONTS,
+    BODY_FONTS,
+    FONT_PAIRINGS,
+    type SiteSettingsData,
+} from '@/lib/site-settings'
 import CloudinaryUpload from '@/components/CloudinaryUpload'
 import toast from 'react-hot-toast'
 import {
@@ -19,6 +24,7 @@ import {
     Eye,
     Globe,
     Layers,
+    Type,
 } from 'lucide-react'
 
 type TabType = 'identity' | 'theme' | 'story' | 'promo' | 'contact' | 'footer'
@@ -349,6 +355,212 @@ export default function SiteSettingsAdminPage() {
                                 value={form.backgroundColor}
                                 onChange={(v) => set('backgroundColor', v)}
                             />
+                        </div>
+
+                        {/* ──────────────────────────────────────────────
+                            TYPOGRAPHY & FONT PAIRINGS
+                        ────────────────────────────────────────────── */}
+                        <div className="pt-8 border-t border-stone-100 space-y-6">
+                            <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Type className="w-4 h-4 text-sky-700" />
+                                    <h3 className="text-base font-bold text-blue-950">Storefront Typography &amp; Fonts</h3>
+                                </div>
+                                <p className="text-xs text-slate-500">
+                                    Choose distinctive typography for your titles and product pages. Google Fonts load automatically without slowing down your store.
+                                </p>
+                            </div>
+
+                            {/* Curated Pairings */}
+                            <div className="space-y-2">
+                                <span className="text-xs font-bold text-slate-700">Designer Recommended Font Pairings:</span>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {FONT_PAIRINGS.map((pairing) => {
+                                        const isSelected =
+                                            form.headingFont === pairing.heading && form.bodyFont === pairing.body
+                                        return (
+                                            <button
+                                                key={pairing.name}
+                                                type="button"
+                                                onClick={() => {
+                                                    set('headingFont', pairing.heading)
+                                                    set('bodyFont', pairing.body)
+                                                    toast.success(`Selected ${pairing.name} pairing`)
+                                                }}
+                                                className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+                                                    isSelected
+                                                        ? 'border-sky-600 bg-sky-50/60 ring-2 ring-sky-500/20 shadow-sm'
+                                                        : 'border-stone-200 hover:border-slate-300 bg-stone-50/40'
+                                                }`}
+                                            >
+                                                <div className="flex items-center justify-between mb-1.5">
+                                                    <span className="text-xs font-bold text-blue-950">{pairing.name}</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-wider text-sky-700 bg-white px-2 py-0.5 rounded-full border border-sky-100">
+                                                        {pairing.tag}
+                                                    </span>
+                                                </div>
+                                                <p
+                                                    className="text-base font-semibold text-blue-950 mb-1"
+                                                    style={{ fontFamily: pairing.heading }}
+                                                >
+                                                    {pairing.heading} &amp; {pairing.body}
+                                                </p>
+                                                <p className="text-[11px] text-slate-500 leading-relaxed">
+                                                    {pairing.description}
+                                                </p>
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Heading Font Picker */}
+                            <div className="space-y-3 pt-4 border-t border-stone-100">
+                                <div>
+                                    <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                                        Heading Font (H1, H2, Product Titles)
+                                    </label>
+                                    <p className="text-[11px] text-slate-400">
+                                        Active: <strong>{form.headingFont || 'Playfair Display'}</strong>
+                                    </p>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    {HEADING_FONTS.map((font) => {
+                                        const active = (form.headingFont || 'Playfair Display') === font.name
+                                        return (
+                                            <button
+                                                key={font.name}
+                                                type="button"
+                                                onClick={() => set('headingFont', font.name)}
+                                                className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                                                    active
+                                                        ? 'border-blue-950 bg-blue-950 text-white shadow-md'
+                                                        : 'border-stone-200 hover:border-stone-300 bg-white text-slate-800'
+                                                }`}
+                                            >
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <span className={`text-xs font-bold ${active ? 'text-white' : 'text-blue-950'}`}>
+                                                        {font.label}
+                                                    </span>
+                                                    {active && <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />}
+                                                </div>
+                                                <p
+                                                    className={`text-sm truncate ${active ? 'text-sky-200' : 'text-slate-600'}`}
+                                                    style={{ fontFamily: font.name }}
+                                                >
+                                                    {font.sample}
+                                                </p>
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Body Font Picker */}
+                            <div className="space-y-3 pt-4 border-t border-stone-100">
+                                <div>
+                                    <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                                        Body / Interface Font (Paragraphs, Cart, Menus)
+                                    </label>
+                                    <p className="text-[11px] text-slate-400">
+                                        Active: <strong>{form.bodyFont || 'Inter'}</strong>
+                                    </p>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                    {BODY_FONTS.map((font) => {
+                                        const active = (form.bodyFont || 'Inter') === font.name
+                                        return (
+                                            <button
+                                                key={font.name}
+                                                type="button"
+                                                onClick={() => set('bodyFont', font.name)}
+                                                className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                                                    active
+                                                        ? 'border-blue-950 bg-blue-950 text-white shadow-md'
+                                                        : 'border-stone-200 hover:border-stone-300 bg-white text-slate-800'
+                                                }`}
+                                            >
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <span className={`text-xs font-bold ${active ? 'text-white' : 'text-blue-950'}`}>
+                                                        {font.label}
+                                                    </span>
+                                                    {active && <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />}
+                                                </div>
+                                                <p
+                                                    className={`text-xs line-clamp-2 leading-relaxed ${active ? 'text-sky-200' : 'text-slate-500'}`}
+                                                    style={{ fontFamily: font.name }}
+                                                >
+                                                    {font.sample}
+                                                </p>
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Live Storefront Typography Preview */}
+                            <div className="pt-6 border-t border-stone-100">
+                                <span className="text-xs font-bold text-slate-700 block mb-2">Live Storefront Typography &amp; Color Preview:</span>
+                                <div
+                                    className="p-6 sm:p-8 rounded-3xl border border-stone-200/90 shadow-sm space-y-4"
+                                    style={{
+                                        backgroundColor: form.backgroundColor || '#f7f6f3',
+                                        fontFamily: form.bodyFont || 'Inter',
+                                    }}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <span
+                                            className="text-[10px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded-full text-white"
+                                            style={{ backgroundColor: form.accentColor || '#0284c7' }}
+                                        >
+                                            Mouka Foam · 10 Year Warranty
+                                        </span>
+                                        <span className="text-xs text-slate-400 font-medium">In Stock (Abuja &amp; Lagos)</span>
+                                    </div>
+
+                                    <h4
+                                        className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 leading-tight"
+                                        style={{
+                                            fontFamily: form.headingFont || 'Playfair Display',
+                                            color: form.primaryColor || '#172554',
+                                        }}
+                                    >
+                                        Mouka Monalisa Semi-Orthopedic Mattress
+                                    </h4>
+
+                                    <p
+                                        className="text-xs sm:text-sm text-slate-600 max-w-xl leading-relaxed"
+                                        style={{ fontFamily: form.bodyFont || 'Inter' }}
+                                    >
+                                        Crafted with high-density posture support foam for healthy spinal alignment. Shipped factory-sealed directly to your home with full manufacturer warranty.
+                                    </p>
+
+                                    <div className="flex items-center gap-4 pt-2">
+                                        <span
+                                            className="text-2xl font-black tabular-nums"
+                                            style={{
+                                                fontFamily: form.headingFont || 'Playfair Display',
+                                                color: form.primaryColor || '#172554',
+                                            }}
+                                        >
+                                            ₦185,000
+                                        </span>
+                                        <button
+                                            type="button"
+                                            className="px-6 py-3 rounded-xl text-white text-xs font-bold uppercase tracking-wider shadow-sm transition-transform active:scale-95"
+                                            style={{ backgroundColor: form.primaryColor || '#172554' }}
+                                        >
+                                            Add to Cart
+                                        </button>
+                                        <span
+                                            className="text-xs font-semibold underline cursor-pointer"
+                                            style={{ color: form.accentColor || '#0284c7' }}
+                                        >
+                                            Order on WhatsApp
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </section>
                 )}

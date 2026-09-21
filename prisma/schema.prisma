@@ -275,6 +275,8 @@ model SiteSettings {
   primaryColor         String   @default("#172554")
   accentColor          String   @default("#0284c7")
   backgroundColor      String   @default("#f7f6f3")
+  headingFont          String   @default("Playfair Display")
+  bodyFont             String   @default("Inter")
   
   // Announcement Bar
   announcementEnabled  Boolean  @default(false)

@@ -77,6 +77,11 @@ export default function ShopSection({
       const match = brands.find((b) => b.name.toLowerCase() === brandParam.toLowerCase())
       if (match) setSelectedBrandId(match.id)
     }
+
+    const queryParam = searchParams.get('search') || searchParams.get('q')
+    if (queryParam) {
+      setSearchQuery(queryParam)
+    }
   }, [searchParams, categories, brands])
 
   useEffect(() => {

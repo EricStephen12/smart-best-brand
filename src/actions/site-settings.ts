@@ -18,6 +18,8 @@ function toData(row: any): SiteSettingsData {
         primaryColor: row.primaryColor || DEFAULT_SITE_SETTINGS.primaryColor,
         accentColor: row.accentColor || DEFAULT_SITE_SETTINGS.accentColor,
         backgroundColor: row.backgroundColor || DEFAULT_SITE_SETTINGS.backgroundColor,
+        headingFont: row.headingFont || DEFAULT_SITE_SETTINGS.headingFont,
+        bodyFont: row.bodyFont || DEFAULT_SITE_SETTINGS.bodyFont,
 
         announcementEnabled: Boolean(row.announcementEnabled),
         announcementText: row.announcementText ?? DEFAULT_SITE_SETTINGS.announcementText,
@@ -104,6 +106,8 @@ export async function updateSiteSettings(input: Partial<SiteSettingsData>) {
         if (input.primaryColor !== undefined) data.primaryColor = input.primaryColor.trim()
         if (input.accentColor !== undefined) data.accentColor = input.accentColor.trim()
         if (input.backgroundColor !== undefined) data.backgroundColor = input.backgroundColor.trim()
+        if (input.headingFont !== undefined) data.headingFont = input.headingFont.trim()
+        if (input.bodyFont !== undefined) data.bodyFont = input.bodyFont.trim()
 
         if (input.announcementEnabled !== undefined) data.announcementEnabled = Boolean(input.announcementEnabled)
         if (input.announcementText !== undefined) data.announcementText = input.announcementText?.trim() || null
