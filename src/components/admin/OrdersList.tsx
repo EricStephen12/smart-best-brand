@@ -234,7 +234,7 @@ function StatusBadge({ status }: { status: string }) {
     };
 
     return (
-        <span className={`flex items-center gap-2 w-fit px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${styles[status]}`}>
+        <span className={`flex items-center gap-1.5 w-fit px-3 py-1 text-[10px] font-black uppercase tracking-widest ${styles[status]}`}>
             {icons[status]}
             <span>{status}</span>
         </span>

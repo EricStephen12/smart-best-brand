@@ -102,7 +102,7 @@ export default function OrderDetailsPage() {
                     <div className="flex items-center gap-5">
                         <Link
                             href="/account/orders"
-                            className="w-11 h-11 bg-white rounded-xl border border-stone-200 flex items-center justify-center text-slate-500 hover:text-blue-950 hover:border-stone-300 transition-all group shadow-sm"
+                            className="w-10 h-10 bg-white border border-stone-200 flex items-center justify-center text-stone-500 hover:text-blue-950 hover:border-stone-300 transition-all group"
                         >
                             <ChevronLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
                         </Link>
@@ -130,7 +130,7 @@ export default function OrderDetailsPage() {
                         <button
                             type="button"
                             onClick={handlePrint}
-                            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-950 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-sky-700 transition-colors shadow-sm"
+                            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-950 text-white text-xs font-black uppercase tracking-wider hover:bg-sky-700 transition-colors"
                         >
                             <Printer className="w-4 h-4" />
                             <span>Print Invoice</span>
@@ -488,7 +488,7 @@ function StatusBadge({ status }: { status: string }) {
     };
 
     return (
-        <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border ${styles[status]}`}>
+        <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-black uppercase tracking-widest border ${styles[status]}`}>
             {icons[status]}
             {status}
         </span>

@@ -14,9 +14,10 @@ export default function Layout({ children }: LayoutProps) {
   const { user } = useAuth()
   const isAccount = pathname?.startsWith('/account')
   const isAdmin = user?.role === 'ADMIN'
+  const isCheckout = pathname?.startsWith('/checkout')
 
-  // Only hide store Header and Footer for Admin backoffice dashboard
-  const hideHeaderFooter = isAccount && isAdmin
+  // Hide store chrome for admin backoffice and the checkout flow
+  const hideHeaderFooter = (isAccount && isAdmin) || isCheckout
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
