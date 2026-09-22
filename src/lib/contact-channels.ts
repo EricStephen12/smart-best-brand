@@ -39,3 +39,11 @@ export function getTelHref(overrides?: ContactOverrides): string | null {
     const digits = phone.replace(/[^\d+]/g, '')
     return digits ? `tel:${digits}` : null
 }
+
+export function getContactEmail(overrides?: { contactEmail?: string | null }): string | null {
+    return overrides?.contactEmail?.trim() || process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || null
+}
+
+export function getInstagramUrl(overrides?: { instagramUrl?: string | null }): string | null {
+    return overrides?.instagramUrl?.trim() || process.env.NEXT_PUBLIC_INSTAGRAM_URL?.trim() || null
+}

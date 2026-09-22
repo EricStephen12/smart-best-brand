@@ -19,26 +19,26 @@ export type HeroBanner = {
 const FALLBACKS: HeroBanner[] = [
   {
     id: 'fallback-1',
-    title: 'Pure Comfort',
-    subtitle: 'Mattresses, pillows & furniture for Nigerian homes.',
+    title: 'Sleep Like It Matters',
+    subtitle: 'Original mattresses from Nigeria\'s most trusted brands — delivered to your door.',
     imageUrl: '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
-    ctaLabel: 'View the Collection',
+    ctaLabel: 'Shop the Collection',
     ctaHref: '/products',
   },
   {
     id: 'fallback-2',
-    title: 'Rest Well',
-    subtitle: 'Trusted brands. Clear pricing. Delivery you can count on.',
+    title: 'No Fakes. Ever.',
+    subtitle: 'Every piece is factory-direct, sealed, and covered by a real manufacturer\'s warranty.',
     imageUrl: '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg',
-    ctaLabel: 'Shop products',
+    ctaLabel: 'See what\'s in stock',
     ctaHref: '/products',
   },
   {
     id: 'fallback-3',
-    title: 'Live Better',
-    subtitle: 'From bedroom to living space — comfort that fits your home.',
+    title: 'A Home Worth Coming Back To',
+    subtitle: 'From the bedroom to the living room — furniture that earns its place.',
     imageUrl: '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg',
-    ctaLabel: 'Explore now',
+    ctaLabel: 'Explore furniture',
     ctaHref: '/products',
   },
 ]
@@ -101,8 +101,8 @@ export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-3xl"
           >
-            <p className="text-[10px] sm:text-[11px] font-black tracking-[0.45em] uppercase text-white/70 mb-5">
-              New collection
+            <p className="text-[10px] sm:text-[11px] font-medium tracking-[0.35em] uppercase text-white/60 mb-5">
+              Smart Best Brands
             </p>
             <h1 className="font-playfair text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-[-0.03em] text-white leading-[0.95]">
               {slide.title}
@@ -120,10 +120,10 @@ export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }
                 {slide.ctaLabel || 'Shop new'}
               </Link>
               <Link
-                href="/products"
+                href="/about"
                 className="inline-flex border border-white/50 text-white/90 px-7 sm:px-8 py-3.5 text-[11px] font-medium tracking-[0.14em] uppercase hover:border-white hover:text-white transition-colors duration-300"
               >
-                Shop all
+                Our story
               </Link>
             </div>
           </motion.div>

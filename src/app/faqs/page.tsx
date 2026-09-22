@@ -51,8 +51,8 @@ export default function FAQPage() {
                         transition={{ delay: 0.1 }}
                         className="text-5xl sm:text-7xl font-black text-blue-950 tracking-[-0.04em] leading-none font-display"
                     >
-                        FREQUENTLY <br />
-                        <span className="text-slate-200">ASKED.</span>
+                        Frequently <br />
+                        <span className="text-sky-600">Asked.</span>
                     </motion.h1>
                 </div>
 
@@ -64,9 +64,9 @@ export default function FAQPage() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.05 }}
-                            className={`rounded-[2rem] border-2 transition-all duration-500 overflow-hidden ${openIndex === idx
-                                ? 'bg-white border-sky-100 shadow-2xl shadow-sky-600/5'
-                                : 'bg-slate-50/50 border-transparent hover:border-slate-100'
+                            className={`border transition-all duration-500 overflow-hidden ${openIndex === idx
+                                ? 'bg-white border-blue-950/20 shadow-lg shadow-blue-950/5'
+                                : 'bg-slate-50/50 border-slate-100 hover:border-blue-950/20'
                                 }`}
                         >
                             <button
@@ -77,7 +77,7 @@ export default function FAQPage() {
                                     }`}>
                                     {faq.question}
                                 </span>
-                                <div className={`p-3 rounded-2xl transition-all duration-300 ${openIndex === idx ? 'bg-blue-950 text-white rotate-0' : 'bg-white text-slate-300 rotate-90 shadow-sm border border-slate-100'
+                                <div className={`p-3 transition-all duration-300 border ${openIndex === idx ? 'bg-blue-950 text-white border-blue-950' : 'bg-white text-slate-400 border-slate-200'
                                     }`}>
                                     {openIndex === idx ? <Minus className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
                                 </div>
@@ -109,26 +109,20 @@ export default function FAQPage() {
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="mt-24 p-10 sm:p-16 bg-blue-950 rounded-[3rem] text-white relative overflow-hidden font-sans"
+                    className="mt-24 p-10 sm:p-16 bg-blue-950 text-white relative overflow-hidden font-sans"
                 >
                     <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
                         <div>
-                            <h2 className="text-3xl sm:text-4xl font-black mb-4 tracking-tight uppercase">Still have <br /> questions?</h2>
-                            <p className="text-sky-200/80 font-medium text-lg font-inter">Our team is ready to help you anytime on WhatsApp or phone.</p>
+                            <h2 className="text-3xl sm:text-4xl font-black mb-4 tracking-tight">Still have questions?</h2>
+                            <p className="text-sky-200/80 font-medium text-base font-inter">Our team is on WhatsApp and phone during business hours.</p>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex justify-start md:justify-end">
                             <a
                                 href="/contact"
-                                className="btn-secondary flex-1"
+                                className="inline-flex items-center gap-3 bg-white text-blue-950 px-8 py-4 text-[11px] font-black tracking-[0.2em] uppercase hover:bg-sky-50 transition-colors"
                             >
-                                Contact Support
-                            </a>
-                            <a
-                                href="/contact"
-                                className="btn-primary flex-1 flex items-center justify-center gap-2 !bg-sky-600 !shadow-sky-600/20"
-                            >
-                                <MessageCircle className="w-5 h-5" />
-                                Contact us
+                                <MessageCircle className="w-4 h-4" />
+                                Get in touch
                             </a>
                         </div>
                     </div>

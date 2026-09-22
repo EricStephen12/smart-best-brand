@@ -13,11 +13,11 @@ export default function NotFound() {
         </div>
 
         <h1 className="font-playfair text-4xl sm:text-5xl lg:text-6xl font-semibold text-blue-950 tracking-tight mb-5">
-          Page Not Found
+          Nothing here.
         </h1>
 
         <p className="text-stone-500 text-sm sm:text-base leading-relaxed max-w-md mx-auto mb-10">
-          The page you are looking for might have been moved or doesn't exist. Browse our products or return to the homepage.
+          This page has moved or doesn't exist. Try browsing our products or head back to the homepage.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { cache } from 'react'
 import type { Metadata } from 'next'
 import { getProductBySlug } from '@/actions/products'
 import { getProductReviews, getRelatedProducts } from '@/actions/reviews'
@@ -13,9 +13,15 @@ interface PageProps {
 
 export const dynamic = 'force-dynamic'
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://smartbestbrands.com'
+const FALLBACK_OG_IMAGE = `${BASE_URL}/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg`
+
+/** Cached so generateMetadata and the page component share one DB round-trip. */
+const fetchProduct = cache((slug: string) => getProductBySlug(slug))
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params
-    const result = await getProductBySlug(slug)
+    const result = await fetchProduct(slug)
 
     if (!result.success || !result.data) {
         return {
@@ -29,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const description =
         product.description?.slice(0, 160) ||
         `Buy authentic ${product.name} from ${brandName} at Smart Best Brands. Guaranteed original quality with reliable delivery across Nigeria.`
-    const image = product.images?.[0] || 'https://smartbestbrands.com/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg'
+    const image = product.images?.[0] || FALLBACK_OG_IMAGE
 
     return {
         title,
@@ -37,7 +43,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         openGraph: {
             title,
             description,
-            url: `https://smartbestbrands.com/products/${slug}`,
+            url: `${BASE_URL}/products/${slug}`,
             siteName: 'Smart Best Brands',
             images: [
                 {
@@ -61,7 +67,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProductDetailsPage({ params }: PageProps) {
     const { slug } = await params
-    const result = await getProductBySlug(slug)
+    const result = await fetchProduct(slug)
 
     if (!result.success || !result.data) {
         notFound()

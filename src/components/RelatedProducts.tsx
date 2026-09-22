@@ -56,14 +56,16 @@ export default function RelatedProducts({
                   />
                 ) : null}
                 {onSale ? (
-                  <span className="absolute top-3 left-3 bg-sky-600 text-white text-[9px] font-black tracking-widest uppercase px-2 py-1">
+                  <span className="absolute top-3 left-3 bg-sky-600 text-white text-[10px] font-black tracking-widest uppercase px-2 py-1">
                     Sale
                   </span>
                 ) : null}
               </div>
-              <p className="text-[10px] font-medium text-stone-400 tracking-[0.18em] uppercase mb-1">
-                {product.brand?.name || 'Product'}
-              </p>
+              {product.brand?.name ? (
+                <p className="text-[10px] font-medium text-stone-400 tracking-[0.18em] uppercase mb-1">
+                  {product.brand.name}
+                </p>
+              ) : null}
               <h3 className="text-sm font-medium text-blue-950 line-clamp-2 group-hover:text-sky-700 transition-colors">
                 {product.name}
               </h3>

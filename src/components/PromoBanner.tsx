@@ -7,9 +7,9 @@ import { useSiteSettings } from '@/components/site-settings-context'
 export default function PromoBanner() {
   const settings = useSiteSettings()
 
-  const badge = settings.promoBadge || 'For Nigerian homes'
-  const title = settings.promoTitle || 'Comfort that feels like home'
-  const ctaLabel = settings.promoCtaLabel || 'Discover now'
+  const badge = settings.promoBadge || 'Crafted for Nigerian homes'
+  const title = settings.promoTitle || 'Spaces worth living in.'
+  const ctaLabel = settings.promoCtaLabel || 'Shop the collection'
   const ctaHref = settings.promoCtaHref || '/products'
   const imageUrl = settings.promoImageUrl || '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg'
 

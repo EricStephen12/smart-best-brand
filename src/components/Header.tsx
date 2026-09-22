@@ -126,8 +126,8 @@ export default function Header() {
             >
               <HeartIcon className="h-6 w-6" />
               {wishlistItems.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-black rounded-full h-4 w-4 flex items-center justify-center shadow-lg">
-                  {wishlistItems.length}
+                <span className="absolute -top-1 -right-1 bg-sky-600 text-white text-[10px] font-black rounded-full h-4 w-4 flex items-center justify-center">
+                  {wishlistItems.length > 9 ? '9+' : wishlistItems.length}
                 </span>
               )}
             </Link>
@@ -143,8 +143,8 @@ export default function Header() {
             >
               <ShoppingCartIcon className="h-6 w-6" />
               {state.items.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[var(--brand-accent)] text-white text-[9px] font-black rounded-full h-4 w-4 flex items-center justify-center shadow-lg">
-                  {state.items.length}
+                <span className="absolute -top-1 -right-1 bg-sky-600 text-white text-[10px] font-black rounded-full h-4 w-4 flex items-center justify-center">
+                  {state.items.length > 9 ? '9+' : state.items.length}
                 </span>
               )}
             </motion.button>

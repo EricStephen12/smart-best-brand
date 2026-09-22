@@ -1,15 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Mail, Phone, MessageCircle, Clock, Send, Globe } from 'lucide-react';
+import { Mail, Phone, MessageCircle, Clock, Send, Instagram } from 'lucide-react';
 import { submitContactInquiry } from '@/actions/contact';
-import { getSupportPhone, getTelHref, getWhatsAppUrl } from '@/lib/contact-channels';
+import { getSupportPhone, getTelHref, getWhatsAppUrl, getContactEmail, getInstagramUrl } from '@/lib/contact-channels';
 import toast from 'react-hot-toast';
 
 export default function ContactPage() {
   const whatsappUrl = getWhatsAppUrl();
   const supportPhone = getSupportPhone();
   const telHref = getTelHref();
+  const contactEmail = getContactEmail();
+  const instagramUrl = getInstagramUrl();
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -75,15 +77,17 @@ export default function ContactPage() {
               <ContactInfo
                 icon={Mail}
                 title="Email"
-                value="hello@smartbestbrands.com"
-                link="mailto:hello@smartbestbrands.com"
+                value={contactEmail || 'hello@smartbestbrands.com'}
+                link={`mailto:${contactEmail || 'hello@smartbestbrands.com'}`}
               />
-              <ContactInfo
-                icon={Globe}
-                title="Instagram"
-                value="@smartbestbrands"
-                link="https://instagram.com/smartbestbrands"
-              />
+              {instagramUrl && (
+                <ContactInfo
+                  icon={Instagram}
+                  title="Instagram"
+                  value="@smartbestbrands"
+                  link={instagramUrl}
+                />
+              )}
             </div>
 
             <div className="p-6 bg-stone-50 rounded-xl border border-stone-200 flex items-start gap-4">
@@ -97,8 +101,8 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <div className="bg-stone-50 rounded-2xl p-6 sm:p-8 border border-stone-200">
-            <h2 className="text-lg font-semibold text-blue-950 mb-6">Send a message</h2>
+          <div className="bg-stone-50 p-6 sm:p-8 border border-stone-200">
+            <h2 className="text-sm font-black text-blue-950 mb-6 uppercase tracking-[0.2em]">Send a message</h2>
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="Full name">
@@ -106,16 +110,16 @@ export default function ContactPage() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-sky-500 rounded-lg text-sm text-blue-950 outline-none"
+                    className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-blue-950 focus:ring-2 focus:ring-blue-950/10 text-sm text-blue-950 outline-none transition-colors"
                     placeholder="Your name"
                   />
                 </Field>
-                <Field label="Phone">
+                <Field label="Phone number">
                   <input
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-sky-500 rounded-lg text-sm text-blue-950 outline-none"
+                    className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-blue-950 focus:ring-2 focus:ring-blue-950/10 text-sm text-blue-950 outline-none transition-colors"
                     placeholder="080…"
                   />
                 </Field>
@@ -125,7 +129,7 @@ export default function ContactPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-sky-500 rounded-lg text-sm text-blue-950 outline-none"
+                  className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-blue-950 focus:ring-2 focus:ring-blue-950/10 text-sm text-blue-950 outline-none transition-colors"
                   placeholder="you@email.com"
                 />
               </Field>
@@ -133,7 +137,7 @@ export default function ContactPage() {
                 <select
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-sky-500 rounded-lg text-sm text-blue-950 outline-none"
+                  className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-blue-950 focus:ring-2 focus:ring-blue-950/10 text-sm text-blue-950 outline-none transition-colors appearance-none"
                 >
                   <option>Product inquiry</option>
                   <option>Delivery status</option>
@@ -148,16 +152,16 @@ export default function ContactPage() {
                   rows={5}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-sky-500 rounded-lg text-sm text-blue-950 outline-none resize-none"
+                  className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-blue-950 focus:ring-2 focus:ring-blue-950/10 text-sm text-blue-950 outline-none resize-none transition-colors"
                   placeholder="How can we help?"
                 />
               </Field>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full inline-flex items-center justify-center gap-2 bg-blue-950 hover:bg-sky-700 disabled:opacity-50 text-white font-medium text-sm py-3.5 rounded-lg transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 bg-blue-950 hover:bg-sky-700 disabled:opacity-50 text-white font-black text-[11px] tracking-[0.2em] uppercase py-4 transition-colors"
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-3.5 h-3.5" />
                 {isSubmitting ? 'Sending…' : 'Send message'}
               </button>
             </form>
@@ -171,7 +175,7 @@ export default function ContactPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-xs text-stone-500">{label}</label>
+      <label className="text-[11px] font-black text-blue-950/70 uppercase tracking-[0.15em]">{label}</label>
       {children}
     </div>
   );

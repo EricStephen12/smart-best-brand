@@ -26,8 +26,8 @@ export default function FeaturedProducts({ products }: { products: FeaturedProdu
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10 sm:mb-14">
           <SectionHeading
             eyebrow="Shop"
-            title="Best sellers"
-            description="Popular pieces — or browse the full catalogue."
+            title="What people keep coming back for."
+            description="Our most-loved pieces — or browse everything we carry."
             className="!mb-0"
           />
           <Link

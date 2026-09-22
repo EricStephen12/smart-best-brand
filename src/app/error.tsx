@@ -21,16 +21,16 @@ export default function GlobalError({
         <div className="inline-flex items-center gap-2 px-3 py-1 bg-rose-50 border border-rose-200 mb-6">
           <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
           <span className="text-[10px] font-black uppercase tracking-[0.25em] text-rose-700">
-            System Notice
+            Error
           </span>
         </div>
 
-        <h1 className="font-playfair text-3xl sm:text-4xl lg:text-5xl font-semibold text-blue-950 tracking-tight mb-4">
-          An unexpected pause occurred.
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-semibold text-blue-950 tracking-tight mb-4">
+          Something went wrong.
         </h1>
 
-        <p className="text-stone-500 text-sm sm:text-base leading-relaxed max-w-md mx-auto mb-10">
-          Our systems encountered a momentary hitch while rendering this page. You can attempt to refresh the view or return to the main gallery.
+        <p className="text-slate-500 text-sm sm:text-base leading-relaxed max-w-md mx-auto mb-10">
+          This page couldn't load. Try refreshing — if the problem keeps happening, get in touch and we'll sort it out.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">

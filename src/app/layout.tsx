@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter, Crimson_Text, Montserrat } from "next/font/google";
+import { Cormorant_Garamond, Plus_Jakarta_Sans, Montserrat } from "next/font/google";
 import "./globals.css";
 import Layout from "@/components/Layout";
 import { CartProvider } from "@/lib/cart-context";
@@ -10,34 +10,27 @@ import { buildThemeCss } from "@/lib/site-settings";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  display: "swap",
-  fallback: ["Georgia", "serif"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
+const cormorant = Cormorant_Garamond({
+  variable: "--font-display",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-  fallback: ["system-ui", "-apple-system", "sans-serif"],
-});
-
-const crimson = Crimson_Text({
-  variable: "--font-crimson",
-  subsets: ["latin"],
-  weight: ["400", "600"],
+  style: ["normal", "italic"],
   display: "swap",
   fallback: ["Georgia", "serif"],
+});
+
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-body",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  display: "swap",
+  fallback: ["system-ui", "-apple-system", "sans-serif"],
 });
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
   fallback: ["system-ui", "-apple-system", "sans-serif"],
 });
@@ -45,11 +38,11 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://smartbestbrands.com'),
   title: {
-    default: 'Smart Best Brands |Premium Home Comfort',
-    template: '%s | Smart Best Brands Nigeria',
+    default: 'Smart Best Brands — Original Mattresses & Luxury Furniture Nigeria',
+    template: '%s | Smart Best Brands',
   },
   description:
-    'Shop authentic Mouka Foam, Vitafoam, Royal Foam & luxury furniture at Smart Best Brands. Guaranteed 100% original mattresses, orthopedic beds, and home comfort with fast delivery across Lagos, Abuja, and nationwide Nigeria.',
+    'Nigeria\'s home for original Mouka, Vitafoam, and Royal Foam mattresses — plus luxury furniture, pillows, and bedding. Factory-direct pricing, genuine warranties, and doorstep delivery across Nigeria.',
   keywords: [
     'Smart Best Brands',
     'Smart Best',
@@ -88,9 +81,9 @@ export const metadata: Metadata = {
     locale: 'en_NG',
     url: 'https://smartbestbrands.com',
     siteName: 'Smart Best Brands',
-    title: 'Smart Best Brands | Original Mattresses & Luxury Furniture in Nigeria',
+    title: 'Smart Best Brands | Original Mattresses & Luxury Furniture Nigeria',
     description:
-      'Guaranteed 100% original Mouka, Vitafoam, Royal Foam mattresses & luxury home furniture with nationwide delivery across Nigeria.',
+      'Factory-direct Mouka, Vitafoam, and Royal Foam mattresses — plus luxury furniture and bedding. 100% original, every time. Nationwide delivery across Nigeria.',
     images: [
       {
         url: '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
@@ -102,9 +95,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Smart Best Brands | Original Mattresses & Luxury Furniture in Nigeria',
+    title: 'Smart Best Brands | Original Mattresses & Luxury Furniture Nigeria',
     description:
-      'Buy original Mouka, Vitafoam, Royal Foam mattresses and luxury furniture with fast doorstep delivery across Nigeria.',
+      'Original Mouka, Vitafoam, Royal Foam mattresses and luxury furniture with fast doorstep delivery across Nigeria.',
     images: ['/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg'],
     creator: '@smartbestbrands',
   },
@@ -139,7 +132,7 @@ export default async function RootLayout({
     logo: 'https://smartbestbrands.com/favicon.ico',
     image: 'https://smartbestbrands.com/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
     description:
-      'Premier Nigerian retailer of 100% authentic Mouka Foam, Vitafoam, Royal Foam mattresses, orthopedic bedding, and bespoke luxury furniture with nationwide delivery.',
+      'Nigeria\'s premier destination for 100% authentic Mouka Foam, Vitafoam, and Royal Foam mattresses — plus bespoke luxury furniture — with nationwide delivery.',
     telephone: siteSettings.supportPhone || '+2348000000000',
     email: siteSettings.contactEmail || 'hello@smartbestbrands.com',
     priceRange: '₦₦',
@@ -196,7 +189,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`${playfair.variable} ${inter.variable} ${crimson.variable} ${montserrat.variable} font-sans antialiased`}
+        className={`${cormorant.variable} ${jakarta.variable} ${montserrat.variable} font-sans antialiased`}
       >
         <style dangerouslySetInnerHTML={{ __html: themeCss }} />
         <SiteSettingsProvider settings={siteSettings}>

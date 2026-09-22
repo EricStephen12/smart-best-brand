@@ -148,10 +148,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     {cartItems.length > 0 && (
                       <div className="border-t border-slate-100 px-8 py-10 sm:px-10 bg-slate-50/50">
                         <div className="flex justify-between items-baseline mb-2">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Subtotal</p>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Subtotal</p>
                           <p className="text-2xl font-black text-blue-950 tabular-nums">₦{subtotal.toLocaleString()}</p>
                         </div>
-                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-10">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-10">
                           Delivery fee calculated at checkout.
                         </p>
                         <div className="">
@@ -169,7 +169,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         <div className="mt-8 flex justify-center text-center">
                           <button
                             type="button"
-                            className="text-[9px] font-black text-slate-400 hover:text-blue-950 uppercase tracking-[0.3em] transition-all flex items-center gap-2 group"
+                            className="text-[10px] font-black text-slate-400 hover:text-blue-950 uppercase tracking-[0.3em] transition-all flex items-center gap-2 group"
                             onClick={onClose}
                           >
                             Continue Shopping

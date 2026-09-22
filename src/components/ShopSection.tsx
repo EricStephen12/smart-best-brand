@@ -292,7 +292,7 @@ export default function ShopSection({
 
         {filteredProducts.length === 0 ? (
           <div className="py-20 sm:py-28 text-center">
-            <p className="font-playfair text-2xl sm:text-3xl font-semibold text-blue-950 mb-3">
+            <p className="font-display text-2xl sm:text-3xl font-semibold text-blue-950 mb-3">
               No products found
             </p>
             <p className="text-sm text-stone-500 mb-8">
@@ -368,7 +368,7 @@ function ProductCard({ product, index }: { product: ShopProduct; index: number }
       transition={{ duration: 0.4, delay: Math.min(index * 0.04, 0.24) }}
     >
       <Link href={`/products/${product.slug}`} className="group block">
-        <div className="relative aspect-square bg-[var(--brand-bg)] overflow-hidden mb-3 border border-blue-950/5">
+        <div className="relative aspect-square bg-[var(--brand-bg)] overflow-hidden mb-3 border border-blue-950/10">
           {product.images?.[0] ? (
             <Image
               src={product.images[0]}
@@ -398,7 +398,7 @@ function ProductCard({ product, index }: { product: ShopProduct; index: number }
           ) : null}
 
           {onSale ? (
-            <span className="absolute top-3 left-3 bg-sky-600 text-white text-[9px] font-black tracking-widest uppercase px-2 py-1">
+            <span className="absolute top-3 left-3 bg-sky-600 text-white text-[10px] font-black tracking-widest uppercase px-2 py-1">
               Sale
             </span>
           ) : null}

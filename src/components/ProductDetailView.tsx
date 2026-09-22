@@ -114,7 +114,7 @@ export default function ProductDetailView({
 
   return (
     <div className="relative pt-24 sm:pt-28 pb-20 sm:pb-24 bg-white border-t border-blue-950/5 overflow-hidden">
-      <EditorialBackdrop text="Sleep" size="xl" />
+      <EditorialBackdrop text={category || product.brand?.name || 'Rest'} size="xl" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link
@@ -322,7 +322,7 @@ export default function ProductDetailView({
                 Guarantees &amp; Item Policies
               </p>
 
-              <div className="border border-stone-200 rounded-xl divide-y divide-stone-100 overflow-hidden bg-white text-sm">
+              <div className="border border-stone-200 divide-y divide-stone-100 overflow-hidden bg-white text-sm">
                 {/* 1. Delivery & Shipping */}
                 <div>
                   <button
@@ -335,13 +335,13 @@ export default function ProductDetailView({
                       Delivery &amp; Transit Timelines
                     </span>
                     <ChevronDown
-                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                      className={`w-4 h-4 text-stone-400 transition-transform duration-200 ${
                         openPolicyTab === 'delivery' ? 'rotate-180 text-blue-950' : ''
                       }`}
                     />
                   </button>
                   {openPolicyTab === 'delivery' && (
-                    <div className="px-4 pb-4 text-xs text-slate-600 space-y-2 leading-relaxed bg-stone-50/50">
+                    <div className="px-4 pb-4 text-xs text-stone-500 space-y-2 leading-relaxed bg-stone-50/50">
                       <p>
                         • <strong>Abuja &amp; Lagos:</strong> 24–48 hours (same-day dispatch available on morning orders).
                       </p>
@@ -367,13 +367,13 @@ export default function ProductDetailView({
                       7-Day Return &amp; Exchange Policy
                     </span>
                     <ChevronDown
-                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                      className={`w-4 h-4 text-stone-400 transition-transform duration-200 ${
                         openPolicyTab === 'return' ? 'rotate-180 text-blue-950' : ''
                       }`}
                     />
                   </button>
                   {openPolicyTab === 'return' && (
-                    <div className="px-4 pb-4 text-xs text-slate-600 space-y-2 leading-relaxed bg-stone-50/50">
+                    <div className="px-4 pb-4 text-xs text-stone-500 space-y-2 leading-relaxed bg-stone-50/50">
                       <p>
                         • <strong>Return Window:</strong> Returns or exchanges accepted within 7 days of delivery.
                       </p>
@@ -399,15 +399,15 @@ export default function ProductDetailView({
                       100% Factory Warranty &amp; Authenticity
                     </span>
                     <ChevronDown
-                      className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+                      className={`w-4 h-4 text-stone-400 transition-transform duration-200 ${
                         openPolicyTab === 'warranty' ? 'rotate-180 text-blue-950' : ''
                       }`}
                     />
                   </button>
                   {openPolicyTab === 'warranty' && (
-                    <div className="px-4 pb-4 text-xs text-slate-600 space-y-2 leading-relaxed bg-stone-50/50">
+                    <div className="px-4 pb-4 text-xs text-stone-500 space-y-2 leading-relaxed bg-stone-50/50">
                       <p>
-                        • <strong>Direct Sourcing:</strong> Genuine factory-sealed products directly from certified Mouka, Vitafoam, and Royal Foam manufacturing plants.
+                        • <strong>Direct Sourcing:</strong> Genuine factory-sealed products sourced directly from certified brand manufacturing plants.
                       </p>
                       <p>
                         • <strong>Manufacturer Certificate:</strong> Includes official manufacturer warranty documentation.

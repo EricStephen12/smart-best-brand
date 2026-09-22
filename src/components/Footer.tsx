@@ -32,7 +32,7 @@ export default function Footer() {
             </Link>
             <p className="mt-4 text-sm text-white/55 leading-relaxed max-w-xs">
               {settings.footerText ||
-                'Mattresses, pillows, and furniture for Nigerian homes.'}
+                'Original mattresses, luxury furniture, and bedding — factory-direct, delivered to your door.'}
             </p>
           </div>
 

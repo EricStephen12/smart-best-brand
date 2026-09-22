@@ -28,8 +28,9 @@ export default function CollectionsSection({ collections }: { collections: Colle
       <EditorialBackdrop text="Collect" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Our collections"
-          description="Mattresses, pillows, furniture — pick a collection and start shopping."
+          eyebrow="Collections"
+          title="Find your collection"
+          description="Mattresses, pillows, furniture — find exactly what your space is missing."
         />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">

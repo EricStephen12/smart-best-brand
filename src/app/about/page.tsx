@@ -15,11 +15,11 @@ export default async function AboutPage() {
             <div className="bg-blue-950 py-20 sm:py-32 text-center relative overflow-hidden">
                 <div className="max-w-4xl mx-auto px-6 relative z-10">
                     <h1 className="text-6xl md:text-[8rem] font-black text-white mb-8 tracking-tighter leading-[0.85] uppercase">
-                        Driven by <br /><span className="text-sky-600">Comfort.</span>
+                        The Standard<br /><span className="text-sky-600">for Rest.</span>
                     </h1>
                     <p className="text-slate-400 text-lg md:text-xl font-medium leading-relaxed font-inter">
-                        Your trusted store for 100% original mattresses, pillows, and furniture in Nigeria.
-                        We deliver trusted brands directly to your home with care.
+                        Nigeria's home for original mattresses, pillows, and luxury furniture.
+                        We sell only what we can stand behind — factory-sealed, warranted, and delivered with care.
                     </p>
                 </div>
                 <div className="absolute inset-0 opacity-10">
@@ -36,22 +36,22 @@ export default async function AboutPage() {
                         <ValueCard
                             icon={ShieldCheck}
                             title="100% Authentic"
-                            description="We only stock original products directly from authorized brand manufacturers."
+                            description="We source every product directly from authorised brand distributors. If it's not original, it doesn't make it onto our shelves."
                         />
                         <ValueCard
                             icon={Truck}
                             title="Reliable Delivery"
-                            description="Specialized delivery services across Abuja and Benin, with more locations coming soon."
+                            description="We handle delivery ourselves across Abuja and Benin City so your order arrives exactly as it left the factory."
                         />
                         <ValueCard
                             icon={Award}
-                            title="Full Warranty"
-                            description="Every mattress and piece of furniture comes with a valid manufacturer's warranty."
+                            title="Real Warranties"
+                            description="Every mattress and piece of furniture comes with the manufacturer's original warranty — not a store promise, the actual card."
                         />
                         <ValueCard
                             icon={Heart}
-                            title="Customer First"
-                            description="Our team is dedicated to helping you find the perfect fit for your home and budget."
+                            title="People First"
+                            description="We take the time to understand what you actually need. The right mattress isn't the most expensive one — it's the right fit for you."
                         />
                     </div>
                 </div>
