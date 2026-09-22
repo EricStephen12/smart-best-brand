@@ -141,7 +141,7 @@ export default function PromotionsList({ initialPromotions }: PromotionsListProp
                                                             <Calendar className="w-3 h-3" />
                                                             {promo.endDate ? `Until ${new Date(promo.endDate).toLocaleDateString()}` : 'Perpetual'}
                                                         </div>
-                                                        <span className={`text-[8px] font-black uppercase tracking-tighter px-2 py-0.5 rounded ${promo.appliesTo === 'ALL' ? 'bg-sky-50 text-sky-600' : 'bg-amber-50 text-amber-600'}`}>
+                                                        <span className={`text-[10px] font-black uppercase tracking-tight px-2 py-0.5 rounded-xl ${promo.appliesTo === 'ALL' ? 'bg-sky-50 text-sky-600' : 'bg-amber-50 text-amber-600'}`}>
                                                             {promo.appliesTo === 'ALL' ? 'Site-wide' : 'Targeted'}
                                                         </span>
                                                     </div>
@@ -229,7 +229,7 @@ function StatusBadge({ status }: { status: string }) {
     const Icon = icons[status] || XCircle;
 
     return (
-        <span className={`flex items-center gap-2 w-fit px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest ${styles[status]}`}>
+        <span className={`flex items-center gap-1.5 w-fit px-3 py-1 text-[10px] font-black uppercase tracking-widest ${styles[status]}`}>
             <Icon className="w-3 h-3" />
             {status}
         </span>

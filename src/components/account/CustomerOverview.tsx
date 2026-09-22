@@ -18,6 +18,7 @@ interface CustomerOverviewProps {
         email: string;
     };
     recentOrders: CustomerOrder[];
+    totalOrderCount: number;
 }
 
 function statusBadge(status: string) {
@@ -62,7 +63,7 @@ function statusBadge(status: string) {
     }
 }
 
-export default function CustomerOverview({ user, recentOrders }: CustomerOverviewProps) {
+export default function CustomerOverview({ user, recentOrders, totalOrderCount }: CustomerOverviewProps) {
     const displayName = user.name ? user.name.split(' ')[0] : 'there';
 
     return (
@@ -98,7 +99,7 @@ export default function CustomerOverview({ user, recentOrders }: CustomerOvervie
                     </div>
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Orders</p>
-                        <p className="text-xl font-black text-blue-950 mt-0.5">{recentOrders.length}</p>
+                        <p className="text-xl font-black text-blue-950 mt-0.5">{totalOrderCount}</p>
                     </div>
                 </div>
 

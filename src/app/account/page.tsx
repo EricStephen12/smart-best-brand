@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { getDashboardStats, getRecentOrders } from '@/actions/dashboard';
+import { getDashboardStats, getRecentOrders, getOrderCount } from '@/actions/dashboard';
 import AdminOverview from '@/components/admin/AdminOverview';
 import CustomerOverview from '@/components/account/CustomerOverview';
 import { useAuth } from '@/hooks/use-auth';
@@ -29,11 +29,11 @@ export default function AccountOverviewPage() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [totalOrderCount, setTotalOrderCount] = useState(0);
 
   useEffect(() => {
     const loadAccountData = async () => {
       if (authLoading || !user) return;
-
       setLoading(true);
       try {
         if (user.role === 'ADMIN') {
@@ -44,8 +44,12 @@ export default function AccountOverviewPage() {
           if (statsResult.success && statsResult.data) setStats(statsResult.data);
           if (ordersResult.success) setRecentOrders(ordersResult.data || []);
         } else {
-          const ordersResult = await getRecentOrders(8, user.email);
+          const [ordersResult, count] = await Promise.all([
+            getRecentOrders(5, user.email),
+            getOrderCount(user.email),
+          ]);
           if (ordersResult.success) setRecentOrders(ordersResult.data || []);
+          setTotalOrderCount(count);
         }
       } catch (error) {
         console.error('Failed to load account data:', error);
@@ -53,7 +57,6 @@ export default function AccountOverviewPage() {
         setLoading(false);
       }
     };
-
     void loadAccountData();
   }, [user, authLoading]);
 
@@ -82,11 +85,11 @@ export default function AccountOverviewPage() {
         {stats ? (
           <AdminOverview stats={stats} recentOrders={recentOrders} />
         ) : (
-          <p className="text-sm text-stone-500">Couldn’t load dashboard stats.</p>
+          <p className="text-sm text-stone-500">Could not load dashboard stats.</p>
         )}
       </div>
     );
   }
 
-  return <CustomerOverview user={user} recentOrders={recentOrders} />;
+  return <CustomerOverview user={user} recentOrders={recentOrders} totalOrderCount={totalOrderCount} />;
 }

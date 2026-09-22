@@ -1,183 +1,241 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import {
-    Search,
-    Filter,
-    Edit3,
-    Trash2,
-    Package,
-    CheckCircle2,
-    XCircle,
-    Loader2
-} from 'lucide-react';
+import { Search, Edit3, Trash2, Package, Loader2, X } from 'lucide-react';
 import Image from 'next/image';
 import { deleteProduct } from '@/actions/products';
 import { toast } from 'react-hot-toast';
 
-interface Product {
-    id: string;
-    name: string;
-    slug: string;
-    brand: { name: string };
-    categories: { category: { name: string } }[];
-    variants: { price: number; promoPrice: number | null; stock: number }[];
-    isActive: boolean;
-    images: string[];
-}
+interface Brand { id: string; name: string }
+interface Category { id: string; name: string }
 
 interface ProductsListProps {
-    initialProducts: any[];
+  initialProducts: any[];
+  brands?: Brand[];
+  categories?: Category[];
 }
 
-export default function ProductsList({ initialProducts }: ProductsListProps) {
-    const [products, setProducts] = useState(initialProducts);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [deletingId, setDeletingId] = useState<string | null>(null);
+type StockFilter = 'all' | 'in_stock' | 'out_of_stock';
 
-    const filteredProducts = products.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.brand.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+export default function ProductsList({ initialProducts, brands = [], categories = [] }: ProductsListProps) {
+  const [products, setProducts] = useState(initialProducts);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedBrandId, setSelectedBrandId] = useState('all');
+  const [selectedCategoryId, setSelectedCategoryId] = useState('all');
+  const [stockFilter, setStockFilter] = useState<StockFilter>('all');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
-    const handleDelete = async (id: string, name: string) => {
-        if (!confirm(`Are you sure you want to delete ${name}?`)) return;
-        setDeletingId(id);
-        try {
-            const result = await deleteProduct(id);
-            if (result.success) {
-                setProducts(products.filter(p => p.id !== id));
-                toast.success('Product deleted');
-            } else {
-                toast.error(result.error || 'Failed to delete product');
-            }
-        } catch (error) {
-            toast.error('Unexpected error');
-        } finally {
-            setDeletingId(null);
-        }
-    };
+  const filtered = useMemo(() => {
+    return products.filter((p) => {
+      const q = searchTerm.toLowerCase();
+      const matchesSearch =
+        !q ||
+        p.name.toLowerCase().includes(q) ||
+        p.brand?.name?.toLowerCase().includes(q);
 
-    return (
-        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-blue-950/5 overflow-hidden">
-            {/* Table Header / Filters */}
-            <div className="p-8 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="relative group w-full max-w-md">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-sky-600 transition-colors" />
-                    <input
-                        type="text"
-                        placeholder="Search products, brands, categories..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-slate-50 border-none focus:ring-4 focus:ring-sky-600/10 rounded-2xl py-4 pl-14 pr-6 text-sm font-bold text-blue-950 outline-none transition-all duration-300 font-sans"
-                    />
-                </div>
+      const matchesBrand =
+        selectedBrandId === 'all' || p.brandId === selectedBrandId || p.brand?.id === selectedBrandId;
 
-                <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-50 text-slate-400 hover:text-blue-950 transition-all text-[10px] font-black uppercase tracking-widest">
-                        <Filter className="w-4 h-4" /> Filter
-                    </button>
-                </div>
-            </div>
+      const matchesCategory =
+        selectedCategoryId === 'all' ||
+        p.categories?.some(
+          (c: any) => c.categoryId === selectedCategoryId || c.category?.id === selectedCategoryId
+        );
 
-            <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                    <thead>
-                        <tr className="bg-slate-50/50">
-                            <th className="px-8 py-6 text-xs font-semibold uppercase tracking-wider text-slate-500">Product</th>
-                            <th className="px-8 py-6 text-xs font-semibold uppercase tracking-wider text-slate-500">Inventory Status</th>
-                            <th className="px-8 py-6 text-xs font-semibold uppercase tracking-wider text-slate-500">Pricing</th>
-                            <th className="px-8 py-6 text-xs font-semibold uppercase tracking-wider text-slate-500 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50">
-                        {filteredProducts.map((product) => {
-                            const minPrice = Math.min(...product.variants.map((v: any) => v.promoPrice || v.price));
-                            const totalStock = product.variants.reduce((acc: number, curr: any) => acc + curr.stock, 0);
+      const totalStock = p.variants?.reduce((acc: number, v: any) => acc + (v.stock || 0), 0) ?? 0;
+      const matchesStock =
+        stockFilter === 'all' ||
+        (stockFilter === 'in_stock' && totalStock > 0) ||
+        (stockFilter === 'out_of_stock' && totalStock === 0);
 
-                            return (
-                                <tr key={product.id} className="group hover:bg-slate-50/50 transition-colors">
-                                    <td className="px-8 py-6">
-                                        <div className="flex items-center gap-6">
-                                            <div className="w-16 h-16 bg-slate-100 rounded-2xl relative overflow-hidden flex-shrink-0 border border-slate-200">
-                                                {product.images?.[0] ? (
-                                                    <Image
-                                                        src={product.images[0]}
-                                                        alt={product.name}
-                                                        fill
-                                                        className="object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-slate-300">
-                                                        <Package className="w-8 h-8" />
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div>
-                                                <h4 className="text-sm font-black text-blue-950 group-hover:text-sky-600 transition-colors mb-1">
-                                                    {product.name}
-                                                </h4>
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-300 flex items-center gap-1">
-                                                        <Package className="w-3 h-3" /> {product.categories?.[0]?.category?.name || 'Uncategorized'}
-                                                    </span>
-                                                    <span className="text-slate-200">/</span>
-                                                    <span className="text-[9px] font-black uppercase tracking-widest text-sky-600">
-                                                        {product.brand?.name}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-6">
-                                        <div className="space-y-1">
-                                            <span className={`text-sm font-black ${totalStock > 0 ? 'text-blue-950' : 'text-red-500'}`}>
-                                                {totalStock} Units
-                                            </span>
-                                            <p className="text-[9px] font-black text-slate-300 uppercase tracking-tighter">Aggregated Stock</p>
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-6">
-                                        <div className="space-y-1">
-                                            <span className="text-sm font-black text-blue-950">From ₦{minPrice.toLocaleString()}</span>
-                                            <p className="text-[9px] font-black text-slate-300 uppercase tracking-tighter">Variant Minimum</p>
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-6">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <Link
-                                                href={`/account/products/${product.id}/edit`}
-                                                className="p-3 text-slate-300 hover:text-sky-600 hover:bg-slate-50 rounded-xl transition-all"
-                                            >
-                                                <Edit3 className="w-5 h-5" />
-                                            </Link>
-                                            <button
-                                                onClick={() => handleDelete(product.id, product.name)}
-                                                disabled={deletingId === product.id}
-                                                className="p-3 text-slate-300 hover:text-red-500 hover:bg-slate-50 rounded-xl transition-all disabled:opacity-50"
-                                            >
-                                                {deletingId === product.id ? (
-                                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                                ) : (
-                                                    <Trash2 className="w-5 h-5" />
-                                                )}
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                        {filteredProducts.length === 0 && (
-                            <tr>
-                                <td colSpan={4} className="px-8 py-20 text-center">
-                                    <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No products in inventory.</p>
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+      return matchesSearch && matchesBrand && matchesCategory && matchesStock;
+    });
+  }, [products, searchTerm, selectedBrandId, selectedCategoryId, stockFilter]);
+
+  const isFiltered =
+    searchTerm !== '' ||
+    selectedBrandId !== 'all' ||
+    selectedCategoryId !== 'all' ||
+    stockFilter !== 'all';
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setSelectedBrandId('all');
+    setSelectedCategoryId('all');
+    setStockFilter('all');
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    setDeletingId(id);
+    try {
+      const result = await deleteProduct(id);
+      if (result.success) {
+        setProducts((prev) => prev.filter((p) => p.id !== id));
+        toast.success('Product deleted');
+      } else {
+        toast.error(result.error || 'Failed to delete');
+      }
+    } catch {
+      toast.error('Unexpected error');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const selectClass =
+    'px-3 py-2.5 border border-stone-200 rounded-xl text-xs font-medium text-blue-950 bg-white outline-none focus:border-blue-950/50 focus:ring-2 focus:ring-blue-950/10 transition-all cursor-pointer';
+
+  return (
+    <div className="space-y-4">
+      {/* Search + filters */}
+      <div className="bg-white border border-stone-200 rounded-2xl p-4 space-y-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Search */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+            <input
+              type="text"
+              placeholder="Search by name or brand…"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 border border-stone-200 rounded-xl text-sm font-medium text-blue-950 placeholder:text-stone-400 outline-none focus:border-blue-950/50 focus:ring-2 focus:ring-blue-950/10 transition-all"
+            />
+          </div>
+
+          {/* Brand filter */}
+          {brands.length > 0 && (
+            <select value={selectedBrandId} onChange={(e) => setSelectedBrandId(e.target.value)} className={selectClass}>
+              <option value="all">All brands</option>
+              {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+            </select>
+          )}
+
+          {/* Category filter */}
+          {categories.length > 0 && (
+            <select value={selectedCategoryId} onChange={(e) => setSelectedCategoryId(e.target.value)} className={selectClass}>
+              <option value="all">All categories</option>
+              {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          )}
+
+          {/* Stock filter */}
+          <select value={stockFilter} onChange={(e) => setStockFilter(e.target.value as StockFilter)} className={selectClass}>
+            <option value="all">All stock</option>
+            <option value="in_stock">In stock</option>
+            <option value="out_of_stock">Out of stock</option>
+          </select>
         </div>
-    );
+
+        {/* Active filter summary + clear */}
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-stone-400">
+            <span className="font-semibold text-blue-950">{filtered.length}</span> of {products.length} products
+          </p>
+          {isFiltered && (
+            <button onClick={clearFilters}
+              className="inline-flex items-center gap-1 text-xs font-semibold text-stone-500 hover:text-blue-950 transition-colors">
+              <X className="w-3.5 h-3.5" /> Clear filters
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-stone-100 bg-stone-50">
+                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-stone-500">Product</th>
+                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-stone-500">Stock</th>
+                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-stone-500">Price</th>
+                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-stone-500 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100">
+              {filtered.map((product) => {
+                const minPrice = product.variants?.length
+                  ? Math.min(...product.variants.map((v: any) => v.promoPrice || v.price))
+                  : 0;
+                const totalStock = product.variants?.reduce((acc: number, v: any) => acc + (v.stock || 0), 0) ?? 0;
+
+                return (
+                  <tr key={product.id} className="group hover:bg-stone-50/70 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-stone-100 rounded-xl relative overflow-hidden shrink-0 border border-stone-200">
+                          {product.images?.[0] ? (
+                            <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-stone-300">
+                              <Package className="w-5 h-5" />
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-blue-950 group-hover:text-sky-700 transition-colors leading-snug">
+                            {product.name}
+                          </p>
+                          <p className="text-xs text-stone-400 mt-0.5">
+                            {product.brand?.name}
+                            {product.categories?.[0]?.category?.name && (
+                              <> · {product.categories[0].category.name}</>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`text-sm font-semibold ${totalStock > 0 ? 'text-blue-950' : 'text-rose-500'}`}>
+                        {totalStock} units
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm font-semibold text-blue-950">
+                        From ₦{minPrice.toLocaleString()}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center justify-end gap-1">
+                        <Link href={`/account/products/${product.id}/edit`}
+                          className="p-2 text-stone-400 hover:text-sky-700 hover:bg-stone-100 rounded-xl transition-all">
+                          <Edit3 className="w-4 h-4" />
+                        </Link>
+                        <button onClick={() => handleDelete(product.id, product.name)}
+                          disabled={deletingId === product.id}
+                          className="p-2 text-stone-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all disabled:opacity-50">
+                          {deletingId === product.id
+                            ? <Loader2 className="w-4 h-4 animate-spin" />
+                            : <Trash2 className="w-4 h-4" />
+                          }
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-6 py-16 text-center">
+                    <p className="text-sm text-stone-500">
+                      {isFiltered ? 'No products match your filters.' : 'No products yet.'}
+                    </p>
+                    {isFiltered && (
+                      <button onClick={clearFilters}
+                        className="mt-2 text-xs font-semibold text-sky-700 hover:underline">
+                        Clear filters
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 }

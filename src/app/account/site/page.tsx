@@ -27,7 +27,7 @@ import {
     Type,
 } from 'lucide-react'
 
-type TabType = 'identity' | 'theme' | 'story' | 'promo' | 'contact' | 'footer'
+type TabType = 'identity' | 'hero' | 'theme' | 'story' | 'promo' | 'contact' | 'footer'
 
 const COLOR_PRESETS = [
     { name: 'Default Navy & Sky', primary: '#172554', accent: '#0284c7', bg: '#f7f6f3' },
@@ -82,6 +82,7 @@ export default function SiteSettingsAdminPage() {
 
     const tabs: { id: TabType; label: string; icon: any }[] = [
         { id: 'identity', label: 'Identity & Announcement', icon: Megaphone },
+        { id: 'hero', label: 'Hero Section', icon: Sparkles },
         { id: 'theme', label: 'Theme & Colors', icon: Palette },
         { id: 'story', label: 'Homepage Story', icon: BookOpen },
         { id: 'promo', label: 'Promo Banner', icon: ImageIcon },
@@ -547,7 +548,7 @@ export default function SiteSettingsAdminPage() {
                                         </span>
                                         <button
                                             type="button"
-                                            className="px-6 py-3 rounded-xl text-white text-xs font-bold uppercase tracking-wider shadow-sm transition-transform active:scale-95"
+                                            className="px-6 py-3 text-white text-xs font-black uppercase tracking-wider transition-transform active:scale-95"
                                             style={{ backgroundColor: form.primaryColor || '#172554' }}
                                         >
                                             Add to Cart

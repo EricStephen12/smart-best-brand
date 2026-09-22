@@ -5,19 +5,16 @@ import { getAllCategories } from '@/actions/categories';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminCategoriesPage() {
-    const result = await getAllCategories();
-    const categories = result.success ? result.data : [];
+  const result = await getAllCategories();
+  const categories = result.success ? result.data : [];
 
-    return (
-        <div className="space-y-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-black text-blue-950 tracking-tight leading-none uppercase">Product Categories</h1>
-                    <p className="text-slate-400 mt-2 font-medium">Manage product categories displayed across your store.</p>
-                </div>
-            </div>
-
-            <CategoriesList initialCategories={categories || []} />
-        </div>
-    );
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-blue-950 tracking-tight">Product Categories</h1>
+        <p className="text-sm text-stone-500 mt-1">Manage product categories displayed across your store.</p>
+      </div>
+      <CategoriesList initialCategories={categories || []} />
+    </div>
+  );
 }

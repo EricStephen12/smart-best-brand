@@ -5,22 +5,16 @@ import { getAllDeliveryLocations } from '@/actions/delivery-locations';
 export const dynamic = 'force-dynamic';
 
 export default async function DeliveryLocationsPage() {
-    const result = await getAllDeliveryLocations();
-    const locations = result.success ? result.data : [];
+  const result = await getAllDeliveryLocations();
+  const locations = result.success ? result.data : [];
 
-    return (
-        <div className="space-y-10 pb-20">
-            {/* Header Area */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-4xl font-black text-blue-950 tracking-tight uppercase leading-none mb-2">
-                        Logistics <span className="text-sky-600">&</span> Delivery
-                    </h1>
-                    <p className="text-slate-400 font-medium font-inter">Manage delivery locations, cities, and shipping fees for your store.</p>
-                </div>
-            </div>
-
-            <DeliveryLocationsList initialLocations={locations || []} />
-        </div>
-    );
+  return (
+    <div className="space-y-8 pb-20">
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-blue-950 tracking-tight">Delivery Locations</h1>
+        <p className="text-sm text-stone-500 mt-1">Manage delivery regions, cities, and shipping fees.</p>
+      </div>
+      <DeliveryLocationsList initialLocations={locations || []} />
+    </div>
+  );
 }

@@ -31,6 +31,16 @@ export async function getDashboardStats() {
     }
 }
 
+export async function getOrderCount(email: string): Promise<number> {
+    try {
+        return await prisma.order.count({
+            where: { customerEmail: email.toLowerCase() },
+        })
+    } catch {
+        return 0
+    }
+}
+
 export async function getRecentOrders(limit = 5, email?: string) {
     try {
         const orders = await prisma.order.findMany({
