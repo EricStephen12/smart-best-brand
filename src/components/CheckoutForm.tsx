@@ -22,7 +22,7 @@ interface CheckoutFormProps {
 }
 
 const fieldClass =
-  'w-full px-4 py-3.5 bg-white border border-blue-950/15 text-sm font-medium text-blue-950 placeholder:text-stone-400 outline-none focus:border-blue-950/40 transition-colors'
+  'w-full px-4 py-3.5 bg-white border border-blue-950/15 text-sm font-medium text-blue-950 placeholder:text-stone-400 outline-none focus:border-blue-950/40 focus-visible:ring-2 focus-visible:ring-blue-950/20 transition-colors'
 const labelClass =
   'text-[10px] font-black uppercase tracking-[0.22em] text-stone-400 mb-2 block'
 

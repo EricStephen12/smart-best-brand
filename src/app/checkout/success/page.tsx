@@ -4,6 +4,7 @@ import React, { Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { CheckCircle2, MessageCircle } from 'lucide-react'
+import { getWhatsAppUrl } from '@/lib/contact-channels'
 
 function SuccessContent() {
   const searchParams = useSearchParams()
@@ -39,7 +40,7 @@ function SuccessContent() {
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">
                 Direct Bank Transfer Details
               </span>
-              <span className="text-[9px] font-bold text-sky-800 uppercase tracking-widest bg-sky-50 px-2 py-0.5 border border-sky-200">
+              <span className="text-[10px] font-bold text-sky-800 uppercase tracking-widest bg-sky-50 px-2 py-0.5 border border-sky-200">
                 Pending Transfer
               </span>
             </div>
@@ -72,12 +73,12 @@ function SuccessContent() {
         {orderNumber ? (
           <div className="mb-8">
             <a
-              href={`https://wa.me/2348064619479?text=${encodeURIComponent(
+              href={getWhatsAppUrl(
                 `Hello Smart Best Brands, I have placed order ${orderNumber} (${method || 'Online'}). Please confirm my order details.`
-              )}`}
+              ) ?? '#'}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white px-7 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md hover:shadow-lg"
+              className="inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white px-7 py-3.5 text-xs font-black uppercase tracking-wider transition-colors"
             >
               <MessageCircle className="w-4 h-4" />
               <span>Chat with Fulfillment on WhatsApp</span>

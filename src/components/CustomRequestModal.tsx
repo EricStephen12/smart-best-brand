@@ -88,18 +88,17 @@ export default function CustomRequestModal({ isOpen, onClose, productName }: Cus
                                     />
                                 </div>
 
-                                {/* Action */}
-                                <button
-                                    onClick={handleWhatsApp}
-                                    className="w-full bg-blue-950 text-white py-6 rounded-3xl font-black text-xs tracking-[0.3em] uppercase flex items-center justify-center gap-4 hover:bg-sky-600 transition-all shadow-xl shadow-blue-950/20 active:scale-98"
-                                >
-                                    <MessageCircle className="w-5 h-5" />
-                                    Request Quote on WhatsApp
-                                </button>
+                <button
+                    onClick={handleWhatsApp}
+                    className="w-full bg-blue-950 text-white py-5 font-black text-xs tracking-[0.3em] uppercase flex items-center justify-center gap-4 hover:bg-sky-600 transition-all active:scale-[0.98]"
+                >
+                    <MessageCircle className="w-5 h-5" />
+                    Request Quote on WhatsApp
+                </button>
 
-                                <p className="text-center mt-6 text-[10px] font-black text-slate-300 uppercase tracking-widest">
-                                    Direct chat with our team on WhatsApp
-                                </p>
+                <p className="text-center mt-6 text-[10px] font-black text-stone-400 uppercase tracking-widest">
+                    No commitment required
+                </p>
                             </div>
                         </motion.div>
                     </div>

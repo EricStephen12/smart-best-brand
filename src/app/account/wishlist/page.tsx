@@ -67,7 +67,7 @@ export default function WishlistPage() {
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-950 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-sky-700 transition-colors shadow-sm"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-950 text-white text-xs font-black uppercase tracking-wider hover:bg-sky-700 transition-colors"
           >
             <ShoppingBag className="w-4 h-4" />
             <span>Explore Collection</span>
@@ -101,7 +101,7 @@ export default function WishlistPage() {
                   )}
 
                   {hasPromo ? (
-                    <span className="absolute top-3 left-3 bg-rose-600 text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded shadow">
+                    <span className="absolute top-3 left-3 bg-rose-600 text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5">
                       Sale
                     </span>
                   ) : null}
@@ -155,14 +155,14 @@ export default function WishlistPage() {
                     <button
                       type="button"
                       onClick={() => handleMoveToCart(item)}
-                      className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-3 bg-blue-950 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-sky-700 transition-colors shadow-sm"
+                      className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 px-3 bg-blue-950 text-white text-xs font-black uppercase tracking-wider hover:bg-sky-700 transition-colors"
                     >
                       <ShoppingBag className="w-3.5 h-3.5" />
                       <span>Add to Bag</span>
                     </button>
                     <Link
                       href={`/products/${item.slug}`}
-                      className="w-9 h-9 rounded-xl border border-stone-200 flex items-center justify-center text-slate-500 hover:text-blue-950 hover:border-stone-400 transition-all shrink-0"
+                      className="w-9 h-9 border border-stone-200 flex items-center justify-center text-stone-500 hover:text-blue-950 hover:border-stone-400 transition-all shrink-0"
                       title="View product details"
                     >
                       <ArrowRight className="w-4 h-4" />

@@ -6,8 +6,6 @@ import { getAllOrders } from '@/actions/orders';
 import { useAuth } from '@/hooks/use-auth';
 import { Loader2, Package } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
-
 export default function OrdersPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -62,7 +60,7 @@ export default function OrdersPage() {
 
         {isAdmin && (
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-stone-200 rounded-xl font-semibold text-xs uppercase tracking-wider text-slate-600 hover:text-blue-950 hover:border-slate-300 transition-all shadow-sm">
+            <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-stone-200 font-semibold text-xs uppercase tracking-wider text-stone-600 hover:text-blue-950 hover:border-stone-300 transition-all">
               Export Orders
             </button>
           </div>
@@ -85,7 +83,7 @@ export default function OrdersPage() {
           {!isAdmin && (
             <a
               href="/products"
-              className="inline-flex items-center justify-center px-6 py-3 bg-blue-950 hover:bg-sky-800 text-white rounded-xl text-sm font-semibold transition-colors"
+              className="inline-flex items-center justify-center px-6 py-3 bg-blue-950 hover:bg-sky-700 text-white text-sm font-black uppercase tracking-wider transition-colors"
             >
               Browse Products
             </a>
