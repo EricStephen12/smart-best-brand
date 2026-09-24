@@ -317,6 +317,12 @@ model SiteSettings {
 
   // Footer & Legal
   footerText           String   @default("Authentic comfort for Nigerian homes. Quality mattresses, pillows, and furniture from trusted brands.")
+
+  // Bank Transfer Payment Details
+  bankName             String?
+  bankAccountName      String?
+  bankAccountNumber    String?
+
   updatedAt            DateTime @updatedAt
 }
 

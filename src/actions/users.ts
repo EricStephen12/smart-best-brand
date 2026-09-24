@@ -100,3 +100,45 @@ export async function updateUserRole(
     }
   }
 }
+
+export async function deleteUser(
+  targetUserId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const adminSession = await requireAdmin()
+
+    if (adminSession.id === targetUserId) {
+      return {
+        success: false,
+        error: 'You cannot delete your own account.',
+      }
+    }
+
+    const targetUser = await prisma.user.findUnique({
+      where: { id: targetUserId },
+      select: { id: true, role: true, email: true },
+    })
+
+    if (!targetUser) {
+      return { success: false, error: 'User not found' }
+    }
+
+    if (targetUser.role === 'ADMIN') {
+      return {
+        success: false,
+        error: 'Admin accounts cannot be deleted. Revoke admin privileges first.',
+      }
+    }
+
+    await prisma.user.delete({ where: { id: targetUserId } })
+
+    revalidatePath('/account/customers')
+    return { success: true }
+  } catch (error) {
+    console.error('deleteUser error:', error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to delete user',
+    }
+  }
+}

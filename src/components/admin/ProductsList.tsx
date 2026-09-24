@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Search, Edit3, Trash2, Package, Loader2, X } from 'lucide-react';
+import { Search, Edit3, Trash2, Package, Loader2, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { deleteProduct } from '@/actions/products';
 import { toast } from 'react-hot-toast';
@@ -17,6 +17,7 @@ interface ProductsListProps {
 }
 
 type StockFilter = 'all' | 'in_stock' | 'out_of_stock';
+const PAGE_SIZE = 20;
 
 export default function ProductsList({ initialProducts, brands = [], categories = [] }: ProductsListProps) {
   const [products, setProducts] = useState(initialProducts);
@@ -25,6 +26,7 @@ export default function ProductsList({ initialProducts, brands = [], categories 
   const [selectedCategoryId, setSelectedCategoryId] = useState('all');
   const [stockFilter, setStockFilter] = useState<StockFilter>('all');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
@@ -64,7 +66,20 @@ export default function ProductsList({ initialProducts, brands = [], categories 
     setSelectedBrandId('all');
     setSelectedCategoryId('all');
     setStockFilter('all');
+    setPage(1);
   };
+
+  // Reset to page 1 whenever filters change
+  const prevFiltered = React.useRef(filtered.length)
+  React.useEffect(() => {
+    if (prevFiltered.current !== filtered.length) {
+      setPage(1)
+      prevFiltered.current = filtered.length
+    }
+  }, [filtered.length])
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
@@ -155,7 +170,7 @@ export default function ProductsList({ initialProducts, brands = [], categories 
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {filtered.map((product) => {
+              {paginated.map((product) => {
                 const minPrice = product.variants?.length
                   ? Math.min(...product.variants.map((v: any) => v.promoPrice || v.price))
                   : 0;
@@ -236,6 +251,32 @@ export default function ProductsList({ initialProducts, brands = [], categories 
           </table>
         </div>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-2">
+          <p className="text-xs text-stone-400">
+            Page <span className="font-semibold text-blue-950">{page}</span> of {totalPages}
+            {' '}· {filtered.length} products
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border border-stone-200 rounded-xl text-blue-950 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" /> Previous
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold border border-stone-200 rounded-xl text-blue-950 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Next <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

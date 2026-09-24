@@ -74,54 +74,34 @@ export default function Footer() {
               {telHref ? (
                 <a href={telHref} className="flex items-center gap-2 hover:text-white transition-colors">
                   <Phone className="w-4 h-4 text-sky-500 shrink-0" />
-                  Call us
+                  {settings.supportPhone || 'Call us'}
                 </a>
               ) : null}
             </div>
 
-            {/* Social Media Links */}
-            <div className="flex flex-wrap gap-3 mt-5">
+            {/* Social icons — square */}
+            <div className="flex flex-wrap gap-2 mt-5">
               {settings.instagramUrl && (
-                <a
-                  href={settings.instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                  className="w-10 h-10 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors rounded-lg"
-                >
+                <a href={settings.instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Instagram"
+                  className="w-9 h-9 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors">
                   <Instagram className="w-4 h-4" />
                 </a>
               )}
               {settings.facebookUrl && (
-                <a
-                  href={settings.facebookUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Facebook"
-                  className="w-10 h-10 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors rounded-lg"
-                >
+                <a href={settings.facebookUrl} target="_blank" rel="noopener noreferrer" aria-label="Facebook"
+                  className="w-9 h-9 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors">
                   <Facebook className="w-4 h-4" />
                 </a>
               )}
               {settings.twitterUrl && (
-                <a
-                  href={settings.twitterUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Twitter / X"
-                  className="w-10 h-10 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors rounded-lg"
-                >
+                <a href={settings.twitterUrl} target="_blank" rel="noopener noreferrer" aria-label="Twitter / X"
+                  className="w-9 h-9 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors">
                   <Twitter className="w-4 h-4" />
                 </a>
               )}
               {whatsappUrl && (
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="WhatsApp"
-                  className="w-10 h-10 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors rounded-lg"
-                >
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"
+                  className="w-9 h-9 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors">
                   <MessageCircle className="w-4 h-4" />
                 </a>
               )}
@@ -129,20 +109,34 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between gap-4 text-[10px] tracking-[0.2em] uppercase text-white/35">
-          <p>
-            © {currentYear} {settings.siteName}
-          </p>
-          <div className="flex flex-wrap gap-6">
-            <Link href="/privacy" className="hover:text-white/70">
-              Privacy
-            </Link>
-            <Link href="/terms" className="hover:text-white/70">
-              Terms
-            </Link>
-            <Link href="/refund" className="hover:text-white/70">
-              Refunds
-            </Link>
+        {/* Payment badges + copyright */}
+        <div className="pt-8 border-t border-white/10 space-y-4">
+          {/* Payment method badges */}
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-white/30 mr-1">
+              We accept
+            </span>
+            {/* Paystack */}
+            <span className="inline-flex items-center px-2.5 py-1 bg-white/10 border border-white/15 text-[10px] font-black tracking-wider text-white/60 uppercase">
+              Paystack
+            </span>
+            {/* Bank Transfer */}
+            <span className="inline-flex items-center px-2.5 py-1 bg-white/10 border border-white/15 text-[10px] font-black tracking-wider text-white/60 uppercase">
+              Bank Transfer
+            </span>
+            {/* WhatsApp */}
+            <span className="inline-flex items-center px-2.5 py-1 bg-white/10 border border-white/15 text-[10px] font-black tracking-wider text-white/60 uppercase">
+              WhatsApp Order
+            </span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row justify-between gap-4 text-[10px] tracking-[0.2em] uppercase text-white/35">
+            <p>© {currentYear} {settings.siteName}</p>
+            <div className="flex flex-wrap gap-6">
+              <Link href="/privacy" className="hover:text-white/70">Privacy</Link>
+              <Link href="/terms" className="hover:text-white/70">Terms</Link>
+              <Link href="/refund" className="hover:text-white/70">Refunds</Link>
+            </div>
           </div>
         </div>
       </div>

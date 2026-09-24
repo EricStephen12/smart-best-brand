@@ -75,7 +75,7 @@ function RegisterForm() {
         aria-hidden="true"
         className="pointer-events-none select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-playfair font-black uppercase tracking-[-0.05em] text-[24vw] text-blue-950/[0.03] z-0 whitespace-nowrap"
       >
-        Luxury
+        Comfort
       </div>
 
       <motion.div
@@ -92,12 +92,12 @@ function RegisterForm() {
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-3xl p-8 shadow-xl shadow-blue-950/5 border border-stone-200/80">
+        <div className="bg-white p-8 shadow-sm border border-stone-200">
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200/70 text-red-700 text-xs font-medium leading-relaxed"
+              className="mb-6 p-4 bg-red-50 border border-red-200/70 text-red-700 text-xs font-medium leading-relaxed"
             >
               {error}
             </motion.div>
@@ -117,7 +117,7 @@ function RegisterForm() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. John Doe"
-                  className="w-full pl-10 pr-4 py-2.5 bg-stone-50/70 border border-stone-200 rounded-xl text-sm text-blue-950 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-950/20 focus:border-blue-950 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-stone-50/70 border border-stone-200 text-sm text-blue-950 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-950/20 focus:border-blue-950 transition-all"
                 />
               </div>
             </div>
@@ -135,7 +135,7 @@ function RegisterForm() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="e.g. 08012345678"
-                  className="w-full pl-10 pr-4 py-2.5 bg-stone-50/70 border border-stone-200 rounded-xl text-sm text-blue-950 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-950/20 focus:border-blue-950 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-stone-50/70 border border-stone-200 text-sm text-blue-950 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-950/20 focus:border-blue-950 transition-all"
                 />
               </div>
             </div>
@@ -154,7 +154,7 @@ function RegisterForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@example.com"
-                  className="w-full pl-10 pr-4 py-2.5 bg-stone-50/70 border border-stone-200 rounded-xl text-sm text-blue-950 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-950/20 focus:border-blue-950 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-stone-50/70 border border-stone-200 text-sm text-blue-950 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-950/20 focus:border-blue-950 transition-all"
                 />
               </div>
             </div>
@@ -173,7 +173,7 @@ function RegisterForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="At least 6 characters"
-                  className="w-full pl-10 pr-11 py-2.5 bg-stone-50/70 border border-stone-200 rounded-xl text-sm text-blue-950 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-950/20 focus:border-blue-950 transition-all"
+                  className="w-full pl-10 pr-11 py-2.5 bg-stone-50/70 border border-stone-200 text-sm text-blue-950 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-950/20 focus:border-blue-950 transition-all"
                 />
                 <button
                   type="button"
@@ -200,7 +200,7 @@ function RegisterForm() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Repeat your password"
-                  className="w-full pl-10 pr-4 py-2.5 bg-stone-50/70 border border-stone-200 rounded-xl text-sm text-blue-950 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-950/20 focus:border-blue-950 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-stone-50/70 border border-stone-200 text-sm text-blue-950 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-blue-950/20 focus:border-blue-950 transition-all"
                 />
               </div>
             </div>
@@ -209,7 +209,7 @@ function RegisterForm() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full mt-4 py-3.5 px-6 rounded-xl bg-blue-950 text-white text-sm font-semibold tracking-wide flex items-center justify-center gap-2 hover:bg-blue-900 active:scale-[0.99] transition-all disabled:opacity-70 shadow-lg shadow-blue-950/15"
+              className="w-full mt-4 py-3.5 px-6 bg-blue-950 text-white text-sm font-semibold tracking-wide flex items-center justify-center gap-2 hover:bg-sky-700 active:scale-[0.99] transition-all disabled:opacity-70"
             >
               {isPending ? (
                 <>

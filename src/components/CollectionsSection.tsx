@@ -29,7 +29,7 @@ export default function CollectionsSection({ collections }: { collections: Colle
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="Collections"
-          title="Find your collection"
+          title="Shop by category"
           description="Mattresses, pillows, furniture — find exactly what your space is missing."
         />
 
@@ -45,7 +45,7 @@ export default function CollectionsSection({ collections }: { collections: Colle
                 transition={{ duration: 0.45, delay: Math.min(index * 0.06, 0.24) }}
               >
                 <Link href={item.href} className="group block">
-                  <div className="relative aspect-square bg-white overflow-hidden mb-3 border border-blue-950/5">
+                  <div className="relative aspect-square bg-white overflow-hidden mb-3 border border-blue-950/10">
                     <Image
                       src={image}
                       alt={item.name}

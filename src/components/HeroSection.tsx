@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import EditorialBackdrop from '@/components/EditorialBackdrop'
+import { useSiteSettings } from '@/components/site-settings-context'
 
 export type HeroBanner = {
   id: string
@@ -16,7 +17,7 @@ export type HeroBanner = {
   ctaHref: string | null
 }
 
-const FALLBACKS: HeroBanner[] = [
+const HARDCODED_FALLBACKS: HeroBanner[] = [
   {
     id: 'fallback-1',
     title: 'Sleep Like It Matters',
@@ -45,12 +46,32 @@ const FALLBACKS: HeroBanner[] = [
 
 /** Full-bleed hero with title text + real multi-image slides. */
 export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }) {
-  const slides = banners.length > 0 ? banners : FALLBACKS
+  const settings = useSiteSettings()
+
+  // Build a single settings-driven fallback slide if hero fields are configured
+  const settingsFallback: HeroBanner | null =
+    settings.heroTitle
+      ? {
+          id: 'settings-fallback',
+          title: settings.heroTitle,
+          subtitle: settings.heroSubtitle || null,
+          imageUrl: '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
+          ctaLabel: settings.heroCtaLabel || 'Shop the Collection',
+          ctaHref: settings.heroCtaHref || '/products',
+        }
+      : null
+
+  // Priority: CMS banners > settings hero > hardcoded fallbacks
+  const slides =
+    banners.length > 0
+      ? banners
+      : settingsFallback
+      ? [settingsFallback, ...HARDCODED_FALLBACKS.slice(1)]
+      : HARDCODED_FALLBACKS
+
   const [index, setIndex] = useState(0)
 
-  useEffect(() => {
-    setIndex(0)
-  }, [slides.length])
+  useEffect(() => { setIndex(0) }, [slides.length])
 
   useEffect(() => {
     if (slides.length < 2) return
@@ -65,6 +86,9 @@ export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }
   }
 
   const slide = slides[Math.min(index, slides.length - 1)]
+
+  // Eyebrow: tagline from settings, or site name
+  const eyebrow = settings.tagline || settings.siteName || 'Smart Best Brands'
 
   return (
     <section className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-neutral-900">
@@ -102,7 +126,7 @@ export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }
             className="max-w-3xl"
           >
             <p className="text-[10px] sm:text-[11px] font-medium tracking-[0.35em] uppercase text-white/60 mb-5">
-              Smart Best Brands
+              {eyebrow}
             </p>
             <h1 className="font-playfair text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-[-0.03em] text-white leading-[0.95]">
               {slide.title}

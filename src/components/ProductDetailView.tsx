@@ -16,8 +16,8 @@ import {
   ChevronRight,
   ChevronDown,
   RotateCcw,
-  Sparkles,
   BadgePercent,
+  Lock,
 } from 'lucide-react'
 import CustomRequestModal from '@/components/CustomRequestModal'
 import ProductReviews, { type ReviewItem } from '@/components/ProductReviews'
@@ -57,9 +57,9 @@ export default function ProductDetailView({
     product?.variants?.[0] || { size: { label: 'Standard' }, price: 0, stock: 0 }
 
   const [selectedVariant, setSelectedVariant] = useState(initialVariant)
-  const [activeImage, setActiveImage] = useState(product?.images?.[0] || '/images/placeholder.jpg')
+  const [activeImage, setActiveImage] = useState(product?.images?.[0] || '')
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false)
-  const [openPolicyTab, setOpenPolicyTab] = useState<string | null>('delivery')
+  const [openPolicyTab, setOpenPolicyTab] = useState<string | null>(null)
   const { isInWishlist, toggleWishlist } = useWishlist()
 
   if (!product) return null
@@ -314,6 +314,19 @@ export default function ProductDetailView({
                 <MessageCircle className="w-4 h-4" />
                 Order on WhatsApp
               </button>
+            </div>
+
+            {/* Trust badges */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
+                <Lock className="w-3 h-3 text-stone-400" /> Secure checkout
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
+                <ShieldCheck className="w-3 h-3 text-stone-400" /> Factory warranty
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
+                <Truck className="w-3 h-3 text-stone-400" /> Nationwide delivery
+              </span>
             </div>
 
             {/* Item Policies & Guarantees Accordion */}

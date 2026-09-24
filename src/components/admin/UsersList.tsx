@@ -12,9 +12,10 @@ import {
   Phone,
   Mail,
   CheckCircle2,
+  Trash2,
 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
-import { updateUserRole, type UserListItem } from '@/actions/users'
+import { updateUserRole, deleteUser, type UserListItem } from '@/actions/users'
 
 interface UsersListProps {
   initialUsers: UserListItem[]
@@ -25,6 +26,7 @@ export default function UsersList({ initialUsers, currentAdminId }: UsersListPro
   const [users, setUsers] = useState<UserListItem[]>(initialUsers)
   const [searchTerm, setSearchTerm] = useState('')
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const filteredUsers = users.filter((u) => {
     const term = searchTerm.toLowerCase()
@@ -37,6 +39,27 @@ export default function UsersList({ initialUsers, currentAdminId }: UsersListPro
 
   const totalAdmins = users.filter((u) => u.role === 'ADMIN').length
   const totalCustomers = users.filter((u) => u.role === 'CUSTOMER').length
+
+  const handleDelete = async (user: UserListItem) => {
+    if (!window.confirm(
+      `Permanently delete ${user.name || user.email}?\n\nThis will remove their account and cannot be undone. Their orders will be retained for records.`
+    )) return
+
+    setDeletingId(user.id)
+    try {
+      const result = await deleteUser(user.id)
+      if (result.success) {
+        setUsers((prev) => prev.filter((u) => u.id !== user.id))
+        toast.success(`${user.name || user.email} has been deleted`)
+      } else {
+        toast.error(result.error || 'Failed to delete account')
+      }
+    } catch {
+      toast.error('Network error deleting account')
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   const handleRoleToggle = async (user: UserListItem) => {
     const newRole = user.role === 'ADMIN' ? 'CUSTOMER' : 'ADMIN'
@@ -215,25 +238,44 @@ export default function UsersList({ initialUsers, currentAdminId }: UsersListPro
                           (Your Session)
                         </span>
                       ) : (
-                        <button
-                          type="button"
-                          onClick={() => handleRoleToggle(user)}
-                          disabled={isUpdating}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50 cursor-pointer ${
-                            isAdmin
-                              ? 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200'
-                              : 'bg-blue-950 text-white hover:bg-sky-700'
-                          }`}
-                        >
-                          {isUpdating ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : isAdmin ? (
-                            <ShieldAlert className="w-3.5 h-3.5" />
-                          ) : (
-                            <Shield className="w-3.5 h-3.5" />
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleRoleToggle(user)}
+                            disabled={isUpdating || deletingId === user.id}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all disabled:opacity-50 cursor-pointer ${
+                              isAdmin
+                                ? 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200'
+                                : 'bg-blue-950 text-white hover:bg-sky-700'
+                            }`}
+                          >
+                            {isUpdating ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : isAdmin ? (
+                              <ShieldAlert className="w-3.5 h-3.5" />
+                            ) : (
+                              <Shield className="w-3.5 h-3.5" />
+                            )}
+                            <span>{isAdmin ? 'Revoke Admin' : 'Make Admin'}</span>
+                          </button>
+
+                          {/* Delete — only for non-admin customers */}
+                          {!isAdmin && (
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(user)}
+                              disabled={deletingId === user.id || isUpdating}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-stone-200 text-stone-500 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 transition-all disabled:opacity-50"
+                              title="Delete account"
+                            >
+                              {deletingId === user.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Trash2 className="w-3.5 h-3.5" />
+                              )}
+                            </button>
                           )}
-                          <span>{isAdmin ? 'Revoke Admin' : 'Make Admin'}</span>
-                        </button>
+                        </div>
                       )}
                     </td>
                   </tr>

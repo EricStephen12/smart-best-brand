@@ -27,7 +27,7 @@ import {
     Type,
 } from 'lucide-react'
 
-type TabType = 'identity' | 'hero' | 'theme' | 'story' | 'promo' | 'contact' | 'footer'
+type TabType = 'identity' | 'hero' | 'theme' | 'story' | 'promo' | 'contact' | 'payments' | 'footer'
 
 const COLOR_PRESETS = [
     { name: 'Default Navy & Sky', primary: '#172554', accent: '#0284c7', bg: '#f7f6f3' },
@@ -87,6 +87,7 @@ export default function SiteSettingsAdminPage() {
         { id: 'story', label: 'Homepage Story', icon: BookOpen },
         { id: 'promo', label: 'Promo Banner', icon: ImageIcon },
         { id: 'contact', label: 'Location & Socials', icon: MapPin },
+        { id: 'payments', label: 'Payment Details', icon: Globe },
         { id: 'footer', label: 'Footer & Policies', icon: Layers },
     ]
 
@@ -296,7 +297,85 @@ export default function SiteSettingsAdminPage() {
                 )}
 
                 {/* ─────────────────────────────────────────────────────────────
-                    TAB 2: THEME & COLORS
+                    TAB 2: HERO SECTION
+                ───────────────────────────────────────────────────────────── */}
+                {activeTab === 'hero' && (
+                    <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+                        <div>
+                            <h2 className="text-base font-bold text-blue-950">Hero Section</h2>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                                Controls the fallback hero slide shown when no CMS banners are active. If you have active banners set up in the Banners section, those will be shown instead.
+                            </p>
+                        </div>
+
+                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 font-medium leading-relaxed">
+                            <strong>Note:</strong> Active banners (added in the Banners section) always take priority over these fields. These settings only apply when no active banners exist.
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <Field label="Hero Headline">
+                                <input
+                                    value={form.heroTitle}
+                                    onChange={(e) => set('heroTitle', e.target.value)}
+                                    className={inputClass}
+                                    placeholder="e.g. Sleep Like It Matters"
+                                />
+                            </Field>
+                            <Field label="Hero Subtext">
+                                <input
+                                    value={form.heroSubtitle}
+                                    onChange={(e) => set('heroSubtitle', e.target.value)}
+                                    className={inputClass}
+                                    placeholder="e.g. Original mattresses from Nigeria's most trusted brands."
+                                />
+                            </Field>
+                            <Field label="CTA Button Label">
+                                <input
+                                    value={form.heroCtaLabel}
+                                    onChange={(e) => set('heroCtaLabel', e.target.value)}
+                                    className={inputClass}
+                                    placeholder="e.g. Shop the Collection"
+                                />
+                            </Field>
+                            <Field label="CTA Button Link">
+                                <input
+                                    value={form.heroCtaHref}
+                                    onChange={(e) => set('heroCtaHref', e.target.value)}
+                                    className={inputClass}
+                                    placeholder="e.g. /products"
+                                />
+                            </Field>
+                        </div>
+
+                        {/* Live preview */}
+                        <div className="pt-4 border-t border-stone-100">
+                            <span className="text-xs font-bold text-slate-700 block mb-3">Preview</span>
+                            <div className="relative rounded-2xl overflow-hidden bg-neutral-800 min-h-[180px] flex items-center justify-center p-8 text-center">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/30" />
+                                <div className="relative z-10">
+                                    <p className="text-[10px] font-medium tracking-[0.35em] uppercase text-white/60 mb-3">
+                                        {form.siteName}
+                                    </p>
+                                    <h3
+                                        className="text-2xl sm:text-3xl font-black uppercase text-white leading-tight mb-3"
+                                        style={{ fontFamily: form.headingFont || 'Cormorant Garamond' }}
+                                    >
+                                        {form.heroTitle || 'Sleep Like It Matters'}
+                                    </h3>
+                                    <p className="text-sm text-white/75 max-w-md mb-5">
+                                        {form.heroSubtitle || 'Original mattresses from Nigeria\'s most trusted brands.'}
+                                    </p>
+                                    <div className="inline-flex border border-white/90 text-white px-6 py-2.5 text-[11px] font-medium tracking-[0.14em] uppercase">
+                                        {form.heroCtaLabel || 'Shop the Collection'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {/* ─────────────────────────────────────────────────────────────
+                    TAB 3: THEME & COLORS
                 ───────────────────────────────────────────────────────────── */}
                 {activeTab === 'theme' && (
                     <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
@@ -844,7 +923,76 @@ export default function SiteSettingsAdminPage() {
                 )}
 
                 {/* ─────────────────────────────────────────────────────────────
-                    TAB 6: FOOTER & POLICIES
+                    TAB 6: PAYMENT DETAILS
+                ───────────────────────────────────────────────────────────── */}
+                {activeTab === 'payments' && (
+                    <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+                        <div>
+                            <h2 className="text-base font-bold text-blue-950">Bank Transfer Details</h2>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                                These details appear on the checkout success page when customers pay by bank transfer and inside the checkout form itself. Keep them up to date.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <Field label="Bank Name">
+                                <input
+                                    value={form.bankName || ''}
+                                    onChange={(e) => set('bankName', e.target.value || null)}
+                                    className={inputClass}
+                                    placeholder="e.g. Moniepoint MFB / Zenith Bank"
+                                />
+                            </Field>
+                            <Field label="Account Name">
+                                <input
+                                    value={form.bankAccountName || ''}
+                                    onChange={(e) => set('bankAccountName', e.target.value || null)}
+                                    className={inputClass}
+                                    placeholder="e.g. Smart Best Brands Nigeria"
+                                />
+                            </Field>
+                            <Field label="Account Number">
+                                <input
+                                    value={form.bankAccountNumber || ''}
+                                    onChange={(e) => set('bankAccountNumber', e.target.value || null)}
+                                    className={inputClass}
+                                    placeholder="e.g. 0123456789"
+                                    inputMode="numeric"
+                                />
+                            </Field>
+                        </div>
+
+                        {/* Live preview */}
+                        {(form.bankAccountNumber || form.bankAccountName) && (
+                            <div className="p-5 bg-stone-50 border border-stone-200 space-y-3">
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">Preview — shown at checkout</p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                                    {form.bankName && (
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase tracking-wider text-stone-400 mb-1">Bank</p>
+                                            <p className="font-semibold text-blue-950">{form.bankName}</p>
+                                        </div>
+                                    )}
+                                    {form.bankAccountName && (
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase tracking-wider text-stone-400 mb-1">Account Name</p>
+                                            <p className="font-semibold text-blue-950">{form.bankAccountName}</p>
+                                        </div>
+                                    )}
+                                    {form.bankAccountNumber && (
+                                        <div className="sm:col-span-2">
+                                            <p className="text-[10px] font-black uppercase tracking-wider text-stone-400 mb-1">Account Number</p>
+                                            <p className="font-mono font-bold text-lg text-blue-950 tracking-widest">{form.bankAccountNumber}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </section>
+                )}
+
+                {/* ─────────────────────────────────────────────────────────────
+                    TAB 7: FOOTER & POLICIES
                 ───────────────────────────────────────────────────────────── */}
                 {activeTab === 'footer' && (
                     <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">

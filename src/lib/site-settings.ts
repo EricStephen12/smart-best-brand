@@ -48,6 +48,11 @@ export type SiteSettingsData = {
 
     // Footer & Legal
     footerText: string
+
+    // Bank Transfer Payment Details
+    bankName: string | null
+    bankAccountName: string | null
+    bankAccountNumber: string | null
 }
 
 export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
@@ -97,6 +102,9 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
     tiktokUrl: null,
 
     footerText: 'Authentic comfort for Nigerian homes. Quality mattresses, pillows, and furniture from trusted brands.',
+    bankName: null,
+    bankAccountName: null,
+    bankAccountNumber: null,
 }
 
 export const HEADING_FONTS = [

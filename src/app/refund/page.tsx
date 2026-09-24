@@ -1,41 +1,56 @@
-'use client';
+import type { Metadata } from 'next'
+import Link from 'next/link'
 
-import React from 'react';
-import { motion } from 'framer-motion';
+export const metadata: Metadata = {
+  title: 'Refund & Returns Policy | Smart Best Brands',
+  description: 'Our return, refund, and exchange policy for mattresses, furniture, and bedding.',
+}
 
 export default function RefundPage() {
-    return (
-        <div className="pt-32 sm:pt-48 pb-24 bg-white min-h-screen">
-            <div className="max-w-4xl mx-auto px-4">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                >
-                    <span className="text-sky-600 font-black tracking-[0.3em] text-[10px] uppercase mb-6 block font-sans">Return & Refund Policy</span>
-                    <h1 className="text-5xl sm:text-7xl font-black text-blue-950 mb-16 tracking-tight font-display uppercase leading-[0.9]">REFUND & <br /><span className="text-slate-200">RETURNS.</span></h1>
+  return (
+    <div className="pt-28 pb-24 bg-white min-h-screen">
+      <div className="max-w-3xl mx-auto px-4">
+        <p className="text-[10px] font-black tracking-[0.3em] uppercase text-sky-600 mb-4">Legal</p>
+        <h1 className="font-display text-4xl sm:text-5xl font-semibold text-blue-950 tracking-tight mb-10">
+          Refund &amp; Returns Policy
+        </h1>
 
-                    <div className="prose prose-xl prose-slate max-w-none prose-headings:text-blue-950 prose-headings:font-black prose-headings:tracking-tight prose-p:text-slate-500 prose-p:leading-relaxed prose-p:font-medium font-inter">
-                        <p className="text-2xl font-bold text-blue-950 mb-12 leading-relaxed">
-                            We want you to be completely satisfied with your purchase. Here is how our returns and refunds work.
-                        </p>
+        <div className="prose prose-sm prose-stone max-w-none space-y-8 text-stone-600 leading-relaxed">
+          <section>
+            <h2 className="text-blue-950 font-bold text-lg mb-3">7-Day Return Window</h2>
+            <p>You may return or exchange most items within 7 days of delivery, provided they are in their original, unused condition with all original packaging intact.</p>
+          </section>
 
-                        <section className="mb-16">
-                            <h2 className="text-2xl border-l-4 border-sky-600 pl-6 mb-8 uppercase tracking-wide">1. Mattress Returns</h2>
-                            <p>For health and hygiene reasons, mattresses cannot be returned or refunded once the original factory nylon seal has been opened. Please inspect the mattress through the clear nylon packaging upon delivery before opening.</p>
-                        </section>
+          <section>
+            <h2 className="text-blue-950 font-bold text-lg mb-3">Mattress-Specific Policy</h2>
+            <p>For hygiene reasons, mattresses <strong>cannot be returned</strong> once the factory polythene seal has been removed. If you discover a manufacturing defect upon unboxing — before removing the seal — we will arrange an immediate free replacement.</p>
+          </section>
 
-                        <section className="mb-16">
-                            <h2 className="text-2xl border-l-4 border-sky-600 pl-6 mb-8 uppercase tracking-wide">2. Furniture & Accessories</h2>
-                            <p>Furniture, bed frames, and pillows can only be returned if defects or damages are noticed and reported at the point of delivery before our driver leaves.</p>
-                        </section>
+          <section>
+            <h2 className="text-blue-950 font-bold text-lg mb-3">Factory Defects</h2>
+            <p>Any product confirmed to have a factory defect will be replaced at no cost. Please document the defect with photos upon delivery and contact us within 48 hours of receipt.</p>
+          </section>
 
-                        <section className="mb-16">
-                            <h2 className="text-2xl border-l-4 border-sky-600 pl-6 mb-8 uppercase tracking-wide">3. Refunds & Replacements</h2>
-                            <p>Approved refunds are processed within 3–7 business days via bank transfer or your original payment method. For manufacturer defects covered under warranty, we assist in coordinating a direct replacement.</p>
-                        </section>
-                    </div>
-                </motion.div>
-            </div>
+          <section>
+            <h2 className="text-blue-950 font-bold text-lg mb-3">Refund Processing</h2>
+            <p>Approved refunds are processed within 5–10 business days via the original payment method. Bank transfer refunds may take an additional 2–3 business days to reflect.</p>
+          </section>
+
+          <section>
+            <h2 className="text-blue-950 font-bold text-lg mb-3">Non-Returnable Items</h2>
+            <p>Custom-sized mattresses and items that have been used, modified, or damaged after delivery are not eligible for return.</p>
+          </section>
+
+          <section>
+            <h2 className="text-blue-950 font-bold text-lg mb-3">How to Initiate a Return</h2>
+            <p><Link href="/contact" className="text-sky-700 hover:underline">Contact us</Link> with your order number and reason for return. Our team will guide you through the process.</p>
+          </section>
+
+          <p className="text-xs text-stone-400 pt-6 border-t border-stone-100">
+            Last updated: September 2026
+          </p>
         </div>
-    );
+      </div>
+    </div>
+  )
 }

@@ -11,6 +11,7 @@ import { recoverCartByToken, syncCartToDb } from '@/actions/cart'
 import { useRouter, useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
+import { useSiteSettings } from '@/components/site-settings-context'
 
 interface DeliveryZone {
   id: string
@@ -30,6 +31,10 @@ const labelClass =
 export default function CheckoutForm({ zones }: CheckoutFormProps) {
   const { state, clearCart, loadCart } = useCart()
   const { user } = useAuth()
+  const settings = useSiteSettings()
+  const bankName = settings.bankName || 'Moniepoint MFB / Zenith Bank'
+  const bankAccountName = settings.bankAccountName || 'Smart Best Brands Nigeria'
+  const bankAccountNumber = settings.bankAccountNumber || '08064619479'
   const router = useRouter()
   const searchParams = useSearchParams()
   const recoverToken = searchParams?.get('recover')
@@ -495,21 +500,21 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className={labelClass}>Bank</p>
-                    <p className="font-semibold text-blue-950">Moniepoint MFB / Zenith Bank</p>
+                    <p className="font-semibold text-blue-950">{bankName}</p>
                   </div>
                   <div>
                     <p className={labelClass}>Account name</p>
-                    <p className="font-semibold text-blue-950">Smart Best Brands Nigeria</p>
+                    <p className="font-semibold text-blue-950">{bankAccountName}</p>
                   </div>
                   <div className="sm:col-span-2">
                     <p className={labelClass}>Account number</p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="font-mono text-lg font-bold text-blue-950 bg-white px-3 py-2 border border-stone-200 tracking-widest select-all">
-                        08064619479
+                        {bankAccountNumber}
                       </span>
                       <button
                         type="button"
-                        onClick={() => { navigator.clipboard.writeText('08064619479'); toast.success('Copied!') }}
+                        onClick={() => { navigator.clipboard.writeText(bankAccountNumber); toast.success('Copied!') }}
                         className="px-3 py-2 border border-blue-950 text-blue-950 text-[10px] font-black uppercase tracking-widest hover:bg-blue-950 hover:text-white transition-colors"
                       >
                         Copy

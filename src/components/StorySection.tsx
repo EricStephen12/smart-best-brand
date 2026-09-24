@@ -32,7 +32,7 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
             <RevealImage
               src={mainImage}
               alt={storyTitle}
-              className="aspect-[4/5] md:aspect-[16/10] rounded-none sm:rounded-3xl"
+              className="aspect-[4/5] md:aspect-[16/10] rounded-none"
             />
           </div>
 
@@ -43,7 +43,7 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
               viewport={{ once: true }}
-              className="bg-white/95 backdrop-blur-md border border-blue-950/5 p-8 sm:p-12 md:p-16 rounded-none sm:rounded-3xl space-y-6 sm:space-y-8 shadow-xl shadow-blue-950/5"
+              className="bg-white/95 backdrop-blur-md border border-blue-950/5 p-8 sm:p-12 md:p-16 rounded-none space-y-6 sm:space-y-8 shadow-xl shadow-blue-950/5"
             >
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-1 h-8 bg-sky-600 rounded-full" />
@@ -52,7 +52,7 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
               <h3 className="text-4xl md:text-6xl font-black text-blue-950 tracking-[-0.04em] leading-[0.9]">
                 {storyTitle}
               </h3>
-              <p className="text-lg text-slate-500 font-medium leading-[1.6]">
+              <p className="text-lg text-stone-500 font-medium leading-[1.6]">
                 {storyText}
               </p>
               <div className="pt-4">
@@ -84,7 +84,7 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
                 </h3>
               </div>
 
-              <p className="text-lg text-slate-500 font-medium leading-[1.6]">
+              <p className="text-lg text-stone-500 font-medium leading-[1.6]">
                 {secondaryText}
               </p>
 
@@ -114,14 +114,14 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
                 <RevealImage
                   src="/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg"
                   alt="Mattress Detail"
-                  className="aspect-square rounded-[3rem]"
+                  className="aspect-square rounded-xl"
                 />
               </div>
               <div className="col-span-4 self-end">
                 <RevealImage
                   src="/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg"
                   alt="Fabric Texture"
-                  className="aspect-[3/4] rounded-2xl"
+                  className="aspect-[3/4] rounded-lg"
                 />
               </div>
             </div>

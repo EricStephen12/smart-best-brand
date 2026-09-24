@@ -3,7 +3,9 @@
 import { usePathname } from 'next/navigation'
 import Header from './Header'
 import Footer from './Footer'
+import CartDrawer from './CartDrawer'
 import { useAuth } from '@/hooks/use-auth'
+import { useCart } from '@/lib/cart-context'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -12,6 +14,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname()
   const { user } = useAuth()
+  const { state, toggleCart } = useCart()
   const isAccount = pathname?.startsWith('/account')
   const isAdmin = user?.role === 'ADMIN'
   const isCheckout = pathname?.startsWith('/checkout')
@@ -26,6 +29,8 @@ export default function Layout({ children }: LayoutProps) {
         {children}
       </main>
       {!hideHeaderFooter && <Footer />}
+      {/* CartDrawer lives here — outside <header> — so it can portal over everything */}
+      {!isCheckout && <CartDrawer isOpen={state.isOpen} onClose={toggleCart} />}
     </div>
   )
 }

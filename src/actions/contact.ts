@@ -37,3 +37,15 @@ export async function submitContactInquiry(data: {
         return { success: false, error: 'Failed to send message. Please try again.' }
     }
 }
+
+export async function getAllContactInquiries() {
+    try {
+        const inquiries = await prisma.contactInquiry.findMany({
+            orderBy: { createdAt: 'desc' },
+        })
+        return { success: true, data: inquiries }
+    } catch (error) {
+        console.error('getAllContactInquiries error:', error)
+        return { success: false, error: 'Failed to load inquiries' }
+    }
+}

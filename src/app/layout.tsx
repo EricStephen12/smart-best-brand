@@ -189,6 +189,7 @@ export default async function RootLayout({
         />
       </head>
       <body
+        suppressHydrationWarning
         className={`${cormorant.variable} ${jakarta.variable} ${montserrat.variable} font-sans antialiased`}
       >
         <style dangerouslySetInnerHTML={{ __html: themeCss }} />

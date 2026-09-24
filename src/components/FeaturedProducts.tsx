@@ -60,7 +60,7 @@ export default function FeaturedProducts({ products }: { products: FeaturedProdu
                 transition={{ duration: 0.4, delay: Math.min(index * 0.05, 0.25) }}
               >
                 <Link href={`/products/${product.slug}`} className="group block">
-                  <div className="relative aspect-square bg-[var(--brand-bg)] overflow-hidden mb-3 border border-blue-950/5">
+                  <div className="relative aspect-square bg-[var(--brand-bg)] overflow-hidden mb-3 border border-blue-950/10">
                     {product.images[0] ? (
                       <Image
                         src={product.images[0]}
@@ -71,7 +71,7 @@ export default function FeaturedProducts({ products }: { products: FeaturedProdu
                       />
                     ) : null}
                     {onSale ? (
-                      <span className="absolute top-3 left-3 bg-sky-600 text-white text-[9px] font-black tracking-widest uppercase px-2 py-1">
+                      <span className="absolute top-3 left-3 bg-sky-600 text-white text-[10px] font-black tracking-widest uppercase px-2 py-1">
                         Sale
                       </span>
                     ) : null}

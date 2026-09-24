@@ -53,7 +53,10 @@ function toData(row: any): SiteSettingsData {
         twitterUrl: row.twitterUrl || null,
         tiktokUrl: row.tiktokUrl || null,
 
-        footerText: row.footerText || DEFAULT_SITE_SETTINGS.footerText,
+    footerText: row.footerText || DEFAULT_SITE_SETTINGS.footerText,
+        bankName: row.bankName || null,
+        bankAccountName: row.bankAccountName || null,
+        bankAccountNumber: row.bankAccountNumber || null,
     }
 }
 
@@ -145,6 +148,10 @@ export async function updateSiteSettings(input: Partial<SiteSettingsData>) {
         if (input.tiktokUrl !== undefined) data.tiktokUrl = cleanLink(input.tiktokUrl)
 
         if (input.footerText !== undefined) data.footerText = input.footerText.trim()
+
+        if (input.bankName !== undefined) data.bankName = input.bankName?.trim() || null
+        if (input.bankAccountName !== undefined) data.bankAccountName = input.bankAccountName?.trim() || null
+        if (input.bankAccountNumber !== undefined) data.bankAccountNumber = input.bankAccountNumber?.trim() || null
 
         const updated = await prisma.siteSettings.upsert({
             where: { id: 'default' },
