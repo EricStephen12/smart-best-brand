@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function AdminProductsPage() {
   const [productsResult, brandsResult, categoriesResult] = await Promise.all([
-    getAllProducts(),
+    getAllProducts({ includeInactive: true }),
     getAllBrands(),
     getAllCategories(),
   ]);

@@ -12,6 +12,8 @@ interface ProductFilters {
     minPrice?: number
     maxPrice?: number
     search?: string
+    /** Pass true from admin pages to include draft/inactive products */
+    includeInactive?: boolean
 }
 
 // Get all products with filtering
@@ -31,9 +33,9 @@ export async function getAllProducts(filters?: ProductFilters) {
             };
         }
 
-        const where: any = {
-            isActive: true
-        }
+        const where: any = filters?.includeInactive
+            ? {}
+            : { isActive: true }
 
         if (filters?.brandId) {
             where.brandId = filters.brandId

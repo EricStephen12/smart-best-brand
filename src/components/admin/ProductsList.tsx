@@ -164,6 +164,7 @@ export default function ProductsList({ initialProducts, brands = [], categories 
             <thead>
               <tr className="border-b border-stone-100 bg-stone-50">
                 <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-stone-500">Product</th>
+                <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-stone-500">Status</th>
                 <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-stone-500">Stock</th>
                 <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-stone-500">Price</th>
                 <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-stone-500 text-right">Actions</th>
@@ -201,6 +202,19 @@ export default function ProductsList({ initialProducts, brands = [], categories 
                           </p>
                         </div>
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {product.isActive ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          Live
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-stone-100 text-stone-500 border border-stone-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-stone-400" />
+                          Draft
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`text-sm font-semibold ${totalStock > 0 ? 'text-blue-950' : 'text-rose-500'}`}>

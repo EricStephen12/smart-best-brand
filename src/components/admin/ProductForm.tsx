@@ -57,7 +57,8 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
     // Media
     const [images, setImages] = useState<string[]>(initialData?.images || []);
 
-    // Financials & Variants
+    // Visibility & Financials
+    const [isActive, setIsActive] = useState<boolean>(initialData ? Boolean(initialData.isActive) : true);
     const [isNegotiable, setIsNegotiable] = useState(initialData?.isNegotiable || false);
     const [variants, setVariants] = useState<Variant[]>(
         initialData?.variants?.map((v: any) => ({
@@ -109,6 +110,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
             formData.append('finishing', finishing);
             formData.append('warranty', warranty);
             formData.append('isNegotiable', isNegotiable.toString());
+            formData.append('isActive', isActive.toString());
 
             formData.append('features', JSON.stringify(features.filter(f => f.trim())));
             formData.append('images', JSON.stringify(images));
@@ -431,6 +433,19 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                     </div>
 
                     <div className="space-y-8">
+                        {/* Active / Draft Toggle */}
+                        <div className="pt-4 flex items-center justify-between border-t border-white/10 group cursor-pointer" onClick={() => setIsActive(!isActive)}>
+                            <div className="space-y-1">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-white">Product Status</span>
+                                <p className={`text-[8px] font-bold uppercase tracking-tight ${isActive ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                    {isActive ? 'Live — visible in store' : 'Draft — hidden from customers'}
+                                </p>
+                            </div>
+                            <div className={`w-12 h-6 rounded-full transition-all relative ${isActive ? 'bg-emerald-500' : 'bg-rose-500/60'}`}>
+                                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all shadow-lg ${isActive ? 'left-7' : 'left-1'}`} />
+                            </div>
+                        </div>
+
                         <div className="pt-4 flex items-center justify-between border-t border-white/10 group cursor-pointer" onClick={() => setIsNegotiable(!isNegotiable)}>
                             <div className="space-y-1">
                                 <span className="text-[10px] font-black uppercase tracking-widest text-white">Allow Price Negotiation</span>
