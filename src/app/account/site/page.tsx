@@ -2,1225 +2,760 @@
 
 import React, { useEffect, useState } from 'react'
 import { getSiteSettings, updateSiteSettings } from '@/actions/site-settings'
-import {
-    HEADING_FONTS,
-    BODY_FONTS,
-    FONT_PAIRINGS,
-    type SiteSettingsData,
-} from '@/lib/site-settings'
+import { HEADING_FONTS, BODY_FONTS, type SiteSettingsData } from '@/lib/site-settings'
 import CloudinaryUpload from '@/components/CloudinaryUpload'
 import toast from 'react-hot-toast'
 import {
-    Loader2,
-    Save,
-    Sparkles,
-    Palette,
-    Megaphone,
-    BookOpen,
-    Image as ImageIcon,
-    MapPin,
-    Share2,
-    CheckCircle2,
-    Eye,
-    Globe,
-    Layers,
-    Type,
+  Loader2, Save, Eye, CheckCircle2, ChevronRight, ChevronDown,
+  Store, Megaphone, Image as ImageIcon, FileText, AlignLeft,
+  Phone, CreditCard, Palette, ShoppingBag, LayoutTemplate,
 } from 'lucide-react'
 
-type TabType = 'identity' | 'hero' | 'theme' | 'story' | 'sections' | 'promo' | 'contact' | 'payments' | 'footer'
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-const COLOR_PRESETS = [
-    { name: 'Default Navy & Sky', primary: '#172554', accent: '#0284c7', bg: '#f7f6f3' },
-    { name: 'Royal Midnight & Gold', primary: '#0f172a', accent: '#d97706', bg: '#fafaf9' },
-    { name: 'Emerald Sanctuary', primary: '#064e3b', accent: '#10b981', bg: '#f4fbf7' },
-    { name: 'Minimalist Noir', primary: '#18181b', accent: '#475569', bg: '#ffffff' },
+type SectionId =
+  | 'announcement' | 'hero' | 'story_1' | 'story_2' | 'story_stats'
+  | 'featured' | 'collections' | 'promo' | 'products_page'
+  | 'general' | 'colors' | 'fonts' | 'contact' | 'socials' | 'payments' | 'footer'
+
+interface SectionDef {
+  id: SectionId
+  label: string
+  hint: string
+  icon: React.ElementType
+  group: 'pages' | 'settings'
+}
+
+// ─── Section definitions ───────────────────────────────────────────────────────
+
+const SECTIONS: SectionDef[] = [
+  // Page sections — like Shopify's "Sections" group
+  { id: 'announcement',  label: 'Announcement bar',    hint: 'Top-of-page banner',           icon: Megaphone,       group: 'pages' },
+  { id: 'hero',          label: 'Hero section',         hint: 'Homepage hero headline & CTA', icon: ImageIcon,       group: 'pages' },
+  { id: 'story_1',       label: 'Story — block 1',      hint: '"Who We Are" panel',           icon: AlignLeft,       group: 'pages' },
+  { id: 'story_2',       label: 'Story — block 2',      hint: '"Our Promise" panel',          icon: AlignLeft,       group: 'pages' },
+  { id: 'story_stats',   label: 'Story — stats & link', hint: 'Numbers & "read more" link',   icon: AlignLeft,       group: 'pages' },
+  { id: 'featured',      label: 'Featured products',    hint: 'Best-sellers section heading', icon: ShoppingBag,     group: 'pages' },
+  { id: 'collections',   label: 'Collections',          hint: 'Category grid heading',        icon: LayoutTemplate,  group: 'pages' },
+  { id: 'promo',         label: 'Promo banner',         hint: 'Mid-page full-bleed banner',   icon: ImageIcon,       group: 'pages' },
+  { id: 'products_page', label: 'Products page',        hint: '/products page title',         icon: ShoppingBag,     group: 'pages' },
+  // Theme settings — like Shopify's "Theme settings" group
+  { id: 'general',       label: 'Store details',        hint: 'Name, tagline, logo',          icon: Store,           group: 'settings' },
+  { id: 'colors',        label: 'Colors',               hint: 'Brand palette',                icon: Palette,         group: 'settings' },
+  { id: 'fonts',         label: 'Typography',           hint: 'Heading & body fonts',         icon: FileText,        group: 'settings' },
+  { id: 'contact',       label: 'Contact info',         hint: 'Address, phone, email',        icon: Phone,           group: 'settings' },
+  { id: 'socials',       label: 'Social media',         hint: 'Instagram, Facebook etc.',     icon: Phone,           group: 'settings' },
+  { id: 'payments',      label: 'Payment details',      hint: 'Bank transfer account',        icon: CreditCard,      group: 'settings' },
+  { id: 'footer',        label: 'Footer',               hint: 'Footer description text',      icon: AlignLeft,       group: 'settings' },
 ]
 
-export default function SiteSettingsAdminPage() {
-    const [form, setForm] = useState<SiteSettingsData | null>(null)
-    const [loading, setLoading] = useState(true)
-    const [saving, setSaving] = useState(false)
-    const [activeTab, setActiveTab] = useState<TabType>('identity')
+// ─── Shared input class ────────────────────────────────────────────────────────
 
-    useEffect(() => {
-        void (async () => {
-            setLoading(true)
-            const data = await getSiteSettings()
-            setForm(data)
-            setLoading(false)
-        })()
-    }, [])
+const inp =
+  'w-full px-3 py-2.5 border border-stone-200 rounded-lg text-sm outline-none focus:border-blue-950/60 focus:ring-2 focus:ring-blue-950/10 transition-all text-blue-950 bg-white'
 
-    const set = <K extends keyof SiteSettingsData>(key: K, value: SiteSettingsData[K]) => {
-        setForm((prev) => (prev ? { ...prev, [key]: value } : prev))
-    }
+function F({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <label className="text-xs font-semibold text-slate-700 block">{label}</label>
+      {hint && <p className="text-[11px] text-slate-400 -mt-1">{hint}</p>}
+      {children}
+    </div>
+  )
+}
 
-    const handleSave = async (e?: React.FormEvent) => {
-        if (e) e.preventDefault()
-        if (!form) return
-        setSaving(true)
-        const result = await updateSiteSettings(form)
-        setSaving(false)
-        if (!result.success) {
-            toast.error(result.error || 'Failed to save settings')
-            return
-        }
-        if (result.data) setForm(result.data)
-        toast.success('Site settings saved successfully!')
-    }
+const COLOR_PRESETS = [
+  { name: 'Navy & Sky',      primary: '#172554', accent: '#0284c7', bg: '#f7f6f3' },
+  { name: 'Midnight & Gold', primary: '#0f172a', accent: '#d97706', bg: '#fafaf9' },
+  { name: 'Emerald',         primary: '#064e3b', accent: '#10b981', bg: '#f4fbf7' },
+  { name: 'Noir',            primary: '#18181b', accent: '#475569', bg: '#ffffff' },
+]
 
-    if (loading || !form) {
-        return (
-            <div className="flex flex-col items-center justify-center py-32 gap-3">
-                <Loader2 className="w-8 h-8 animate-spin text-blue-950" />
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
-                    Loading Store Customizer...
-                </p>
-            </div>
-        )
-    }
+// ─── Main component ────────────────────────────────────────────────────────────
 
-    const tabs: { id: TabType; label: string; icon: any }[] = [
-        { id: 'identity', label: 'Identity & Announcement', icon: Megaphone },
-        { id: 'hero', label: 'Hero Section', icon: Sparkles },
-        { id: 'theme', label: 'Theme & Colors', icon: Palette },
-        { id: 'story', label: 'Homepage Story', icon: BookOpen },
-        { id: 'sections', label: 'Sections & Copy', icon: Layers },
-        { id: 'promo', label: 'Promo Banner', icon: ImageIcon },
-        { id: 'contact', label: 'Location & Socials', icon: MapPin },
-        { id: 'payments', label: 'Payment Details', icon: Globe },
-        { id: 'footer', label: 'Footer & Policies', icon: Layers },
-    ]
+export default function SiteSettingsPage() {
+  const [form, setForm] = useState<SiteSettingsData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [open, setOpen] = useState<SectionId | null>('announcement')
 
+  useEffect(() => {
+    void getSiteSettings().then((d) => { setForm(d); setLoading(false) })
+  }, [])
+
+  const set = <K extends keyof SiteSettingsData>(k: K, v: SiteSettingsData[K]) =>
+    setForm((p) => p ? { ...p, [k]: v } : p)
+
+  const save = async (e?: React.FormEvent) => {
+    e?.preventDefault()
+    if (!form) return
+    setSaving(true)
+    const r = await updateSiteSettings(form)
+    setSaving(false)
+    if (!r.success) { toast.error(r.error || 'Save failed'); return }
+    if (r.data) setForm(r.data)
+    toast.success('Saved.')
+  }
+
+  const toggle = (id: SectionId) => setOpen((prev) => prev === id ? null : id)
+
+  if (loading || !form) {
     return (
-        <div className="space-y-8 max-w-5xl pb-16 font-sans">
-            {/* Header */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-stone-200/80 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-[0.25em] text-sky-700 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200/50">
-                            No-Code Store Customizer
-                        </span>
-                    </div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-blue-950 tracking-tight">
-                        Site Appearance & Content Studio
-                    </h1>
-                    <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl">
-                        Change brand colors, announcement banners, homepage copy, store addresses, and social channels without touching code.
-                    </p>
-                </div>
+      <div className="flex items-center justify-center h-[60vh] gap-3">
+        <Loader2 className="w-5 h-5 animate-spin text-blue-950" />
+        <p className="text-sm text-stone-500">Loading…</p>
+      </div>
+    )
+  }
 
-                <div className="flex items-center gap-3 shrink-0">
-                    <a
-                        href="/"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50 hover:bg-stone-100 text-xs font-semibold text-slate-700 flex items-center gap-2 transition-colors"
-                    >
-                        <Eye className="w-4 h-4 text-slate-500" />
-                        View Live Store
-                    </a>
-                    <button
-                        type="button"
-                        onClick={() => handleSave()}
-                        disabled={saving}
-                        className="inline-flex items-center gap-2 bg-blue-950 text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold hover:bg-sky-800 transition-all shadow-md shadow-blue-950/10 disabled:opacity-60"
-                    >
-                        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                        {saving ? 'Saving...' : 'Save Changes'}
-                    </button>
-                </div>
-            </div>
+  const pagesSections  = SECTIONS.filter((s) => s.group === 'pages')
+  const settingsSections = SECTIONS.filter((s) => s.group === 'settings')
 
-            {/* Navigation Tabs */}
-            <div className="flex overflow-x-auto no-scrollbar gap-2 p-1.5 bg-stone-100/80 rounded-2xl border border-stone-200/60">
-                {tabs.map((tab) => {
-                    const Icon = tab.icon
-                    const isActive = activeTab === tab.id
-                    return (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                                isActive
-                                    ? 'bg-white text-blue-950 shadow-sm border border-stone-200/50'
-                                    : 'text-slate-500 hover:text-blue-950 hover:bg-white/50'
-                            }`}
-                        >
-                            <Icon className={`w-4 h-4 ${isActive ? 'text-sky-600' : 'text-slate-400'}`} />
-                            {tab.label}
-                        </button>
-                    )
-                })}
-            </div>
+  return (
+    <div className="min-h-[calc(100vh-6rem)] flex flex-col">
 
-            {/* Main Form */}
-            <form onSubmit={handleSave} className="space-y-6">
-                {/* ─────────────────────────────────────────────────────────────
-                    TAB 1: IDENTITY & ANNOUNCEMENT BAR
-                ───────────────────────────────────────────────────────────── */}
-                {activeTab === 'identity' && (
-                    <div className="space-y-6">
-                        {/* Identity Card */}
-                        <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-                            <div>
-                                <h2 className="text-base font-bold text-blue-950">Store Identity</h2>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                    Your store name, tagline, and brand logo.
-                                </p>
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <Field label="Site Name (Store Brand)">
-                                    <input
-                                        required
-                                        value={form.siteName}
-                                        onChange={(e) => set('siteName', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Smart Best Brands"
-                                    />
-                                </Field>
-
-                                <Field label="Tagline">
-                                    <input
-                                        value={form.tagline}
-                                        onChange={(e) => set('tagline', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Quality mattresses, pillows & furniture"
-                                    />
-                                </Field>
-                            </div>
-
-                            {/* Brand Logo Upload */}
-                            <div className="pt-4 border-t border-stone-100 space-y-4">
-                                <label className="block text-xs font-semibold text-slate-700">
-                                    Custom Brand Logo
-                                    <span className="text-slate-400 font-normal ml-2">
-                                        (Leave empty to use stylized brand typography)
-                                    </span>
-                                </label>
-                                
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                                    <div>
-                                        <CloudinaryUpload
-                                            value={form.logoUrl ? [form.logoUrl] : []}
-                                            onChange={(urls: string[]) => set('logoUrl', urls[urls.length - 1] || null)}
-                                            maxFiles={1}
-                                            label="Upload Logo Image"
-                                        />
-                                        <div className="mt-3">
-                                            <input
-                                                type="url"
-                                                value={form.logoUrl || ''}
-                                                onChange={(e) => set('logoUrl', e.target.value || null)}
-                                                className={inputClass}
-                                                placeholder="Or paste external logo image URL..."
-                                            />
-                                        </div>
-                                    </div>
-
-                                    {/* Preview Box */}
-                                    <div className="bg-slate-900 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[140px] text-center border border-slate-800">
-                                        <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-3">
-                                            Header Preview
-                                        </span>
-                                        {form.logoUrl ? (
-                                            <img
-                                                src={form.logoUrl}
-                                                alt={form.siteName}
-                                                className="h-10 max-w-full object-contain"
-                                            />
-                                        ) : (
-                                            <span className="text-white font-black text-lg tracking-widest font-sans">
-                                                {form.siteName.toUpperCase()}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* Announcement Bar Card */}
-                        <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h2 className="text-base font-bold text-blue-950">Top Announcement Bar</h2>
-                                    <p className="text-xs text-slate-500 mt-0.5">
-                                        Display a promotional banner across the very top of all pages.
-                                    </p>
-                                </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={form.announcementEnabled}
-                                        onChange={(e) => set('announcementEnabled', e.target.checked)}
-                                        className="sr-only peer"
-                                    />
-                                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-600"></div>
-                                    <span className="ml-3 text-xs font-bold text-slate-700">
-                                        {form.announcementEnabled ? 'Active' : 'Hidden'}
-                                    </span>
-                                </label>
-                            </div>
-
-                            <div className="space-y-4">
-                                <Field label="Announcement Message">
-                                    <input
-                                        value={form.announcementText || ''}
-                                        onChange={(e) => set('announcementText', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="e.g. Free delivery nationwide on orders above ₦150,000 | 100% Genuine Brands"
-                                    />
-                                </Field>
-
-                                <Field label="Banner Link (Optional)">
-                                    <input
-                                        value={form.announcementLink || ''}
-                                        onChange={(e) => set('announcementLink', e.target.value || null)}
-                                        className={inputClass}
-                                        placeholder="e.g. /products or /products?category=Mattresses"
-                                    />
-                                </Field>
-                            </div>
-
-                            {form.announcementEnabled && form.announcementText && (
-                                <div className="p-3 rounded-xl bg-blue-950 text-white text-center text-xs font-semibold tracking-wide flex items-center justify-center gap-2">
-                                    <span>{form.announcementText}</span>
-                                    {form.announcementLink && (
-                                        <span className="underline opacity-75 font-normal text-[10px]">
-                                            Learn more &rarr;
-                                        </span>
-                                    )}
-                                </div>
-                            )}
-                        </section>
-                    </div>
-                )}
-
-                {/* ─────────────────────────────────────────────────────────────
-                    TAB 2: HERO SECTION
-                ───────────────────────────────────────────────────────────── */}
-                {activeTab === 'hero' && (
-                    <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-                        <div>
-                            <h2 className="text-base font-bold text-blue-950">Hero Section</h2>
-                            <p className="text-xs text-slate-500 mt-0.5">
-                                Controls the fallback hero slide shown when no CMS banners are active. If you have active banners set up in the Banners section, those will be shown instead.
-                            </p>
-                        </div>
-
-                        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 font-medium leading-relaxed">
-                            <strong>Note:</strong> Active banners (added in the Banners section) always take priority over these fields. These settings only apply when no active banners exist.
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <Field label="Hero Headline">
-                                <input
-                                    value={form.heroTitle}
-                                    onChange={(e) => set('heroTitle', e.target.value)}
-                                    className={inputClass}
-                                    placeholder="e.g. Sleep Like It Matters"
-                                />
-                            </Field>
-                            <Field label="Hero Subtext">
-                                <input
-                                    value={form.heroSubtitle}
-                                    onChange={(e) => set('heroSubtitle', e.target.value)}
-                                    className={inputClass}
-                                    placeholder="e.g. Original mattresses from Nigeria's most trusted brands."
-                                />
-                            </Field>
-                            <Field label="CTA Button Label">
-                                <input
-                                    value={form.heroCtaLabel}
-                                    onChange={(e) => set('heroCtaLabel', e.target.value)}
-                                    className={inputClass}
-                                    placeholder="e.g. Shop the Collection"
-                                />
-                            </Field>
-                            <Field label="CTA Button Link">
-                                <input
-                                    value={form.heroCtaHref}
-                                    onChange={(e) => set('heroCtaHref', e.target.value)}
-                                    className={inputClass}
-                                    placeholder="e.g. /products"
-                                />
-                            </Field>
-                        </div>
-
-                        {/* Live preview */}
-                        <div className="pt-4 border-t border-stone-100">
-                            <span className="text-xs font-bold text-slate-700 block mb-3">Preview</span>
-                            <div className="relative rounded-2xl overflow-hidden bg-neutral-800 min-h-[180px] flex items-center justify-center p-8 text-center">
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/30" />
-                                <div className="relative z-10">
-                                    <p className="text-[10px] font-medium tracking-[0.35em] uppercase text-white/60 mb-3">
-                                        {form.siteName}
-                                    </p>
-                                    <h3
-                                        className="text-2xl sm:text-3xl font-black uppercase text-white leading-tight mb-3"
-                                        style={{ fontFamily: form.headingFont || 'Cormorant Garamond' }}
-                                    >
-                                        {form.heroTitle || 'Sleep Like It Matters'}
-                                    </h3>
-                                    <p className="text-sm text-white/75 max-w-md mb-5">
-                                        {form.heroSubtitle || 'Original mattresses from Nigeria\'s most trusted brands.'}
-                                    </p>
-                                    <div className="inline-flex border border-white/90 text-white px-6 py-2.5 text-[11px] font-medium tracking-[0.14em] uppercase">
-                                        {form.heroCtaLabel || 'Shop the Collection'}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                )}
-
-                {/* ─────────────────────────────────────────────────────────────
-                    TAB 3: THEME & COLORS
-                ───────────────────────────────────────────────────────────── */}
-                {activeTab === 'theme' && (
-                    <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-                        <div>
-                            <h2 className="text-base font-bold text-blue-950">Store Theme Colors</h2>
-                            <p className="text-xs text-slate-500 mt-0.5">
-                                Customize your brand palette. Colors automatically apply to buttons, headers, and backgrounds.
-                            </p>
-                        </div>
-
-                        {/* Quick Presets */}
-                        <div className="space-y-2">
-                            <span className="text-xs font-bold text-slate-700">Curated Color Palettes:</span>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                                {COLOR_PRESETS.map((preset) => (
-                                    <button
-                                        key={preset.name}
-                                        type="button"
-                                        onClick={() => {
-                                            set('primaryColor', preset.primary)
-                                            set('accentColor', preset.accent)
-                                            set('backgroundColor', preset.bg)
-                                            toast.success(`Applied ${preset.name}`)
-                                        }}
-                                        className="p-3 rounded-2xl border border-stone-200 hover:border-sky-500 bg-stone-50/60 text-left transition-all group"
-                                    >
-                                        <div className="flex gap-1.5 mb-2">
-                                            <div className="w-6 h-6 rounded-full shadow-sm" style={{ backgroundColor: preset.primary }} />
-                                            <div className="w-6 h-6 rounded-full shadow-sm" style={{ backgroundColor: preset.accent }} />
-                                            <div className="w-6 h-6 rounded-full shadow-sm border border-stone-300" style={{ backgroundColor: preset.bg }} />
-                                        </div>
-                                        <span className="text-xs font-semibold text-slate-700 group-hover:text-sky-700">
-                                            {preset.name}
-                                        </span>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Individual Pickers */}
-                        <div className="pt-4 border-t border-stone-100 grid grid-cols-1 sm:grid-cols-3 gap-6">
-                            <ColorField
-                                label="Primary Brand Color"
-                                description="Navigation, dark buttons & accents"
-                                value={form.primaryColor}
-                                onChange={(v) => set('primaryColor', v)}
-                            />
-                            <ColorField
-                                label="Accent / Action Color"
-                                description="Highlighted badges & links"
-                                value={form.accentColor}
-                                onChange={(v) => set('accentColor', v)}
-                            />
-                            <ColorField
-                                label="Page Background Color"
-                                description="Body background tone"
-                                value={form.backgroundColor}
-                                onChange={(v) => set('backgroundColor', v)}
-                            />
-                        </div>
-
-                        {/* ──────────────────────────────────────────────
-                            TYPOGRAPHY & FONT PAIRINGS
-                        ────────────────────────────────────────────── */}
-                        <div className="pt-8 border-t border-stone-100 space-y-6">
-                            <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                    <Type className="w-4 h-4 text-sky-700" />
-                                    <h3 className="text-base font-bold text-blue-950">Storefront Typography &amp; Fonts</h3>
-                                </div>
-                                <p className="text-xs text-slate-500">
-                                    Choose distinctive typography for your titles and product pages. Google Fonts load automatically without slowing down your store.
-                                </p>
-                            </div>
-
-                            {/* Curated Pairings */}
-                            <div className="space-y-2">
-                                <span className="text-xs font-bold text-slate-700">Designer Recommended Font Pairings:</span>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {FONT_PAIRINGS.map((pairing) => {
-                                        const isSelected =
-                                            form.headingFont === pairing.heading && form.bodyFont === pairing.body
-                                        return (
-                                            <button
-                                                key={pairing.name}
-                                                type="button"
-                                                onClick={() => {
-                                                    set('headingFont', pairing.heading)
-                                                    set('bodyFont', pairing.body)
-                                                    toast.success(`Selected ${pairing.name} pairing`)
-                                                }}
-                                                className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
-                                                    isSelected
-                                                        ? 'border-sky-600 bg-sky-50/60 ring-2 ring-sky-500/20 shadow-sm'
-                                                        : 'border-stone-200 hover:border-slate-300 bg-stone-50/40'
-                                                }`}
-                                            >
-                                                <div className="flex items-center justify-between mb-1.5">
-                                                    <span className="text-xs font-bold text-blue-950">{pairing.name}</span>
-                                                    <span className="text-[10px] font-black uppercase tracking-wider text-sky-700 bg-white px-2 py-0.5 rounded-full border border-sky-100">
-                                                        {pairing.tag}
-                                                    </span>
-                                                </div>
-                                                <p
-                                                    className="text-base font-semibold text-blue-950 mb-1"
-                                                    style={{ fontFamily: pairing.heading }}
-                                                >
-                                                    {pairing.heading} &amp; {pairing.body}
-                                                </p>
-                                                <p className="text-[11px] text-slate-500 leading-relaxed">
-                                                    {pairing.description}
-                                                </p>
-                                            </button>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* Heading Font Picker */}
-                            <div className="space-y-3 pt-4 border-t border-stone-100">
-                                <div>
-                                    <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                        Heading Font (H1, H2, Product Titles)
-                                    </label>
-                                    <p className="text-[11px] text-slate-400">
-                                        Active: <strong>{form.headingFont || 'Playfair Display'}</strong>
-                                    </p>
-                                </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                    {HEADING_FONTS.map((font) => {
-                                        const active = (form.headingFont || 'Playfair Display') === font.name
-                                        return (
-                                            <button
-                                                key={font.name}
-                                                type="button"
-                                                onClick={() => set('headingFont', font.name)}
-                                                className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
-                                                    active
-                                                        ? 'border-blue-950 bg-blue-950 text-white shadow-md'
-                                                        : 'border-stone-200 hover:border-stone-300 bg-white text-slate-800'
-                                                }`}
-                                            >
-                                                <div className="flex justify-between items-center mb-1">
-                                                    <span className={`text-xs font-bold ${active ? 'text-white' : 'text-blue-950'}`}>
-                                                        {font.label}
-                                                    </span>
-                                                    {active && <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />}
-                                                </div>
-                                                <p
-                                                    className={`text-sm truncate ${active ? 'text-sky-200' : 'text-slate-600'}`}
-                                                    style={{ fontFamily: font.name }}
-                                                >
-                                                    {font.sample}
-                                                </p>
-                                            </button>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* Body Font Picker */}
-                            <div className="space-y-3 pt-4 border-t border-stone-100">
-                                <div>
-                                    <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                                        Body / Interface Font (Paragraphs, Cart, Menus)
-                                    </label>
-                                    <p className="text-[11px] text-slate-400">
-                                        Active: <strong>{form.bodyFont || 'Inter'}</strong>
-                                    </p>
-                                </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                                    {BODY_FONTS.map((font) => {
-                                        const active = (form.bodyFont || 'Inter') === font.name
-                                        return (
-                                            <button
-                                                key={font.name}
-                                                type="button"
-                                                onClick={() => set('bodyFont', font.name)}
-                                                className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
-                                                    active
-                                                        ? 'border-blue-950 bg-blue-950 text-white shadow-md'
-                                                        : 'border-stone-200 hover:border-stone-300 bg-white text-slate-800'
-                                                }`}
-                                            >
-                                                <div className="flex justify-between items-center mb-1">
-                                                    <span className={`text-xs font-bold ${active ? 'text-white' : 'text-blue-950'}`}>
-                                                        {font.label}
-                                                    </span>
-                                                    {active && <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />}
-                                                </div>
-                                                <p
-                                                    className={`text-xs line-clamp-2 leading-relaxed ${active ? 'text-sky-200' : 'text-slate-500'}`}
-                                                    style={{ fontFamily: font.name }}
-                                                >
-                                                    {font.sample}
-                                                </p>
-                                            </button>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* Live Storefront Typography Preview */}
-                            <div className="pt-6 border-t border-stone-100">
-                                <span className="text-xs font-bold text-slate-700 block mb-2">Live Storefront Typography &amp; Color Preview:</span>
-                                <div
-                                    className="p-6 sm:p-8 rounded-3xl border border-stone-200/90 shadow-sm space-y-4"
-                                    style={{
-                                        backgroundColor: form.backgroundColor || '#f7f6f3',
-                                        fontFamily: form.bodyFont || 'Inter',
-                                    }}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <span
-                                            className="text-[10px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded-full text-white"
-                                            style={{ backgroundColor: form.accentColor || '#0284c7' }}
-                                        >
-                                            Mouka Foam · 10 Year Warranty
-                                        </span>
-                                        <span className="text-xs text-slate-400 font-medium">In Stock (Abuja &amp; Lagos)</span>
-                                    </div>
-
-                                    <h4
-                                        className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 leading-tight"
-                                        style={{
-                                            fontFamily: form.headingFont || 'Playfair Display',
-                                            color: form.primaryColor || '#172554',
-                                        }}
-                                    >
-                                        Mouka Monalisa Semi-Orthopedic Mattress
-                                    </h4>
-
-                                    <p
-                                        className="text-xs sm:text-sm text-slate-600 max-w-xl leading-relaxed"
-                                        style={{ fontFamily: form.bodyFont || 'Inter' }}
-                                    >
-                                        Crafted with high-density posture support foam for healthy spinal alignment. Shipped factory-sealed directly to your home with full manufacturer warranty.
-                                    </p>
-
-                                    <div className="flex items-center gap-4 pt-2">
-                                        <span
-                                            className="text-2xl font-black tabular-nums"
-                                            style={{
-                                                fontFamily: form.headingFont || 'Playfair Display',
-                                                color: form.primaryColor || '#172554',
-                                            }}
-                                        >
-                                            ₦185,000
-                                        </span>
-                                        <button
-                                            type="button"
-                                            className="px-6 py-3 text-white text-xs font-black uppercase tracking-wider transition-transform active:scale-95"
-                                            style={{ backgroundColor: form.primaryColor || '#172554' }}
-                                        >
-                                            Add to Cart
-                                        </button>
-                                        <span
-                                            className="text-xs font-semibold underline cursor-pointer"
-                                            style={{ color: form.accentColor || '#0284c7' }}
-                                        >
-                                            Order on WhatsApp
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                )}
-
-                {/* ─────────────────────────────────────────────────────────────
-                    TAB 3: HOMEPAGE STORY SECTION
-                ───────────────────────────────────────────────────────────── */}
-                {activeTab === 'story' && (
-                    <div className="space-y-6">
-                        <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-                            <div>
-                                <h2 className="text-base font-bold text-blue-950">Homepage Story ("Our Legacy" Section)</h2>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                    Control the primary brand narrative displayed prominently on your storefront homepage.
-                                </p>
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <Field label="Story Badge Label">
-                                    <input
-                                        value={form.storyBadge}
-                                        onChange={(e) => set('storyBadge', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Our Legacy"
-                                    />
-                                </Field>
-                                <Field label="Story Headline">
-                                    <input
-                                        value={form.storyTitle}
-                                        onChange={(e) => set('storyTitle', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Authenticity as a Standard."
-                                    />
-                                </Field>
-                            </div>
-
-                            <Field label="Story Narrative Paragraph">
-                                <textarea
-                                    rows={4}
-                                    value={form.storyText}
-                                    onChange={(e) => set('storyText', e.target.value)}
-                                    className={inputClass}
-                                    placeholder="Explain your brand mission and quality standards..."
-                                />
-                            </Field>
-
-                            {/* Story Image */}
-                            <div className="pt-4 border-t border-stone-100 space-y-4">
-                                <label className="block text-xs font-semibold text-slate-700">
-                                    Main Story Featured Image
-                                </label>
-                                <CloudinaryUpload
-                                    value={form.storyImageUrl ? [form.storyImageUrl] : []}
-                                    onChange={(urls: string[]) => set('storyImageUrl', urls[urls.length - 1] || null)}
-                                    maxFiles={1}
-                                    label="Upload Story Section Image"
-                                />
-                                <input
-                                    type="url"
-                                    value={form.storyImageUrl || ''}
-                                    onChange={(e) => set('storyImageUrl', e.target.value || null)}
-                                    className={inputClass}
-                                    placeholder="Or paste image URL (default: /images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg)"
-                                />
-                            </div>
-                        </section>
-
-                        {/* Secondary Promise Section */}
-                        <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-                            <div>
-                                <h2 className="text-base font-bold text-blue-950">Secondary Craftsmanship Story</h2>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                    The companion section highlighting your materials, warranty, and brand partnerships.
-                                </p>
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <Field label="Secondary Badge">
-                                    <input
-                                        value={form.storySecondaryBadge}
-                                        onChange={(e) => set('storySecondaryBadge', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Craftsmanship / Our Promise"
-                                    />
-                                </Field>
-                                <Field label="Secondary Headline">
-                                    <input
-                                        value={form.storySecondaryTitle}
-                                        onChange={(e) => set('storySecondaryTitle', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Engineered for Nigerian Living."
-                                    />
-                                </Field>
-                            </div>
-
-                            <Field label="Secondary Paragraph">
-                                <textarea
-                                    rows={3}
-                                    value={form.storySecondaryText}
-                                    onChange={(e) => set('storySecondaryText', e.target.value)}
-                                    className={inputClass}
-                                    placeholder="Details about manufacturer warranties and trusted foam partnerships..."
-                                />
-                            </Field>
-                        </section>
-                    </div>
-                )}
-
-                {/* ─────────────────────────────────────────────────────────────
-                    SECTIONS & COPY TAB
-                ───────────────────────────────────────────────────────────── */}
-                {activeTab === 'sections' && (
-                    <div className="space-y-6">
-                        {/* Products Page */}
-                        <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-                            <div>
-                                <h2 className="text-base font-bold text-blue-950">Products Page Header</h2>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                    The heading and tagline displayed at the top of the /products catalogue page.
-                                </p>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <Field label="Page Title">
-                                    <input
-                                        value={form.shopPageTitle}
-                                        onChange={(e) => set('shopPageTitle', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="The Collection"
-                                    />
-                                </Field>
-                                <Field label="Page Tagline">
-                                    <input
-                                        value={form.shopPageTagline}
-                                        onChange={(e) => set('shopPageTagline', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Original mattresses, furniture and bedding…"
-                                    />
-                                </Field>
-                            </div>
-                        </section>
-
-                        {/* Story Stats */}
-                        <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-                            <div>
-                                <h2 className="text-base font-bold text-blue-950">Story Section — Stats</h2>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                    The two stat numbers and labels shown in the homepage story section (e.g. "07 Partner Brands").
-                                </p>
-                            </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                <Field label="Stat 1 — Value">
-                                    <input
-                                        value={form.statOneValue}
-                                        onChange={(e) => set('statOneValue', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="07"
-                                    />
-                                </Field>
-                                <Field label="Stat 1 — Label">
-                                    <input
-                                        value={form.statOneBadge}
-                                        onChange={(e) => set('statOneBadge', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Partner Brands"
-                                    />
-                                </Field>
-                                <Field label="Stat 2 — Value">
-                                    <input
-                                        value={form.statTwoValue}
-                                        onChange={(e) => set('statTwoValue', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="100%"
-                                    />
-                                </Field>
-                                <Field label="Stat 2 — Label">
-                                    <input
-                                        value={form.statTwoBadge}
-                                        onChange={(e) => set('statTwoBadge', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Original Stock"
-                                    />
-                                </Field>
-                            </div>
-                            <Field label="Story Section Link Label">
-                                <input
-                                    value={form.storyLinkLabel}
-                                    onChange={(e) => set('storyLinkLabel', e.target.value)}
-                                    className={inputClass}
-                                    placeholder="Our full story →"
-                                />
-                            </Field>
-                        </section>
-
-                        {/* Featured Products */}
-                        <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-                            <div>
-                                <h2 className="text-base font-bold text-blue-950">Featured Products Section</h2>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                    The heading and description above the best-sellers grid on the homepage.
-                                </p>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <Field label="Section Heading">
-                                    <input
-                                        value={form.featuredTitle}
-                                        onChange={(e) => set('featuredTitle', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="What people keep coming back for."
-                                    />
-                                </Field>
-                                <Field label="Section Description">
-                                    <input
-                                        value={form.featuredDescription}
-                                        onChange={(e) => set('featuredDescription', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Our most-loved pieces — or browse everything we carry."
-                                    />
-                                </Field>
-                            </div>
-                        </section>
-
-                        {/* Collections */}
-                        <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-                            <div>
-                                <h2 className="text-base font-bold text-blue-950">Collections Section</h2>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                    The heading and description above the category grid on the homepage.
-                                </p>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <Field label="Section Heading">
-                                    <input
-                                        value={form.collectionsTitle}
-                                        onChange={(e) => set('collectionsTitle', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Shop by category"
-                                    />
-                                </Field>
-                                <Field label="Section Description">
-                                    <input
-                                        value={form.collectionsDescription}
-                                        onChange={(e) => set('collectionsDescription', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="Mattresses, pillows, furniture — find exactly what your space is missing."
-                                    />
-                                </Field>
-                            </div>
-                        </section>
-                    </div>
-                )}
-
-                {/* ─────────────────────────────────────────────────────────────
-                    TAB 4: MID-PAGE PROMO BANNER
-                ───────────────────────────────────────────────────────────── */}
-                {activeTab === 'promo' && (
-                    <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-                        <div>
-                            <h2 className="text-base font-bold text-blue-950">Mid-Page Promo Banner</h2>
-                            <p className="text-xs text-slate-500 mt-0.5">
-                                The full-bleed call-to-action banner situated midway down the homepage.
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <Field label="Banner Badge">
-                                <input
-                                    value={form.promoBadge}
-                                    onChange={(e) => set('promoBadge', e.target.value)}
-                                    className={inputClass}
-                                    placeholder="For Nigerian homes"
-                                />
-                            </Field>
-                            <Field label="Banner Headline">
-                                <input
-                                    value={form.promoTitle}
-                                    onChange={(e) => set('promoTitle', e.target.value)}
-                                    className={inputClass}
-                                    placeholder="Comfort that feels like home"
-                                />
-                            </Field>
-                            <Field label="Button Label">
-                                <input
-                                    value={form.promoCtaLabel}
-                                    onChange={(e) => set('promoCtaLabel', e.target.value)}
-                                    className={inputClass}
-                                    placeholder="Discover now"
-                                />
-                            </Field>
-                            <Field label="Button Link">
-                                <input
-                                    value={form.promoCtaHref}
-                                    onChange={(e) => set('promoCtaHref', e.target.value)}
-                                    className={inputClass}
-                                    placeholder="/products"
-                                />
-                            </Field>
-                        </div>
-
-                        {/* Banner Image */}
-                        <div className="pt-4 border-t border-stone-100 space-y-4">
-                            <label className="block text-xs font-semibold text-slate-700">
-                                Background Banner Image
-                            </label>
-                            <CloudinaryUpload
-                                value={form.promoImageUrl ? [form.promoImageUrl] : []}
-                                onChange={(urls: string[]) => set('promoImageUrl', urls[urls.length - 1] || null)}
-                                maxFiles={1}
-                                label="Upload Promo Background"
-                            />
-                            <input
-                                type="url"
-                                value={form.promoImageUrl || ''}
-                                onChange={(e) => set('promoImageUrl', e.target.value || null)}
-                                className={inputClass}
-                                placeholder="Or paste background image URL..."
-                            />
-                        </div>
-                    </section>
-                )}
-
-                {/* ─────────────────────────────────────────────────────────────
-                    TAB 5: LOCATION, CONTACT & SOCIALS
-                ───────────────────────────────────────────────────────────── */}
-                {activeTab === 'contact' && (
-                    <div className="space-y-6">
-                        {/* Contact Information */}
-                        <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-                            <div>
-                                <h2 className="text-base font-bold text-blue-950">Store Locations & Channels</h2>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                    Physical showrooms and customer service touchpoints.
-                                </p>
-                            </div>
-
-                            <Field label="Physical Store Locations (Cities or Full Address)">
-                                <input
-                                    value={form.storeAddress}
-                                    onChange={(e) => set('storeAddress', e.target.value)}
-                                    className={inputClass}
-                                    placeholder="e.g. Abuja · Benin City · Lagos"
-                                />
-                            </Field>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                                <Field label="Official Contact Email">
-                                    <input
-                                        type="email"
-                                        required
-                                        value={form.contactEmail}
-                                        onChange={(e) => set('contactEmail', e.target.value)}
-                                        className={inputClass}
-                                        placeholder="hello@smartbestbrands.com"
-                                    />
-                                </Field>
-                                <Field label="WhatsApp Business (digits only)">
-                                    <input
-                                        value={form.whatsappNumber || ''}
-                                        onChange={(e) => set('whatsappNumber', e.target.value || null)}
-                                        className={inputClass}
-                                        placeholder="e.g. 2348012345678"
-                                    />
-                                </Field>
-                                <Field label="Customer Support Phone">
-                                    <input
-                                        value={form.supportPhone || ''}
-                                        onChange={(e) => set('supportPhone', e.target.value || null)}
-                                        className={inputClass}
-                                        placeholder="e.g. +234 800 000 0000"
-                                    />
-                                </Field>
-                            </div>
-                        </section>
-
-                        {/* Social Media Links */}
-                        <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-                            <div>
-                                <h2 className="text-base font-bold text-blue-950">Social Media Profiles</h2>
-                                <p className="text-xs text-slate-500 mt-0.5">
-                                    Links shown in your storefront footer and contact pages.
-                                </p>
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <Field label="Instagram Profile URL">
-                                    <input
-                                        type="url"
-                                        value={form.instagramUrl || ''}
-                                        onChange={(e) => set('instagramUrl', e.target.value || null)}
-                                        className={inputClass}
-                                        placeholder="https://instagram.com/smartbestbrands"
-                                    />
-                                </Field>
-                                <Field label="Facebook Page URL">
-                                    <input
-                                        type="url"
-                                        value={form.facebookUrl || ''}
-                                        onChange={(e) => set('facebookUrl', e.target.value || null)}
-                                        className={inputClass}
-                                        placeholder="https://facebook.com/smartbestbrands"
-                                    />
-                                </Field>
-                                <Field label="Twitter / X Profile URL">
-                                    <input
-                                        type="url"
-                                        value={form.twitterUrl || ''}
-                                        onChange={(e) => set('twitterUrl', e.target.value || null)}
-                                        className={inputClass}
-                                        placeholder="https://x.com/smartbestbrands"
-                                    />
-                                </Field>
-                                <Field label="TikTok Profile URL">
-                                    <input
-                                        type="url"
-                                        value={form.tiktokUrl || ''}
-                                        onChange={(e) => set('tiktokUrl', e.target.value || null)}
-                                        className={inputClass}
-                                        placeholder="https://tiktok.com/@smartbestbrands"
-                                    />
-                                </Field>
-                            </div>
-                        </section>
-                    </div>
-                )}
-
-                {/* ─────────────────────────────────────────────────────────────
-                    TAB 6: PAYMENT DETAILS
-                ───────────────────────────────────────────────────────────── */}
-                {activeTab === 'payments' && (
-                    <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-                        <div>
-                            <h2 className="text-base font-bold text-blue-950">Bank Transfer Details</h2>
-                            <p className="text-xs text-slate-500 mt-0.5">
-                                These details appear on the checkout success page when customers pay by bank transfer and inside the checkout form itself. Keep them up to date.
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <Field label="Bank Name">
-                                <input
-                                    value={form.bankName || ''}
-                                    onChange={(e) => set('bankName', e.target.value || null)}
-                                    className={inputClass}
-                                    placeholder="e.g. Moniepoint MFB / Zenith Bank"
-                                />
-                            </Field>
-                            <Field label="Account Name">
-                                <input
-                                    value={form.bankAccountName || ''}
-                                    onChange={(e) => set('bankAccountName', e.target.value || null)}
-                                    className={inputClass}
-                                    placeholder="e.g. Smart Best Brands Nigeria"
-                                />
-                            </Field>
-                            <Field label="Account Number">
-                                <input
-                                    value={form.bankAccountNumber || ''}
-                                    onChange={(e) => set('bankAccountNumber', e.target.value || null)}
-                                    className={inputClass}
-                                    placeholder="e.g. 0123456789"
-                                    inputMode="numeric"
-                                />
-                            </Field>
-                        </div>
-
-                        {/* Live preview */}
-                        {(form.bankAccountNumber || form.bankAccountName) && (
-                            <div className="p-5 bg-stone-50 border border-stone-200 space-y-3">
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">Preview — shown at checkout</p>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                                    {form.bankName && (
-                                        <div>
-                                            <p className="text-[10px] font-black uppercase tracking-wider text-stone-400 mb-1">Bank</p>
-                                            <p className="font-semibold text-blue-950">{form.bankName}</p>
-                                        </div>
-                                    )}
-                                    {form.bankAccountName && (
-                                        <div>
-                                            <p className="text-[10px] font-black uppercase tracking-wider text-stone-400 mb-1">Account Name</p>
-                                            <p className="font-semibold text-blue-950">{form.bankAccountName}</p>
-                                        </div>
-                                    )}
-                                    {form.bankAccountNumber && (
-                                        <div className="sm:col-span-2">
-                                            <p className="text-[10px] font-black uppercase tracking-wider text-stone-400 mb-1">Account Number</p>
-                                            <p className="font-mono font-bold text-lg text-blue-950 tracking-widest">{form.bankAccountNumber}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </section>
-                )}
-
-                {/* ─────────────────────────────────────────────────────────────
-                    TAB 7: FOOTER & POLICIES
-                ───────────────────────────────────────────────────────────── */}
-                {activeTab === 'footer' && (
-                    <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
-                        <div>
-                            <h2 className="text-base font-bold text-blue-950">Footer Description</h2>
-                            <p className="text-xs text-slate-500 mt-0.5">
-                                Brief introductory summary displayed beneath your logo in the website footer.
-                            </p>
-                        </div>
-
-                        <Field label="Footer Description Text">
-                            <textarea
-                                rows={4}
-                                value={form.footerText}
-                                onChange={(e) => set('footerText', e.target.value)}
-                                className={inputClass}
-                                placeholder="Authentic comfort for Nigerian homes. Quality mattresses, pillows, and furniture from trusted brands."
-                            />
-                        </Field>
-                    </section>
-                )}
-
-                {/* Bottom Save Bar */}
-                <div className="pt-6 border-t border-stone-200/80 flex items-center justify-between">
-                    <p className="text-xs text-slate-400">
-                        Changes will be published immediately across the storefront.
-                    </p>
-                    <button
-                        type="submit"
-                        disabled={saving}
-                        className="inline-flex items-center gap-2 bg-blue-950 text-white px-8 py-3 rounded-xl text-sm font-semibold hover:bg-sky-800 transition-all shadow-md shadow-blue-950/10 disabled:opacity-60"
-                    >
-                        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                        {saving ? 'Saving changes...' : 'Save All Changes'}
-                    </button>
-                </div>
-            </form>
+      {/* ── Sticky top bar ── */}
+      <div className="sticky top-0 z-10 bg-[#f7f6f3] border-b border-stone-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-sm font-bold text-blue-950">Site customiser</h1>
+          <p className="text-[11px] text-stone-400">Click a section to edit its content</p>
         </div>
-    )
+        <div className="flex items-center gap-2">
+          <a href="/" target="_blank" rel="noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-stone-200 bg-white rounded-xl text-xs font-semibold text-stone-600 hover:bg-stone-50 transition-colors">
+            <Eye className="w-3.5 h-3.5" />
+            Preview
+          </a>
+          <button type="button" onClick={() => save()} disabled={saving}
+            className="inline-flex items-center gap-1.5 bg-blue-950 text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-sky-700 disabled:opacity-60 transition-colors">
+            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+            {saving ? 'Saving…' : 'Save'}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Body: sidebar + content ── */}
+      <div className="flex flex-1 overflow-hidden">
+
+        {/* ── Sidebar ── */}
+        <aside className="w-full max-w-[300px] shrink-0 border-r border-stone-200 bg-white overflow-y-auto hidden md:block">
+          <form onSubmit={save}>
+
+            {/* Sections group */}
+            <div className="px-3 pt-4 pb-1">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 px-2 mb-1">
+                Page sections
+              </p>
+            </div>
+            {pagesSections.map((s) => (
+              <SidebarItem key={s.id} section={s} isOpen={open === s.id}
+                onToggle={() => toggle(s.id)}>
+                <SectionFields id={s.id} form={form} set={set} />
+              </SidebarItem>
+            ))}
+
+            {/* Theme settings group */}
+            <div className="px-3 pt-5 pb-1 border-t border-stone-100 mt-2">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 px-2 mb-1">
+                Theme settings
+              </p>
+            </div>
+            {settingsSections.map((s) => (
+              <SidebarItem key={s.id} section={s} isOpen={open === s.id}
+                onToggle={() => toggle(s.id)}>
+                <SectionFields id={s.id} form={form} set={set} />
+              </SidebarItem>
+            ))}
+
+            <div className="px-4 py-4 border-t border-stone-100 mt-2">
+              <button type="submit" disabled={saving}
+                className="w-full inline-flex items-center justify-center gap-2 bg-blue-950 text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-sky-700 disabled:opacity-60 transition-colors">
+                {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                {saving ? 'Saving…' : 'Save changes'}
+              </button>
+            </div>
+          </form>
+        </aside>
+
+        {/* ── Mobile: full-width accordion ── */}
+        <div className="md:hidden w-full overflow-y-auto">
+          <form onSubmit={save} className="p-4 space-y-2">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 px-1 mb-3">
+              Page sections
+            </p>
+            {pagesSections.map((s) => (
+              <MobileItem key={s.id} section={s} isOpen={open === s.id}
+                onToggle={() => toggle(s.id)}>
+                <SectionFields id={s.id} form={form} set={set} />
+              </MobileItem>
+            ))}
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 px-1 mt-5 mb-3">
+              Theme settings
+            </p>
+            {settingsSections.map((s) => (
+              <MobileItem key={s.id} section={s} isOpen={open === s.id}
+                onToggle={() => toggle(s.id)}>
+                <SectionFields id={s.id} form={form} set={set} />
+              </MobileItem>
+            ))}
+            <button type="submit" disabled={saving}
+              className="w-full mt-4 inline-flex items-center justify-center gap-2 bg-blue-950 text-white px-4 py-3 rounded-xl text-xs font-semibold hover:bg-sky-700 disabled:opacity-60 transition-colors">
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              Save all changes
+            </button>
+          </form>
+        </div>
+
+        {/* ── Right: context panel (desktop) ── */}
+        <div className="hidden md:flex flex-1 items-center justify-center bg-stone-50 p-8">
+          {open ? (
+            <ContextPanel id={open} form={form} />
+          ) : (
+            <div className="text-center max-w-xs">
+              <div className="w-16 h-16 bg-stone-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <LayoutTemplate className="w-7 h-7 text-stone-300" />
+              </div>
+              <p className="text-sm font-semibold text-blue-950 mb-2">Select a section to edit</p>
+              <p className="text-xs text-stone-400 leading-relaxed">
+                Click any section in the left panel to edit its content. Changes publish instantly when you save.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
 }
 
-const inputClass =
-    'w-full px-4 py-3 border border-stone-200 rounded-xl text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/10 transition-all text-blue-950 bg-white'
+// ─── Sidebar item (desktop) ────────────────────────────────────────────────────
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-    return (
-        <label className="block space-y-1.5">
-            <span className="text-xs font-semibold text-slate-700">{label}</span>
-            {children}
-        </label>
-    )
-}
-
-function ColorField({
-    label,
-    description,
-    value,
-    onChange,
-}: {
-    label: string
-    description: string
-    value: string
-    onChange: (value: string) => void
+function SidebarItem({ section, isOpen, onToggle, children }: {
+  section: SectionDef
+  isOpen: boolean
+  onToggle: () => void
+  children: React.ReactNode
 }) {
-    return (
-        <div className="space-y-2">
-            <div>
-                <span className="text-xs font-semibold text-slate-700 block">{label}</span>
-                <span className="text-[11px] text-slate-400 block">{description}</span>
-            </div>
-            <div className="flex items-center gap-3">
-                <input
-                    type="color"
-                    value={/^#([0-9A-Fa-f]{6})$/.test(value) ? value : '#172554'}
-                    onChange={(e) => onChange(e.target.value)}
-                    className="h-11 w-14 rounded-xl border border-stone-200 cursor-pointer bg-white p-1 shadow-sm"
-                />
-                <input
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    className={inputClass}
-                    placeholder="#172554"
-                />
-            </div>
+  const Icon = section.icon
+  return (
+    <div className={`border-l-2 transition-colors ${isOpen ? 'border-sky-600' : 'border-transparent'}`}>
+      <button
+        type="button"
+        onClick={onToggle}
+        className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-stone-50 ${
+          isOpen ? 'bg-sky-50/60' : ''
+        }`}
+      >
+        <Icon className={`w-4 h-4 shrink-0 ${isOpen ? 'text-sky-600' : 'text-stone-400'}`} />
+        <div className="flex-1 min-w-0">
+          <p className={`text-xs font-semibold ${isOpen ? 'text-sky-700' : 'text-blue-950'}`}>
+            {section.label}
+          </p>
+          <p className="text-[11px] text-stone-400 truncate">{section.hint}</p>
         </div>
-    )
+        <ChevronRight className={`w-3.5 h-3.5 text-stone-300 transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+      </button>
+      {isOpen && (
+        <div className="px-4 pb-4 pt-1 space-y-4 bg-sky-50/30 border-t border-sky-100/50">
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Mobile item ───────────────────────────────────────────────────────────────
+
+function MobileItem({ section, isOpen, onToggle, children }: {
+  section: SectionDef
+  isOpen: boolean
+  onToggle: () => void
+  children: React.ReactNode
+}) {
+  const Icon = section.icon
+  return (
+    <div className="border border-stone-200 rounded-xl overflow-hidden bg-white">
+      <button type="button" onClick={onToggle}
+        className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
+        <Icon className={`w-4 h-4 shrink-0 ${isOpen ? 'text-sky-600' : 'text-stone-400'}`} />
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold text-blue-950">{section.label}</p>
+          <p className="text-[11px] text-stone-400 truncate">{section.hint}</p>
+        </div>
+        <ChevronDown className={`w-4 h-4 text-stone-300 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+      {isOpen && (
+        <div className="px-4 pb-4 pt-1 space-y-4 border-t border-stone-100">
+          {children}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Context panel (right side, desktop only) ─────────────────────────────────
+
+function ContextPanel({ id, form }: { id: SectionId; form: SiteSettingsData }) {
+  const descriptions: Partial<Record<SectionId, { title: string; description: string; where: string }>> = {
+    announcement: { title: 'Announcement bar', description: 'A thin message banner shown at the very top of every page.', where: 'Visible on all pages, above the header' },
+    hero:         { title: 'Hero section',    description: 'The full-screen image with headline at the top of the homepage. Used when no active Banners exist.', where: 'Homepage — top of page' },
+    story_1:      { title: 'Story block 1',   description: 'Your "who we are" narrative with a featured image.', where: 'Homepage — below the hero' },
+    story_2:      { title: 'Story block 2',   description: 'Your "our promise" or quality guarantee statement.', where: 'Homepage — beside story block 1' },
+    story_stats:  { title: 'Story stats',     description: 'The two highlighted numbers (e.g. 07 Partner Brands).', where: 'Homepage — below the story text' },
+    featured:     { title: 'Featured products', description: 'The heading above the best-sellers product grid.', where: 'Homepage — best-sellers section' },
+    collections:  { title: 'Collections',    description: 'The heading above the category tiles grid.', where: 'Homepage — category section' },
+    promo:        { title: 'Promo banner',    description: 'A full-bleed image with headline and CTA button.', where: 'Homepage — between collections and featured products' },
+    products_page:{ title: 'Products page',  description: 'The title and tagline at the top of the /products page.', where: 'Products catalogue page — top header' },
+    general:      { title: 'Store details',  description: 'Your store name, tagline, and logo.', where: 'Header, browser tab, and SEO' },
+    colors:       { title: 'Brand colours',  description: 'Primary, accent, and background colours used throughout the store.', where: 'Applied site-wide to buttons, headers, and sections' },
+    fonts:        { title: 'Typography',     description: 'Heading font (product names, titles) and body font (paragraphs and menus).', where: 'Applied site-wide' },
+    contact:      { title: 'Contact info',   description: 'Store address, email, WhatsApp, and phone number.', where: 'Footer, contact page, and checkout' },
+    socials:      { title: 'Social media',   description: 'Links to your social media profiles.', where: 'Footer and contact page' },
+    payments:     { title: 'Payment details', description: 'Bank transfer account details shown to customers at checkout.', where: 'Checkout success page and checkout form' },
+    footer:       { title: 'Footer',         description: 'Short description text beneath your logo in the footer.', where: 'Site footer — all pages' },
+  }
+
+  const info = descriptions[id]
+  if (!info) return null
+
+  return (
+    <div className="max-w-sm w-full space-y-6">
+      {/* What this controls */}
+      <div className="bg-white border border-stone-200 rounded-2xl p-6 space-y-3">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-600">You are editing</p>
+        <h2 className="text-lg font-bold text-blue-950">{info.title}</h2>
+        <p className="text-sm text-stone-500 leading-relaxed">{info.description}</p>
+        <div className="flex items-center gap-2 pt-1">
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">Shown on:</span>
+          <span className="text-xs font-semibold text-blue-950 bg-stone-100 px-2.5 py-1 rounded-lg">{info.where}</span>
+        </div>
+      </div>
+
+      {/* Live preview snippet for colors */}
+      {id === 'colors' && (
+        <div className="bg-white border border-stone-200 rounded-2xl p-5 space-y-3">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">Colour preview</p>
+          <div className="p-4 rounded-xl space-y-2" style={{ backgroundColor: form.backgroundColor }}>
+            <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 text-white rounded-full"
+              style={{ backgroundColor: form.accentColor }}>
+              In Stock · Abuja
+            </span>
+            <p className="font-bold text-lg" style={{ color: form.primaryColor, fontFamily: form.headingFont }}>
+              Mouka Monalisa Mattress
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="font-black" style={{ color: form.primaryColor }}>₦185,000</span>
+              <button type="button" className="px-3 py-1.5 text-white text-xs font-bold rounded"
+                style={{ backgroundColor: form.primaryColor }}>
+                Add to bag
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <p className="text-xs text-stone-400 text-center">
+        Edit the fields in the left panel, then click <strong>Save</strong>.
+      </p>
+    </div>
+  )
+}
+
+// ─── Section fields ────────────────────────────────────────────────────────────
+
+function SectionFields({
+  id, form, set,
+}: {
+  id: SectionId
+  form: SiteSettingsData
+  set: <K extends keyof SiteSettingsData>(k: K, v: SiteSettingsData[K]) => void
+}) {
+  const inp2 = `${inp} text-xs py-2`
+
+  switch (id) {
+
+    // ── Announcement bar ────────────────────────────────────────────────────
+    case 'announcement':
+      return (
+        <>
+          <div className="flex items-center justify-between py-1">
+            <span className="text-xs font-semibold text-blue-950">Show bar</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" checked={form.announcementEnabled}
+                onChange={(e) => set('announcementEnabled', e.target.checked)}
+                className="sr-only peer" />
+              <div className="w-9 h-5 bg-stone-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-950" />
+            </label>
+          </div>
+          <F label="Message">
+            <input value={form.announcementText || ''} onChange={(e) => set('announcementText', e.target.value)}
+              className={inp2} placeholder="Free delivery on orders above ₦150,000" />
+          </F>
+          <F label="Link" hint="Where to send clicks (optional)">
+            <input value={form.announcementLink || ''} onChange={(e) => set('announcementLink', e.target.value || null)}
+              className={inp2} placeholder="/products" />
+          </F>
+        </>
+      )
+
+    // ── Hero ────────────────────────────────────────────────────────────────
+    case 'hero':
+      return (
+        <>
+          <div className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed">
+            Active Banners override these fields. Go to <strong>Banners</strong> to add image slides.
+          </div>
+          <F label="Headline">
+            <input value={form.heroTitle} onChange={(e) => set('heroTitle', e.target.value)}
+              className={inp2} placeholder="Sleep Like It Matters" />
+          </F>
+          <F label="Subtext">
+            <input value={form.heroSubtitle} onChange={(e) => set('heroSubtitle', e.target.value)}
+              className={inp2} placeholder="Original mattresses from Nigeria's most trusted brands." />
+          </F>
+          <F label="Button label">
+            <input value={form.heroCtaLabel} onChange={(e) => set('heroCtaLabel', e.target.value)}
+              className={inp2} placeholder="Shop the Collection" />
+          </F>
+          <F label="Button link">
+            <input value={form.heroCtaHref} onChange={(e) => set('heroCtaHref', e.target.value)}
+              className={inp2} placeholder="/products" />
+          </F>
+        </>
+      )
+
+    // ── Story block 1 ────────────────────────────────────────────────────────
+    case 'story_1':
+      return (
+        <>
+          <F label="Badge">
+            <input value={form.storyBadge} onChange={(e) => set('storyBadge', e.target.value)}
+              className={inp2} placeholder="Our Story" />
+          </F>
+          <F label="Headline">
+            <input value={form.storyTitle} onChange={(e) => set('storyTitle', e.target.value)}
+              className={inp2} placeholder="The Real Thing, Delivered to Your Door." />
+          </F>
+          <F label="Paragraph">
+            <textarea rows={4} value={form.storyText} onChange={(e) => set('storyText', e.target.value)}
+              className={`${inp2} resize-none`} placeholder="Tell your brand story…" />
+          </F>
+          <F label="Image">
+            <CloudinaryUpload
+              value={form.storyImageUrl ? [form.storyImageUrl] : []}
+              onChange={(urls) => set('storyImageUrl', urls[urls.length - 1] || null)}
+              maxFiles={1} label="Upload image" />
+            <input type="url" value={form.storyImageUrl || ''}
+              onChange={(e) => set('storyImageUrl', e.target.value || null)}
+              className={`${inp2} mt-1.5`} placeholder="Or paste image URL" />
+          </F>
+        </>
+      )
+
+    // ── Story block 2 ────────────────────────────────────────────────────────
+    case 'story_2':
+      return (
+        <>
+          <F label="Badge">
+            <input value={form.storySecondaryBadge} onChange={(e) => set('storySecondaryBadge', e.target.value)}
+              className={inp2} placeholder="Our Promise" />
+          </F>
+          <F label="Headline">
+            <input value={form.storySecondaryTitle} onChange={(e) => set('storySecondaryTitle', e.target.value)}
+              className={inp2} placeholder="Factory-Direct. Sealed. Guaranteed." />
+          </F>
+          <F label="Paragraph">
+            <textarea rows={4} value={form.storySecondaryText} onChange={(e) => set('storySecondaryText', e.target.value)}
+              className={`${inp2} resize-none`} placeholder="Describe your quality guarantee…" />
+          </F>
+        </>
+      )
+
+    // ── Story stats ──────────────────────────────────────────────────────────
+    case 'story_stats':
+      return (
+        <>
+          <F label="Stat 1 — number">
+            <input value={form.statOneValue} onChange={(e) => set('statOneValue', e.target.value)}
+              className={inp2} placeholder="07" />
+          </F>
+          <F label="Stat 1 — label">
+            <input value={form.statOneBadge} onChange={(e) => set('statOneBadge', e.target.value)}
+              className={inp2} placeholder="Partner Brands" />
+          </F>
+          <F label="Stat 2 — number">
+            <input value={form.statTwoValue} onChange={(e) => set('statTwoValue', e.target.value)}
+              className={inp2} placeholder="100%" />
+          </F>
+          <F label="Stat 2 — label">
+            <input value={form.statTwoBadge} onChange={(e) => set('statTwoBadge', e.target.value)}
+              className={inp2} placeholder="Original Stock" />
+          </F>
+          <F label="Link label">
+            <input value={form.storyLinkLabel} onChange={(e) => set('storyLinkLabel', e.target.value)}
+              className={inp2} placeholder="Our full story →" />
+          </F>
+        </>
+      )
+
+    // ── Featured products ────────────────────────────────────────────────────
+    case 'featured':
+      return (
+        <>
+          <F label="Heading">
+            <input value={form.featuredTitle} onChange={(e) => set('featuredTitle', e.target.value)}
+              className={inp2} placeholder="What people keep coming back for." />
+          </F>
+          <F label="Description">
+            <input value={form.featuredDescription} onChange={(e) => set('featuredDescription', e.target.value)}
+              className={inp2} placeholder="Our most-loved pieces — or browse everything we carry." />
+          </F>
+        </>
+      )
+
+    // ── Collections ──────────────────────────────────────────────────────────
+    case 'collections':
+      return (
+        <>
+          <F label="Heading">
+            <input value={form.collectionsTitle} onChange={(e) => set('collectionsTitle', e.target.value)}
+              className={inp2} placeholder="Shop by category" />
+          </F>
+          <F label="Description">
+            <input value={form.collectionsDescription} onChange={(e) => set('collectionsDescription', e.target.value)}
+              className={inp2} placeholder="Mattresses, pillows, furniture…" />
+          </F>
+        </>
+      )
+
+    // ── Promo banner ─────────────────────────────────────────────────────────
+    case 'promo':
+      return (
+        <>
+          <F label="Badge">
+            <input value={form.promoBadge} onChange={(e) => set('promoBadge', e.target.value)}
+              className={inp2} placeholder="Crafted for Nigerian homes" />
+          </F>
+          <F label="Headline">
+            <input value={form.promoTitle} onChange={(e) => set('promoTitle', e.target.value)}
+              className={inp2} placeholder="Spaces worth living in." />
+          </F>
+          <F label="Button label">
+            <input value={form.promoCtaLabel} onChange={(e) => set('promoCtaLabel', e.target.value)}
+              className={inp2} placeholder="Shop the collection" />
+          </F>
+          <F label="Button link">
+            <input value={form.promoCtaHref} onChange={(e) => set('promoCtaHref', e.target.value)}
+              className={inp2} placeholder="/products" />
+          </F>
+          <F label="Background image">
+            <CloudinaryUpload
+              value={form.promoImageUrl ? [form.promoImageUrl] : []}
+              onChange={(urls) => set('promoImageUrl', urls[urls.length - 1] || null)}
+              maxFiles={1} label="Upload image" />
+            <input type="url" value={form.promoImageUrl || ''}
+              onChange={(e) => set('promoImageUrl', e.target.value || null)}
+              className={`${inp2} mt-1.5`} placeholder="Or paste image URL" />
+          </F>
+        </>
+      )
+
+    // ── Products page ────────────────────────────────────────────────────────
+    case 'products_page':
+      return (
+        <>
+          <F label="Page title">
+            <input value={form.shopPageTitle} onChange={(e) => set('shopPageTitle', e.target.value)}
+              className={inp2} placeholder="The Collection" />
+          </F>
+          <F label="Tagline">
+            <input value={form.shopPageTagline} onChange={(e) => set('shopPageTagline', e.target.value)}
+              className={inp2} placeholder="Original mattresses, luxury furniture and bedding." />
+          </F>
+        </>
+      )
+
+    // ── General ──────────────────────────────────────────────────────────────
+    case 'general':
+      return (
+        <>
+          <F label="Store name">
+            <input required value={form.siteName} onChange={(e) => set('siteName', e.target.value)}
+              className={inp2} placeholder="Smart Best Brands" />
+          </F>
+          <F label="Tagline" hint="Shown as the hero eyebrow and in SEO.">
+            <input value={form.tagline} onChange={(e) => set('tagline', e.target.value)}
+              className={inp2} placeholder="Quality mattresses, pillows & furniture" />
+          </F>
+          <F label="Logo image" hint="Leave blank to use the store name as text.">
+            <CloudinaryUpload
+              value={form.logoUrl ? [form.logoUrl] : []}
+              onChange={(urls) => set('logoUrl', urls[urls.length - 1] || null)}
+              maxFiles={1} label="Upload logo" />
+            <input type="url" value={form.logoUrl || ''}
+              onChange={(e) => set('logoUrl', e.target.value || null)}
+              className={`${inp2} mt-1.5`} placeholder="Or paste logo URL" />
+          </F>
+          {/* Logo preview */}
+          <div className="p-4 bg-blue-950 rounded-xl flex items-center justify-center">
+            {form.logoUrl
+              ? <img src={form.logoUrl} alt="" className="h-8 object-contain max-w-full" />
+              : <span className="text-white font-black text-sm tracking-widest">{form.siteName.toUpperCase()}</span>
+            }
+          </div>
+        </>
+      )
+
+    // ── Colors ───────────────────────────────────────────────────────────────
+    case 'colors':
+      return (
+        <>
+          {/* Presets */}
+          <div className="grid grid-cols-2 gap-2">
+            {COLOR_PRESETS.map((p) => (
+              <button key={p.name} type="button"
+                onClick={() => { set('primaryColor', p.primary); set('accentColor', p.accent); set('backgroundColor', p.bg) }}
+                className="p-2.5 border border-stone-200 rounded-xl bg-stone-50 hover:border-sky-400 text-left transition-all">
+                <div className="flex gap-1 mb-1">
+                  <span className="w-4 h-4 rounded-full" style={{ backgroundColor: p.primary }} />
+                  <span className="w-4 h-4 rounded-full" style={{ backgroundColor: p.accent }} />
+                  <span className="w-4 h-4 rounded-full border border-stone-200" style={{ backgroundColor: p.bg }} />
+                </div>
+                <span className="text-[10px] font-semibold text-slate-600">{p.name}</span>
+              </button>
+            ))}
+          </div>
+          {/* Custom pickers */}
+          {[
+            { label: 'Primary', hint: 'Buttons & header', key: 'primaryColor' as const },
+            { label: 'Accent',  hint: 'Links & badges',   key: 'accentColor' as const },
+            { label: 'Background', hint: 'Page BG',       key: 'backgroundColor' as const },
+          ].map(({ label, hint, key }) => (
+            <F key={key} label={label} hint={hint}>
+              <div className="flex items-center gap-2">
+                <input type="color"
+                  value={/^#([0-9A-Fa-f]{6})$/.test(form[key]) ? form[key] : '#172554'}
+                  onChange={(e) => set(key, e.target.value)}
+                  className="h-9 w-10 rounded-lg border border-stone-200 cursor-pointer p-0.5 shrink-0" />
+                <input value={form[key]} onChange={(e) => set(key, e.target.value)}
+                  className={`${inp2} flex-1`} placeholder="#172554" />
+              </div>
+            </F>
+          ))}
+        </>
+      )
+
+    // ── Fonts ────────────────────────────────────────────────────────────────
+    case 'fonts':
+      return (
+        <>
+          <F label="Heading font" hint={`Current: ${form.headingFont}`}>
+            <div className="space-y-1.5">
+              {HEADING_FONTS.map((f) => {
+                const active = form.headingFont === f.name
+                return (
+                  <button key={f.name} type="button" onClick={() => set('headingFont', f.name)}
+                    className={`w-full flex items-center justify-between px-3 py-2 border rounded-lg text-left transition-all text-xs ${
+                      active ? 'border-blue-950 bg-blue-950 text-white' : 'border-stone-200 bg-white hover:border-stone-300 text-blue-950'
+                    }`}>
+                    <span className="font-semibold" style={{ fontFamily: f.name }}>{f.label}</span>
+                    {active && <CheckCircle2 className="w-3.5 h-3.5 text-sky-400 shrink-0" />}
+                  </button>
+                )
+              })}
+            </div>
+          </F>
+          <F label="Body font" hint={`Current: ${form.bodyFont}`}>
+            <div className="space-y-1.5">
+              {BODY_FONTS.map((f) => {
+                const active = form.bodyFont === f.name
+                return (
+                  <button key={f.name} type="button" onClick={() => set('bodyFont', f.name)}
+                    className={`w-full flex items-center justify-between px-3 py-2 border rounded-lg text-left transition-all text-xs ${
+                      active ? 'border-blue-950 bg-blue-950 text-white' : 'border-stone-200 bg-white hover:border-stone-300 text-blue-950'
+                    }`}>
+                    <span className="font-semibold" style={{ fontFamily: f.name }}>{f.label}</span>
+                    {active && <CheckCircle2 className="w-3.5 h-3.5 text-sky-400 shrink-0" />}
+                  </button>
+                )
+              })}
+            </div>
+          </F>
+        </>
+      )
+
+    // ── Contact ──────────────────────────────────────────────────────────────
+    case 'contact':
+      return (
+        <>
+          <F label="Store address">
+            <input value={form.storeAddress} onChange={(e) => set('storeAddress', e.target.value)}
+              className={inp2} placeholder="Abuja · Benin City" />
+          </F>
+          <F label="Email">
+            <input type="email" required value={form.contactEmail}
+              onChange={(e) => set('contactEmail', e.target.value)}
+              className={inp2} placeholder="hello@smartbestbrands.com" />
+          </F>
+          <F label="WhatsApp" hint="Digits only, with country code">
+            <input value={form.whatsappNumber || ''} onChange={(e) => set('whatsappNumber', e.target.value || null)}
+              className={inp2} placeholder="2348012345678" />
+          </F>
+          <F label="Support phone">
+            <input value={form.supportPhone || ''} onChange={(e) => set('supportPhone', e.target.value || null)}
+              className={inp2} placeholder="+234 800 000 0000" />
+          </F>
+        </>
+      )
+
+    // ── Socials ──────────────────────────────────────────────────────────────
+    case 'socials':
+      return (
+        <>
+          {([
+            ['Instagram', 'instagramUrl', 'https://instagram.com/…'],
+            ['Facebook',  'facebookUrl',  'https://facebook.com/…'],
+            ['Twitter / X', 'twitterUrl', 'https://x.com/…'],
+            ['TikTok',    'tiktokUrl',    'https://tiktok.com/…'],
+          ] as [string, keyof SiteSettingsData, string][]).map(([label, key, ph]) => (
+            <F key={key} label={label}>
+              <input type="url" value={(form[key] as string) || ''}
+                onChange={(e) => set(key, e.target.value || null)}
+                className={inp2} placeholder={ph} />
+            </F>
+          ))}
+        </>
+      )
+
+    // ── Payments ─────────────────────────────────────────────────────────────
+    case 'payments':
+      return (
+        <>
+          <F label="Bank name">
+            <input value={form.bankName || ''} onChange={(e) => set('bankName', e.target.value || null)}
+              className={inp2} placeholder="Moniepoint MFB / Zenith Bank" />
+          </F>
+          <F label="Account name">
+            <input value={form.bankAccountName || ''} onChange={(e) => set('bankAccountName', e.target.value || null)}
+              className={inp2} placeholder="Smart Best Brands Nigeria" />
+          </F>
+          <F label="Account number">
+            <input value={form.bankAccountNumber || ''} onChange={(e) => set('bankAccountNumber', e.target.value || null)}
+              className={inp2} placeholder="0123456789" inputMode="numeric" />
+          </F>
+        </>
+      )
+
+    // ── Footer ───────────────────────────────────────────────────────────────
+    case 'footer':
+      return (
+        <F label="Footer description text">
+          <textarea rows={3} value={form.footerText} onChange={(e) => set('footerText', e.target.value)}
+            className={`${inp2} resize-none`}
+            placeholder="Original mattresses, luxury furniture, and bedding — factory-direct, delivered to your door." />
+        </F>
+      )
+
+    default:
+      return null
+  }
 }
