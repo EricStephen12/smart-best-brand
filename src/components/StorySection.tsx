@@ -11,12 +11,12 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
   const containerRef = useRef(null)
   const settings = useSiteSettings()
 
-  const storyBadge = settings.storyBadge || 'Who We Are'
+  const storyBadge = settings.storyBadge || 'Our Story'
   const storyTitle = settings.storyTitle || 'The Real Thing, Delivered to Your Door.'
-  const storyText = settings.storyText || "We built Smart Best Brands around one frustration: too many Nigerians were paying full price for fake foam. So we went directly to the source — authorised distributors for Mouka, Vitafoam, Royal Foam, and more — and made genuine quality accessible."
+  const storyText = settings.storyText || "We built Smart Best Brands around one frustration: too many Nigerians were paying full price for fake foam. So we went directly to the source — authorised distributors for Mouka, Vitafoam, Royal Foam, and more — and made genuine quality accessible to every home."
   const secondaryBadge = settings.storySecondaryBadge || 'Our Promise'
   const secondaryTitle = settings.storySecondaryTitle || 'Factory-Direct. Sealed. Guaranteed.'
-  const secondaryText = settings.storySecondaryText || 'Every mattress leaves the factory in its original packaging and arrives at your door the same way. Original warranty card intact. No middlemen, no substitutions, no surprises.'
+  const secondaryText = settings.storySecondaryText || 'Every piece leaves the factory in its original packaging and arrives at your door the same way — warranty card intact, seal unbroken. No middlemen, no substitutions, no surprises.'
   const mainImage = settings.storyImageUrl || '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg'
 
   return (
@@ -91,17 +91,17 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
               <div className="flex gap-12">
                 <div>
                   <h4 className="font-black text-4xl text-blue-950 leading-none mb-2">{brandCount ? brandCount.toString().padStart(2, '0') : '07'}</h4>
-                  <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">Trusted Brands</p>
+                  <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">Partner Brands</p>
                 </div>
                 <div>
-                  <h4 className="font-black text-4xl text-blue-950 leading-none mb-2">24/7</h4>
-                  <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">Real Support</p>
+                  <h4 className="font-black text-4xl text-blue-950 leading-none mb-2">100%</h4>
+                  <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">Original Stock</p>
                 </div>
               </div>
 
               <div className="pt-6">
                 <Link href="/about" className="text-[10px] font-black tracking-[0.3em] text-blue-950 uppercase border-b-2 border-sky-600 pb-2 hover:text-sky-600 transition-colors inline-block">
-                  Learn More About Us
+                  Our full story →
                 </Link>
               </div>
             </motion.div>
@@ -113,14 +113,14 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
               <div className="col-span-8">
                 <RevealImage
                   src="/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg"
-                  alt="Mattress Detail"
+                  alt="A bedroom styled with quality furniture and bedding"
                   className="aspect-square rounded-xl"
                 />
               </div>
               <div className="col-span-4 self-end">
                 <RevealImage
                   src="/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg"
-                  alt="Fabric Texture"
+                  alt="Premium bedding and mattress texture"
                   className="aspect-[3/4] rounded-lg"
                 />
               </div>

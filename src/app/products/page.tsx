@@ -68,20 +68,20 @@ export default async function ProductsPage() {
 
   return (
     <div className="pt-16 sm:pt-20">
-      {/* Editorial page header */}
+      {/* Page header — owns the sole heading for this page */}
       <div className="border-b border-blue-950/5 bg-white pt-10 pb-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pb-8">
             <div>
               <p className="text-[10px] font-black tracking-[0.35em] uppercase text-sky-600 mb-2">
-                Catalogue
+                Smart Best Brands
               </p>
               <h1 className="font-display text-4xl sm:text-5xl font-semibold text-blue-950 tracking-tight leading-none">
-                All Products
+                The Collection
               </h1>
             </div>
             <p className="text-sm text-stone-400 max-w-xs leading-relaxed">
-              Factory-direct mattresses, pillows, and furniture — every piece original and warranted.
+              Original mattresses, luxury furniture, and bedding — every piece factory-sealed and warranted.
             </p>
           </div>
         </div>

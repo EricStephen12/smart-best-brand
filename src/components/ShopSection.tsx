@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Search, SlidersHorizontal, X, Image as ImageIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import SectionHeading from '@/components/SectionHeading'
 import EditorialBackdrop from '@/components/EditorialBackdrop'
 
 type ShopBrand = { id: string; name: string }
@@ -148,14 +147,7 @@ export default function ShopSection({
       <EditorialBackdrop text="Shop" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-10 sm:mb-14">
-          <SectionHeading
-            eyebrow="Catalogue"
-            title="All products"
-            description="Mattresses, pillows & furniture — filter by brand, size, or price."
-            className="!mb-0"
-          />
-
-          <div className="w-full max-w-md relative group shrink-0">
+          <div className="w-full max-w-md relative group shrink-0 lg:ml-auto">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 group-focus-within:text-sky-700 transition-colors" />
             <input
               type="text"
