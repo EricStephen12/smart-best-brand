@@ -74,7 +74,7 @@ export default async function ProductsPage() {
   return (
     <div className="pt-16 sm:pt-20">
       {/* Page header — driven by site settings */}
-      <div className="border-b border-blue-950/5 bg-white pt-10 pb-0">
+      <div id="products-header" className="border-b border-blue-950/5 bg-white pt-10 pb-0 scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pb-8">
             <div>

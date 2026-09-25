@@ -18,7 +18,7 @@ export default function Footer() {
   const telHref = getTelHref(contact)
 
   return (
-    <footer className="bg-blue-950 text-white pt-16 sm:pt-20 pb-10 print:hidden">
+    <footer id="footer" className="bg-blue-950 text-white pt-16 sm:pt-20 pb-10 print:hidden scroll-mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-14">
           <div>

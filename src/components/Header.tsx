@@ -37,6 +37,7 @@ export default function Header() {
 
   return (
     <header
+      id="header"
       className={`${isHome ? 'fixed' : 'sticky'} top-0 left-0 right-0 z-50 print:hidden transition-all duration-500 will-change-transform ${
         overHero
           ? 'bg-transparent border-transparent'
@@ -45,7 +46,7 @@ export default function Header() {
     >
       {/* Announcement bar */}
       {settings.announcementEnabled && settings.announcementText && (
-        <div className="bg-[var(--brand-primary)] text-white text-center py-2 px-4 text-xs font-semibold tracking-wide border-b border-white/10">
+        <div id="announcement" className="bg-[var(--brand-primary)] text-white text-center py-2 px-4 text-xs font-semibold tracking-wide border-b border-white/10">
           {settings.announcementLink ? (
             <Link
               href={settings.announcementLink}

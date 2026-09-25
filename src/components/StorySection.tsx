@@ -27,12 +27,12 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
   const storyLinkLabel = settings.storyLinkLabel || 'Our full story →'
 
   return (
-    <section ref={containerRef} className="relative py-16 sm:py-24 md:py-28 bg-white overflow-hidden border-y border-blue-950/5">
+    <section ref={containerRef} id="story" className="relative py-16 sm:py-24 md:py-28 bg-white overflow-hidden border-y border-blue-950/5 scroll-mt-16">
       <EditorialBackdrop text="Rest" size="xl" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Editorial Layout 1 */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center mb-16 sm:mb-24 md:mb-28">
+        <div id="story-1" className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center mb-16 sm:mb-24 md:mb-28 scroll-mt-24">
 
           {/* Main Large Image */}
           <div className="lg:col-span-7">
@@ -70,7 +70,7 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
         </div>
 
         {/* Editorial Layout 2 */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+        <div id="story-2" className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center scroll-mt-24">
 
           {/* Content Left */}
           <div className="lg:col-span-5 order-2 lg:order-1">
@@ -95,7 +95,7 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
                 {secondaryText}
               </p>
 
-              <div className="flex gap-12">
+              <div id="story-stats" className="flex gap-12 scroll-mt-24">
                 <div>
                   <h4 className="font-black text-4xl text-blue-950 leading-none mb-2">{statOneValue}</h4>
                   <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">{statOneBadge}</p>

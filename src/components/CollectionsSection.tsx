@@ -28,7 +28,7 @@ export default function CollectionsSection({ collections }: { collections: Colle
   const collectionsDescription = settings.collectionsDescription || 'Mattresses, pillows, furniture — find exactly what your space is missing.'
 
   return (
-    <section className="relative bg-white py-16 sm:py-20 md:py-24 border-t border-blue-950/5 overflow-hidden">
+    <section id="collections" className="relative bg-white py-16 sm:py-20 md:py-24 border-t border-blue-950/5 overflow-hidden scroll-mt-16">
       <EditorialBackdrop text="Collect" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading

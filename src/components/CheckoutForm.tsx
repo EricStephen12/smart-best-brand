@@ -58,6 +58,9 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
     if (!idempotencyKeyRef.current) {
       idempotencyKeyRef.current = `chk_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
     }
+    if (typeof window !== 'undefined' && window.location.hash === '#payments') {
+      setPaymentMethod('bank_transfer')
+    }
   }, [])
 
   // Auto-restore abandoned cart
@@ -464,7 +467,7 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
           <div className="border-t border-stone-100" />
 
           {/* Step 3: Payment */}
-          <section>
+          <section id="payments" className="scroll-mt-16">
             <StepLabel number={3} label="Payment method" />
             <div className="mt-5 space-y-2.5">
               <PaymentCard

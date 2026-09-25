@@ -57,7 +57,7 @@ export default function ContactClient() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div id="contact-info" className="grid grid-cols-1 sm:grid-cols-2 gap-4 scroll-mt-20">
               {whatsappUrl && (
                 <ContactInfo
                   icon={MessageCircle}

@@ -14,7 +14,7 @@ export default function PromoBanner() {
   const imageUrl = settings.promoImageUrl || '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg'
 
   return (
-    <section className="relative min-h-[42vh] sm:min-h-[50vh] flex items-center justify-center overflow-hidden">
+    <section id="promo" className="relative min-h-[42vh] sm:min-h-[50vh] flex items-center justify-center overflow-hidden scroll-mt-16">
       <Image
         src={imageUrl}
         alt={title}

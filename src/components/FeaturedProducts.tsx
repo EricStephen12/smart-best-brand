@@ -24,7 +24,7 @@ export default function FeaturedProducts({ products }: { products: FeaturedProdu
   const featuredDescription = settings.featuredDescription || 'Our most-loved pieces — or browse everything we carry.'
 
   return (
-    <section className="relative bg-white py-16 sm:py-20 md:py-24 overflow-hidden border-t border-blue-950/5">
+    <section id="featured" className="relative bg-white py-16 sm:py-20 md:py-24 overflow-hidden border-t border-blue-950/5 scroll-mt-16">
       <EditorialBackdrop text="Shop" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10 sm:mb-14">

@@ -91,7 +91,7 @@ export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }
   const eyebrow = settings.tagline || settings.siteName || 'Smart Best Brands'
 
   return (
-    <section className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-neutral-900">
+    <section id="hero" className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-neutral-900 scroll-mt-16">
       <AnimatePresence mode="wait">
         <motion.div
           key={slide.id}
