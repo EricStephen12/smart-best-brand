@@ -129,7 +129,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
     shopPageTagline: 'Original mattresses, luxury furniture, and bedding — every piece factory-sealed and warranted.',
 
     statOneBadge: 'Partner Brands',
-    statOneValue: '',
+    statOneValue: '07',
     statTwoBadge: 'Original Stock',
     statTwoValue: '100%',
     storyLinkLabel: 'Our full story →',

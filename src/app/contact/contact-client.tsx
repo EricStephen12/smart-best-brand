@@ -4,14 +4,20 @@ import React, { useState } from 'react';
 import { Mail, Phone, MessageCircle, Clock, Send, Instagram } from 'lucide-react';
 import { submitContactInquiry } from '@/actions/contact';
 import { getSupportPhone, getTelHref, getWhatsAppUrl, getContactEmail, getInstagramUrl } from '@/lib/contact-channels';
+import { useSiteSettings } from '@/components/site-settings-context';
 import toast from 'react-hot-toast';
 
 export default function ContactClient() {
-  const whatsappUrl = getWhatsAppUrl();
-  const supportPhone = getSupportPhone();
-  const telHref = getTelHref();
-  const contactEmail = getContactEmail();
-  const instagramUrl = getInstagramUrl();
+  const settings = useSiteSettings();
+  const contactOverrides = {
+    whatsappNumber: settings.whatsappNumber,
+    supportPhone: settings.supportPhone,
+  };
+  const whatsappUrl = getWhatsAppUrl(undefined, contactOverrides);
+  const supportPhone = settings.supportPhone || getSupportPhone(contactOverrides);
+  const telHref = getTelHref(contactOverrides);
+  const contactEmail = settings.contactEmail || getContactEmail();
+  const instagramUrl = settings.instagramUrl || getInstagramUrl();
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');

@@ -52,8 +52,7 @@ function toData(row: any): SiteSettingsData {
         facebookUrl: row.facebookUrl || null,
         twitterUrl: row.twitterUrl || null,
         tiktokUrl: row.tiktokUrl || null,
-
-    footerText: row.footerText || DEFAULT_SITE_SETTINGS.footerText,
+        footerText: row.footerText || DEFAULT_SITE_SETTINGS.footerText,
         bankName: row.bankName || null,
         bankAccountName: row.bankAccountName || null,
         bankAccountNumber: row.bankAccountNumber || null,
@@ -96,6 +95,19 @@ export async function updateSiteSettings(input: Partial<SiteSettingsData>) {
         if (!session || session.role !== 'ADMIN') {
             return { success: false, error: 'Unauthorized: Admin privileges required' }
         }
+
+        const normalizeHex = (c?: string | null) => {
+            if (!c) return undefined
+            let trimmed = c.trim()
+            if (!trimmed.startsWith('#') && /^[0-9A-Fa-f]{3,6}$/.test(trimmed)) {
+                trimmed = '#' + trimmed
+            }
+            return trimmed
+        }
+
+        if (input.primaryColor) input.primaryColor = normalizeHex(input.primaryColor)
+        if (input.accentColor) input.accentColor = normalizeHex(input.accentColor)
+        if (input.backgroundColor) input.backgroundColor = normalizeHex(input.backgroundColor)
 
         const colors = [
             input.primaryColor,
@@ -153,7 +165,11 @@ export async function updateSiteSettings(input: Partial<SiteSettingsData>) {
         if (input.storeAddress !== undefined) data.storeAddress = input.storeAddress.trim()
         if (input.contactEmail !== undefined) data.contactEmail = input.contactEmail.trim().toLowerCase()
         if (input.whatsappNumber !== undefined) {
-            data.whatsappNumber = input.whatsappNumber?.replace(/\D/g, '') || null
+            let digits = input.whatsappNumber?.replace(/\D/g, '') || null
+            if (digits && digits.startsWith('0') && digits.length === 11) {
+                digits = '234' + digits.slice(1)
+            }
+            data.whatsappNumber = digits
         }
         if (input.supportPhone !== undefined) data.supportPhone = input.supportPhone?.trim() || null
 
@@ -198,5 +214,33 @@ export async function updateSiteSettings(input: Partial<SiteSettingsData>) {
     } catch (error) {
         console.error('updateSiteSettings error:', error)
         return { success: false, error: 'Failed to save site settings' }
+    }
+}
+
+export async function resetSiteSettings() {
+    try {
+        const session = await getSession()
+        if (!session || session.role !== 'ADMIN') {
+            return { success: false, error: 'Unauthorized: Admin privileges required' }
+        }
+
+        const { id: _unusedId, ...defaultsWithoutId } = DEFAULT_SITE_SETTINGS
+        const updated = await prisma.siteSettings.upsert({
+            where: { id: 'default' },
+            create: {
+                id: 'default',
+                ...defaultsWithoutId,
+            },
+            update: {
+                ...defaultsWithoutId,
+            },
+        })
+
+        revalidatePath('/', 'layout')
+        revalidatePath('/account/site')
+        return { success: true, data: toData(updated) }
+    } catch (error) {
+        console.error('resetSiteSettings error:', error)
+        return { success: false, error: 'Failed to reset site settings' }
     }
 }

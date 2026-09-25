@@ -48,28 +48,32 @@ const HARDCODED_FALLBACKS: HeroBanner[] = [
 export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }) {
   const settings = useSiteSettings()
 
-  // Build a single settings-driven fallback slide if hero fields are configured
-  const settingsFallback: HeroBanner | null =
-    settings.heroTitle
-      ? {
-          id: 'settings-fallback',
-          title: settings.heroTitle,
-          subtitle: settings.heroSubtitle || null,
-          imageUrl: '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
-          ctaLabel: settings.heroCtaLabel || 'Shop the Collection',
-          ctaHref: settings.heroCtaHref || '/products',
-        }
-      : null
+  // The primary hero slide is directly controlled by Site Settings.
+  // When an admin edits Headline, Subtext, Button in Site Settings,
+  // the main hero banner reflects those edits in real-time.
+  const firstBanner = banners[0]
+  const primarySlide: HeroBanner = {
+    id: 'hero-primary',
+    title: settings.heroTitle || firstBanner?.title || 'Quality mattresses, pillows & furniture',
+    subtitle: settings.heroSubtitle ?? firstBanner?.subtitle ?? 'Authentic comfort for Nigerian homes',
+    imageUrl: firstBanner?.imageUrl || '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
+    ctaLabel: settings.heroCtaLabel || firstBanner?.ctaLabel || 'Shop products',
+    ctaHref: settings.heroCtaHref || firstBanner?.ctaHref || '/products',
+  }
 
-  // Priority: CMS banners > settings hero > hardcoded fallbacks
-  const slides =
-    banners.length > 0
-      ? banners
-      : settingsFallback
-      ? [settingsFallback, ...HARDCODED_FALLBACKS.slice(1)]
-      : HARDCODED_FALLBACKS
+  // Combine primary slide with any remaining CMS banner slides or fallbacks
+  const additionalSlides = banners.length > 1
+    ? banners.slice(1)
+    : HARDCODED_FALLBACKS.slice(1)
+
+  const slides = [primarySlide, ...additionalSlides]
 
   const [index, setIndex] = useState(0)
+
+  // Whenever hero settings change in customizer, immediately show slide 0
+  useEffect(() => {
+    setIndex(0)
+  }, [settings.heroTitle, settings.heroSubtitle, settings.heroCtaLabel, settings.heroCtaHref])
 
   useEffect(() => { setIndex(0) }, [slides.length])
 

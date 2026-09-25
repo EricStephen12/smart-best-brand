@@ -11,12 +11,12 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
   const containerRef = useRef(null)
   const settings = useSiteSettings()
 
-  const storyBadge = settings.storyBadge || 'Our Story'
-  const storyTitle = settings.storyTitle || 'The Real Thing, Delivered to Your Door.'
-  const storyText = settings.storyText || "We built Smart Best Brands around one frustration: too many Nigerians were paying full price for fake foam. So we went directly to the source — authorised distributors for Mouka, Vitafoam, Royal Foam, and more — and made genuine quality accessible to every home."
+  const storyBadge = settings.storyBadge || 'Who We Are'
+  const storyTitle = settings.storyTitle || 'Original Mattresses, Directly to Your Home.'
+  const storyText = settings.storyText || "We started Smart Best Brands to make buying genuine mattresses simple in Nigeria. No fake foam, no hidden fees—just original brands like Mouka, Vitafoam, and Royal Foam delivered directly to your doorstep."
   const secondaryBadge = settings.storySecondaryBadge || 'Our Promise'
-  const secondaryTitle = settings.storySecondaryTitle || 'Factory-Direct. Sealed. Guaranteed.'
-  const secondaryText = settings.storySecondaryText || 'Every piece leaves the factory in its original packaging and arrives at your door the same way — warranty card intact, seal unbroken. No middlemen, no substitutions, no surprises.'
+  const secondaryTitle = settings.storySecondaryTitle || '100% Authentic, Direct From the Factory.'
+  const secondaryText = settings.storySecondaryText || 'We source directly from authorized factory distributors so you never have to worry about counterfeits. Every mattress comes in its original factory packaging with a real manufacturer warranty.'
   const mainImage = settings.storyImageUrl || '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg'
 
   // Stats

@@ -11,7 +11,10 @@ export function getWhatsAppNumber(overrides?: ContactOverrides): string | null {
     const fromSettings = overrides?.whatsappNumber?.trim()
     const raw = fromSettings || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.trim()
     if (!raw) return null
-    const digits = digitsOnly(raw)
+    let digits = digitsOnly(raw)
+    if (digits.startsWith('0') && digits.length === 11) {
+        digits = '234' + digits.slice(1)
+    }
     return digits.length >= 10 ? digits : null
 }
 
