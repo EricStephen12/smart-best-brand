@@ -323,6 +323,23 @@ model SiteSettings {
   bankAccountName      String?
   bankAccountNumber    String?
 
+  // Products Page
+  shopPageTitle        String   @default("The Collection")
+  shopPageTagline      String   @default("Original mattresses, luxury furniture, and bedding — every piece factory-sealed and warranted.")
+
+  // Story Section Stats
+  statOneBadge         String   @default("Partner Brands")
+  statOneValue         String   @default("")
+  statTwoBadge         String   @default("Original Stock")
+  statTwoValue         String   @default("100%")
+  storyLinkLabel       String   @default("Our full story →")
+
+  // Featured Products & Collections Sections
+  featuredTitle        String   @default("What people keep coming back for.")
+  featuredDescription  String   @default("Our most-loved pieces — or browse everything we carry.")
+  collectionsTitle     String   @default("Shop by category")
+  collectionsDescription String @default("Mattresses, pillows, furniture — find exactly what your space is missing.")
+
   updatedAt            DateTime @updatedAt
 }
 

@@ -57,6 +57,21 @@ function toData(row: any): SiteSettingsData {
         bankName: row.bankName || null,
         bankAccountName: row.bankAccountName || null,
         bankAccountNumber: row.bankAccountNumber || null,
+
+        shopPageTitle: row.shopPageTitle || DEFAULT_SITE_SETTINGS.shopPageTitle,
+        shopPageTagline: row.shopPageTagline || DEFAULT_SITE_SETTINGS.shopPageTagline,
+
+        statOneBadge: row.statOneBadge || DEFAULT_SITE_SETTINGS.statOneBadge,
+        statOneValue: row.statOneValue ?? DEFAULT_SITE_SETTINGS.statOneValue,
+        statTwoBadge: row.statTwoBadge || DEFAULT_SITE_SETTINGS.statTwoBadge,
+        statTwoValue: row.statTwoValue || DEFAULT_SITE_SETTINGS.statTwoValue,
+        storyLinkLabel: row.storyLinkLabel || DEFAULT_SITE_SETTINGS.storyLinkLabel,
+
+        featuredTitle: row.featuredTitle || DEFAULT_SITE_SETTINGS.featuredTitle,
+        featuredDescription: row.featuredDescription || DEFAULT_SITE_SETTINGS.featuredDescription,
+
+        collectionsTitle: row.collectionsTitle || DEFAULT_SITE_SETTINGS.collectionsTitle,
+        collectionsDescription: row.collectionsDescription || DEFAULT_SITE_SETTINGS.collectionsDescription,
     }
 }
 
@@ -152,6 +167,21 @@ export async function updateSiteSettings(input: Partial<SiteSettingsData>) {
         if (input.bankName !== undefined) data.bankName = input.bankName?.trim() || null
         if (input.bankAccountName !== undefined) data.bankAccountName = input.bankAccountName?.trim() || null
         if (input.bankAccountNumber !== undefined) data.bankAccountNumber = input.bankAccountNumber?.trim() || null
+
+        if (input.shopPageTitle !== undefined) data.shopPageTitle = input.shopPageTitle.trim() || DEFAULT_SITE_SETTINGS.shopPageTitle
+        if (input.shopPageTagline !== undefined) data.shopPageTagline = input.shopPageTagline.trim()
+
+        if (input.statOneBadge !== undefined) data.statOneBadge = input.statOneBadge.trim()
+        if (input.statOneValue !== undefined) data.statOneValue = input.statOneValue.trim()
+        if (input.statTwoBadge !== undefined) data.statTwoBadge = input.statTwoBadge.trim()
+        if (input.statTwoValue !== undefined) data.statTwoValue = input.statTwoValue.trim()
+        if (input.storyLinkLabel !== undefined) data.storyLinkLabel = input.storyLinkLabel.trim()
+
+        if (input.featuredTitle !== undefined) data.featuredTitle = input.featuredTitle.trim()
+        if (input.featuredDescription !== undefined) data.featuredDescription = input.featuredDescription.trim()
+
+        if (input.collectionsTitle !== undefined) data.collectionsTitle = input.collectionsTitle.trim()
+        if (input.collectionsDescription !== undefined) data.collectionsDescription = input.collectionsDescription.trim()
 
         const updated = await prisma.siteSettings.upsert({
             where: { id: 'default' },

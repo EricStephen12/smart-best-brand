@@ -27,7 +27,7 @@ import {
     Type,
 } from 'lucide-react'
 
-type TabType = 'identity' | 'hero' | 'theme' | 'story' | 'promo' | 'contact' | 'payments' | 'footer'
+type TabType = 'identity' | 'hero' | 'theme' | 'story' | 'sections' | 'promo' | 'contact' | 'payments' | 'footer'
 
 const COLOR_PRESETS = [
     { name: 'Default Navy & Sky', primary: '#172554', accent: '#0284c7', bg: '#f7f6f3' },
@@ -85,6 +85,7 @@ export default function SiteSettingsAdminPage() {
         { id: 'hero', label: 'Hero Section', icon: Sparkles },
         { id: 'theme', label: 'Theme & Colors', icon: Palette },
         { id: 'story', label: 'Homepage Story', icon: BookOpen },
+        { id: 'sections', label: 'Sections & Copy', icon: Layers },
         { id: 'promo', label: 'Promo Banner', icon: ImageIcon },
         { id: 'contact', label: 'Location & Socials', icon: MapPin },
         { id: 'payments', label: 'Payment Details', icon: Globe },
@@ -745,6 +746,149 @@ export default function SiteSettingsAdminPage() {
                                     placeholder="Details about manufacturer warranties and trusted foam partnerships..."
                                 />
                             </Field>
+                        </section>
+                    </div>
+                )}
+
+                {/* ─────────────────────────────────────────────────────────────
+                    SECTIONS & COPY TAB
+                ───────────────────────────────────────────────────────────── */}
+                {activeTab === 'sections' && (
+                    <div className="space-y-6">
+                        {/* Products Page */}
+                        <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+                            <div>
+                                <h2 className="text-base font-bold text-blue-950">Products Page Header</h2>
+                                <p className="text-xs text-slate-500 mt-0.5">
+                                    The heading and tagline displayed at the top of the /products catalogue page.
+                                </p>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <Field label="Page Title">
+                                    <input
+                                        value={form.shopPageTitle}
+                                        onChange={(e) => set('shopPageTitle', e.target.value)}
+                                        className={inputClass}
+                                        placeholder="The Collection"
+                                    />
+                                </Field>
+                                <Field label="Page Tagline">
+                                    <input
+                                        value={form.shopPageTagline}
+                                        onChange={(e) => set('shopPageTagline', e.target.value)}
+                                        className={inputClass}
+                                        placeholder="Original mattresses, furniture and bedding…"
+                                    />
+                                </Field>
+                            </div>
+                        </section>
+
+                        {/* Story Stats */}
+                        <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+                            <div>
+                                <h2 className="text-base font-bold text-blue-950">Story Section — Stats</h2>
+                                <p className="text-xs text-slate-500 mt-0.5">
+                                    The two stat numbers and labels shown in the homepage story section (e.g. "07 Partner Brands").
+                                </p>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <Field label="Stat 1 — Value">
+                                    <input
+                                        value={form.statOneValue}
+                                        onChange={(e) => set('statOneValue', e.target.value)}
+                                        className={inputClass}
+                                        placeholder="07"
+                                    />
+                                </Field>
+                                <Field label="Stat 1 — Label">
+                                    <input
+                                        value={form.statOneBadge}
+                                        onChange={(e) => set('statOneBadge', e.target.value)}
+                                        className={inputClass}
+                                        placeholder="Partner Brands"
+                                    />
+                                </Field>
+                                <Field label="Stat 2 — Value">
+                                    <input
+                                        value={form.statTwoValue}
+                                        onChange={(e) => set('statTwoValue', e.target.value)}
+                                        className={inputClass}
+                                        placeholder="100%"
+                                    />
+                                </Field>
+                                <Field label="Stat 2 — Label">
+                                    <input
+                                        value={form.statTwoBadge}
+                                        onChange={(e) => set('statTwoBadge', e.target.value)}
+                                        className={inputClass}
+                                        placeholder="Original Stock"
+                                    />
+                                </Field>
+                            </div>
+                            <Field label="Story Section Link Label">
+                                <input
+                                    value={form.storyLinkLabel}
+                                    onChange={(e) => set('storyLinkLabel', e.target.value)}
+                                    className={inputClass}
+                                    placeholder="Our full story →"
+                                />
+                            </Field>
+                        </section>
+
+                        {/* Featured Products */}
+                        <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+                            <div>
+                                <h2 className="text-base font-bold text-blue-950">Featured Products Section</h2>
+                                <p className="text-xs text-slate-500 mt-0.5">
+                                    The heading and description above the best-sellers grid on the homepage.
+                                </p>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <Field label="Section Heading">
+                                    <input
+                                        value={form.featuredTitle}
+                                        onChange={(e) => set('featuredTitle', e.target.value)}
+                                        className={inputClass}
+                                        placeholder="What people keep coming back for."
+                                    />
+                                </Field>
+                                <Field label="Section Description">
+                                    <input
+                                        value={form.featuredDescription}
+                                        onChange={(e) => set('featuredDescription', e.target.value)}
+                                        className={inputClass}
+                                        placeholder="Our most-loved pieces — or browse everything we carry."
+                                    />
+                                </Field>
+                            </div>
+                        </section>
+
+                        {/* Collections */}
+                        <section className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm">
+                            <div>
+                                <h2 className="text-base font-bold text-blue-950">Collections Section</h2>
+                                <p className="text-xs text-slate-500 mt-0.5">
+                                    The heading and description above the category grid on the homepage.
+                                </p>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <Field label="Section Heading">
+                                    <input
+                                        value={form.collectionsTitle}
+                                        onChange={(e) => set('collectionsTitle', e.target.value)}
+                                        className={inputClass}
+                                        placeholder="Shop by category"
+                                    />
+                                </Field>
+                                <Field label="Section Description">
+                                    <input
+                                        value={form.collectionsDescription}
+                                        onChange={(e) => set('collectionsDescription', e.target.value)}
+                                        className={inputClass}
+                                        placeholder="Mattresses, pillows, furniture — find exactly what your space is missing."
+                                    />
+                                </Field>
+                            </div>
                         </section>
                     </div>
                 )}

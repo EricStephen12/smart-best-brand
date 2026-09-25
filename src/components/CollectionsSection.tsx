@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import SectionHeading from '@/components/SectionHeading'
 import EditorialBackdrop from '@/components/EditorialBackdrop'
+import { useSiteSettings } from '@/components/site-settings-context'
 
 export type CollectionTile = {
   id: string
@@ -22,6 +23,9 @@ const FALLBACK_IMAGES = [
 
 export default function CollectionsSection({ collections }: { collections: CollectionTile[] }) {
   if (!collections.length) return null
+  const settings = useSiteSettings()
+  const collectionsTitle = settings.collectionsTitle || 'Shop by category'
+  const collectionsDescription = settings.collectionsDescription || 'Mattresses, pillows, furniture — find exactly what your space is missing.'
 
   return (
     <section className="relative bg-white py-16 sm:py-20 md:py-24 border-t border-blue-950/5 overflow-hidden">
@@ -29,8 +33,8 @@ export default function CollectionsSection({ collections }: { collections: Colle
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="Collections"
-          title="Shop by category"
-          description="Mattresses, pillows, furniture — find exactly what your space is missing."
+          title={collectionsTitle}
+          description={collectionsDescription}
         />
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">

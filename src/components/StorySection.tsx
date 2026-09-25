@@ -19,6 +19,13 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
   const secondaryText = settings.storySecondaryText || 'Every piece leaves the factory in its original packaging and arrives at your door the same way — warranty card intact, seal unbroken. No middlemen, no substitutions, no surprises.'
   const mainImage = settings.storyImageUrl || '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg'
 
+  // Stats
+  const statOneBadge = settings.statOneBadge || 'Partner Brands'
+  const statOneValue = settings.statOneValue || (brandCount ? brandCount.toString().padStart(2, '0') : '07')
+  const statTwoBadge = settings.statTwoBadge || 'Original Stock'
+  const statTwoValue = settings.statTwoValue || '100%'
+  const storyLinkLabel = settings.storyLinkLabel || 'Our full story →'
+
   return (
     <section ref={containerRef} className="relative py-16 sm:py-24 md:py-28 bg-white overflow-hidden border-y border-blue-950/5">
       <EditorialBackdrop text="Rest" size="xl" />
@@ -90,18 +97,18 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
 
               <div className="flex gap-12">
                 <div>
-                  <h4 className="font-black text-4xl text-blue-950 leading-none mb-2">{brandCount ? brandCount.toString().padStart(2, '0') : '07'}</h4>
-                  <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">Partner Brands</p>
+                  <h4 className="font-black text-4xl text-blue-950 leading-none mb-2">{statOneValue}</h4>
+                  <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">{statOneBadge}</p>
                 </div>
                 <div>
-                  <h4 className="font-black text-4xl text-blue-950 leading-none mb-2">100%</h4>
-                  <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">Original Stock</p>
+                  <h4 className="font-black text-4xl text-blue-950 leading-none mb-2">{statTwoValue}</h4>
+                  <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">{statTwoBadge}</p>
                 </div>
               </div>
 
               <div className="pt-6">
                 <Link href="/about" className="text-[10px] font-black tracking-[0.3em] text-blue-950 uppercase border-b-2 border-sky-600 pb-2 hover:text-sky-600 transition-colors inline-block">
-                  Our full story →
+                  {storyLinkLabel}
                 </Link>
               </div>
             </motion.div>

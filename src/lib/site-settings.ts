@@ -53,6 +53,25 @@ export type SiteSettingsData = {
     bankName: string | null
     bankAccountName: string | null
     bankAccountNumber: string | null
+
+    // Products Page
+    shopPageTitle: string
+    shopPageTagline: string
+
+    // Story Section Stats
+    statOneBadge: string
+    statOneValue: string
+    statTwoBadge: string
+    statTwoValue: string
+    storyLinkLabel: string
+
+    // Featured Products Section
+    featuredTitle: string
+    featuredDescription: string
+
+    // Collections Section
+    collectionsTitle: string
+    collectionsDescription: string
 }
 
 export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
@@ -105,6 +124,21 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
     bankName: null,
     bankAccountName: null,
     bankAccountNumber: null,
+
+    shopPageTitle: 'The Collection',
+    shopPageTagline: 'Original mattresses, luxury furniture, and bedding — every piece factory-sealed and warranted.',
+
+    statOneBadge: 'Partner Brands',
+    statOneValue: '',
+    statTwoBadge: 'Original Stock',
+    statTwoValue: '100%',
+    storyLinkLabel: 'Our full story →',
+
+    featuredTitle: 'What people keep coming back for.',
+    featuredDescription: 'Our most-loved pieces — or browse everything we carry.',
+
+    collectionsTitle: 'Shop by category',
+    collectionsDescription: 'Mattresses, pillows, furniture — find exactly what your space is missing.',
 }
 
 export const HEADING_FONTS = [

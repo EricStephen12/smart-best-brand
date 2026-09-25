@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import SectionHeading from '@/components/SectionHeading'
 import EditorialBackdrop from '@/components/EditorialBackdrop'
+import { useSiteSettings } from '@/components/site-settings-context'
 
 type FeaturedProduct = {
   id: string
@@ -18,6 +19,9 @@ type FeaturedProduct = {
 
 export default function FeaturedProducts({ products }: { products: FeaturedProduct[] }) {
   if (!products.length) return null
+  const settings = useSiteSettings()
+  const featuredTitle = settings.featuredTitle || 'What people keep coming back for.'
+  const featuredDescription = settings.featuredDescription || 'Our most-loved pieces — or browse everything we carry.'
 
   return (
     <section className="relative bg-white py-16 sm:py-20 md:py-24 overflow-hidden border-t border-blue-950/5">
@@ -26,8 +30,8 @@ export default function FeaturedProducts({ products }: { products: FeaturedProdu
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10 sm:mb-14">
           <SectionHeading
             eyebrow="Shop"
-            title="What people keep coming back for."
-            description="Our most-loved pieces — or browse everything we carry."
+            title={featuredTitle}
+            description={featuredDescription}
             className="!mb-0"
           />
           <Link

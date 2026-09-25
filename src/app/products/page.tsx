@@ -5,6 +5,7 @@ import { getAllProducts } from '@/actions/products'
 import { getAllBrands } from '@/actions/brands'
 import { getAllCategories } from '@/actions/categories'
 import { getAllSizes } from '@/actions/sizes'
+import { getSiteSettings } from '@/actions/site-settings'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,11 +55,12 @@ export const metadata: Metadata = {
 }
 
 export default async function ProductsPage() {
-  const [productsResult, brandsResult, categoriesResult, sizesResult] = await Promise.all([
+  const [productsResult, brandsResult, categoriesResult, sizesResult, siteSettings] = await Promise.all([
     getAllProducts(),
     getAllBrands(),
     getAllCategories(),
     getAllSizes(),
+    getSiteSettings(),
   ])
 
   const initialProducts = productsResult.success ? productsResult.data : []
@@ -66,22 +68,25 @@ export default async function ProductsPage() {
   const categories = categoriesResult.success ? categoriesResult.data : []
   const sizes = sizesResult.success ? sizesResult.data : []
 
+  const shopTitle = siteSettings.shopPageTitle || 'The Collection'
+  const shopTagline = siteSettings.shopPageTagline || 'Original mattresses, luxury furniture, and bedding — every piece factory-sealed and warranted.'
+
   return (
     <div className="pt-16 sm:pt-20">
-      {/* Page header — owns the sole heading for this page */}
+      {/* Page header — driven by site settings */}
       <div className="border-b border-blue-950/5 bg-white pt-10 pb-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pb-8">
             <div>
               <p className="text-[10px] font-black tracking-[0.35em] uppercase text-sky-600 mb-2">
-                Smart Best Brands
+                {siteSettings.siteName}
               </p>
               <h1 className="font-display text-4xl sm:text-5xl font-semibold text-blue-950 tracking-tight leading-none">
-                The Collection
+                {shopTitle}
               </h1>
             </div>
             <p className="text-sm text-stone-400 max-w-xs leading-relaxed">
-              Original mattresses, luxury furniture, and bedding — every piece factory-sealed and warranted.
+              {shopTagline}
             </p>
           </div>
         </div>
