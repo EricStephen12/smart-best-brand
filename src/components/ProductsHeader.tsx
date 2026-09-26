@@ -1,13 +1,12 @@
 'use client'
 
 import { useSiteSettings } from '@/components/site-settings-context'
+import { SHOP_HEADER } from '@/lib/constants'
 
 export default function ProductsHeader() {
   const settings = useSiteSettings()
-  const shopTitle = settings.shopPageTitle || 'The Collection'
-  const shopTagline =
-    settings.shopPageTagline ||
-    'Original mattresses, luxury furniture, and bedding — every piece factory-sealed and warranted.'
+  const shopTitle = settings.shopPageTitle || SHOP_HEADER.title
+  const shopTagline = settings.shopPageTagline || SHOP_HEADER.tagline
 
   return (
     <div id="products-header" className="border-b border-blue-950/5 bg-white pt-10 pb-0 scroll-mt-16">

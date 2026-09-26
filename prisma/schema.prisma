@@ -340,6 +340,27 @@ model SiteSettings {
   collectionsTitle     String   @default("Shop by category")
   collectionsDescription String @default("Mattresses, pillows, furniture — find exactly what your space is missing.")
 
+  // Design & UI Style
+  buttonShape          String   @default("sharp")
+  cardStyle            String   @default("sharp")
+  badgeStyle           String   @default("sharp")
+
+  // Editorial Watermarks
+  heroBackdropWord     String   @default("Comfort")
+  storyBackdropWord    String   @default("Rest")
+
+  // Policies & Guarantees (stored as JSON arrays or lines)
+  deliveryPolicy       String?
+  returnPolicy         String?
+  warrantyPolicy       String?
+
+  // Custom Size Modal
+  customRequestTitle   String   @default("Need a Custom Size?")
+  customRequestSubtitle String  @default("Have an imported bed frame or unique room dimensions? We can order custom-sized mattresses directly from the factory for you.")
+
+  // FAQs (JSON array)
+  faqsJson             String?
+
   updatedAt            DateTime @updatedAt
 }
 

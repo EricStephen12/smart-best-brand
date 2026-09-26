@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import SectionHeading from '@/components/SectionHeading'
 import EditorialBackdrop from '@/components/EditorialBackdrop'
 import { useSiteSettings } from '@/components/site-settings-context'
+import { FEATURED_SECTION } from '@/lib/constants'
 
 type FeaturedProduct = {
   id: string
@@ -20,8 +21,8 @@ type FeaturedProduct = {
 export default function FeaturedProducts({ products }: { products: FeaturedProduct[] }) {
   if (!products.length) return null
   const settings = useSiteSettings()
-  const featuredTitle = settings.featuredTitle || 'What people keep coming back for.'
-  const featuredDescription = settings.featuredDescription || 'Our most-loved pieces — or browse everything we carry.'
+  const featuredTitle = settings.featuredTitle || FEATURED_SECTION.title
+  const featuredDescription = settings.featuredDescription || FEATURED_SECTION.description
 
   return (
     <section id="featured" className="relative bg-white py-16 sm:py-20 md:py-24 overflow-hidden border-t border-blue-950/5 scroll-mt-16">
@@ -64,7 +65,7 @@ export default function FeaturedProducts({ products }: { products: FeaturedProdu
                 transition={{ duration: 0.4, delay: Math.min(index * 0.05, 0.25) }}
               >
                 <Link href={`/products/${product.slug}`} className="group block">
-                  <div className="relative aspect-square bg-[var(--brand-bg)] overflow-hidden mb-3 border border-blue-950/10">
+                  <div className="relative aspect-square bg-[var(--brand-bg)] overflow-hidden mb-3 border border-blue-950/10 style-card">
                     {product.images[0] ? (
                       <Image
                         src={product.images[0]}
@@ -75,7 +76,7 @@ export default function FeaturedProducts({ products }: { products: FeaturedProdu
                       />
                     ) : null}
                     {onSale ? (
-                      <span className="absolute top-3 left-3 bg-sky-600 text-white text-[10px] font-black tracking-widest uppercase px-2 py-1">
+                      <span className="absolute top-3 left-3 bg-sky-600 text-white text-[10px] font-black tracking-widest uppercase px-2 py-1 style-badge">
                         Sale
                       </span>
                     ) : null}
@@ -103,7 +104,7 @@ export default function FeaturedProducts({ products }: { products: FeaturedProdu
         <div className="mt-12 text-center">
           <Link
             href="/products"
-            className="inline-flex border border-blue-950 text-blue-950 px-10 py-3.5 text-[11px] font-black tracking-[0.2em] uppercase hover:bg-blue-950 hover:text-white transition-colors"
+            className="inline-flex border border-blue-950 text-blue-950 px-10 py-3.5 text-[11px] font-black tracking-[0.2em] uppercase hover:bg-blue-950 hover:text-white transition-colors style-button"
           >
             View all products
           </Link>

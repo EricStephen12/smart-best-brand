@@ -91,6 +91,24 @@ export function SiteSettingsProvider({
         root.style.setProperty('--font-playfair', `'${headingFont}', Georgia, serif`)
         root.style.setProperty('--font-inter', `'${bodyFont}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`)
 
+        const buttonRadius =
+            currentSettings.buttonShape === 'pill'
+                ? '9999px'
+                : currentSettings.buttonShape === 'rounded'
+                ? '8px'
+                : '0px'
+        const cardRadius =
+            currentSettings.cardStyle === 'curved'
+                ? '24px'
+                : currentSettings.cardStyle === 'soft'
+                ? '12px'
+                : '0px'
+        const badgeRadius = currentSettings.badgeStyle === 'pill' ? '9999px' : '0px'
+
+        root.style.setProperty('--button-radius', buttonRadius)
+        root.style.setProperty('--card-radius', cardRadius)
+        root.style.setProperty('--badge-radius', badgeRadius)
+
         // Dynamically load Google Fonts if not already in document
         loadGoogleFont(headingFont)
         loadGoogleFont(bodyFont)
@@ -100,6 +118,9 @@ export function SiteSettingsProvider({
         currentSettings.backgroundColor,
         currentSettings.headingFont,
         currentSettings.bodyFont,
+        currentSettings.buttonShape,
+        currentSettings.cardStyle,
+        currentSettings.badgeStyle,
     ])
 
     return (

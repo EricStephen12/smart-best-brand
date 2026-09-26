@@ -9,6 +9,7 @@ import { getSiteSettings } from "@/actions/site-settings";
 import { buildThemeCss } from "@/lib/site-settings";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
+import { SEO, TOAST_STYLE, EXTERNAL } from "@/lib/constants";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-display",
@@ -36,7 +37,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://smartbestbrands.com'),
+  metadataBase: new URL(SEO.baseUrl),
   title: {
     default: 'Smart Best Brands — Original Mattresses & Luxury Furniture Nigeria',
     template: '%s | Smart Best Brands',
@@ -201,24 +202,12 @@ export default async function RootLayout({
               </Layout>
               <Toaster
                 position="bottom-right"
-                toastOptions={{
-                  style: {
-                    background: '#0f172a',
-                    color: '#fff',
-                    borderRadius: '1rem',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                    padding: '1rem 2rem',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                  }
-                }}
+                toastOptions={{ style: TOAST_STYLE }}
               />
             </WishlistProvider>
           </CartProvider>
         </SiteSettingsProvider>
-        <Script src="https://js.paystack.co/v1/inline.js" strategy="beforeInteractive" />
+        <Script src={EXTERNAL.paystackScript} strategy="beforeInteractive" />
       </body>
     </html>
   );

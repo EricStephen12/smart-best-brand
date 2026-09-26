@@ -6,29 +6,30 @@ import Image from 'next/image'
 import Link from 'next/link'
 import EditorialBackdrop from '@/components/EditorialBackdrop'
 import { useSiteSettings } from '@/components/site-settings-context'
+import { STORY_CONTENT } from '@/lib/constants'
 
 export default function StorySection({ brandCount }: { brandCount?: number }) {
   const containerRef = useRef(null)
   const settings = useSiteSettings()
 
-  const storyBadge = settings.storyBadge || 'Who We Are'
-  const storyTitle = settings.storyTitle || 'Original Mattresses, Directly to Your Home.'
-  const storyText = settings.storyText || "We started Smart Best Brands to make buying genuine mattresses simple in Nigeria. No fake foam, no hidden fees—just original brands like Mouka, Vitafoam, and Royal Foam delivered directly to your doorstep."
-  const secondaryBadge = settings.storySecondaryBadge || 'Our Promise'
-  const secondaryTitle = settings.storySecondaryTitle || '100% Authentic, Direct From the Factory.'
-  const secondaryText = settings.storySecondaryText || 'We source directly from authorized factory distributors so you never have to worry about counterfeits. Every mattress comes in its original factory packaging with a real manufacturer warranty.'
+  const storyBadge = settings.storyBadge || STORY_CONTENT.badge
+  const storyTitle = settings.storyTitle || STORY_CONTENT.title
+  const storyText = settings.storyText || STORY_CONTENT.text
+  const secondaryBadge = settings.storySecondaryBadge || STORY_CONTENT.secondaryBadge
+  const secondaryTitle = settings.storySecondaryTitle || STORY_CONTENT.secondaryTitle
+  const secondaryText = settings.storySecondaryText || STORY_CONTENT.secondaryText
   const mainImage = settings.storyImageUrl || '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg'
 
   // Stats
-  const statOneBadge = settings.statOneBadge || 'Partner Brands'
-  const statOneValue = settings.statOneValue || (brandCount ? brandCount.toString().padStart(2, '0') : '07')
-  const statTwoBadge = settings.statTwoBadge || 'Original Stock'
-  const statTwoValue = settings.statTwoValue || '100%'
-  const storyLinkLabel = settings.storyLinkLabel || 'Our full story →'
+  const statOneBadge = settings.statOneBadge || STORY_CONTENT.stats.statOneBadge
+  const statOneValue = settings.statOneValue || (brandCount ? brandCount.toString().padStart(2, '0') : STORY_CONTENT.stats.statOneValue)
+  const statTwoBadge = settings.statTwoBadge || STORY_CONTENT.stats.statTwoBadge
+  const statTwoValue = settings.statTwoValue || STORY_CONTENT.stats.statTwoValue
+  const storyLinkLabel = settings.storyLinkLabel || STORY_CONTENT.storyLinkLabel
 
   return (
     <section ref={containerRef} id="story" className="relative py-16 sm:py-24 md:py-28 bg-white overflow-hidden border-y border-blue-950/5 scroll-mt-16">
-      <EditorialBackdrop text="Rest" size="xl" />
+      <EditorialBackdrop text={settings.storyBackdropWord || "Rest"} size="xl" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Editorial Layout 1 */}
@@ -39,7 +40,7 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
             <RevealImage
               src={mainImage}
               alt={storyTitle}
-              className="aspect-[4/5] md:aspect-[16/10] rounded-none"
+              className="aspect-[4/5] md:aspect-[16/10] style-card"
             />
           </div>
 
@@ -50,7 +51,7 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
               viewport={{ once: true }}
-              className="bg-white/95 backdrop-blur-md border border-blue-950/5 p-8 sm:p-12 md:p-16 rounded-none space-y-6 sm:space-y-8 shadow-xl shadow-blue-950/5"
+              className="bg-white/95 backdrop-blur-md border border-blue-950/5 p-8 sm:p-12 md:p-16 space-y-6 sm:space-y-8 shadow-xl shadow-blue-950/5 style-card"
             >
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-1 h-8 bg-sky-600 rounded-full" />

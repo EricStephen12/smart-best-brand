@@ -7,6 +7,7 @@ import { Search, SlidersHorizontal, X, Image as ImageIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import EditorialBackdrop from '@/components/EditorialBackdrop'
+import { PRICE_RANGES } from '@/lib/constants'
 
 type ShopBrand = { id: string; name: string }
 type ShopCategory = { id: string; name: string; slug?: string | null }
@@ -27,16 +28,8 @@ type ShopProduct = {
   }>
 }
 
-const PRICE_RANGES = [
-  { label: 'All', min: 0, max: Infinity },
-  { label: 'Under 50k', min: 0, max: 50000 },
-  { label: '50k - 200k', min: 50000, max: 200000 },
-  { label: '200k - 500k', min: 200000, max: 500000 },
-  { label: 'Above 500k', min: 500000, max: Infinity },
-]
-
 const chipBase =
-  'px-4 py-2 text-[10px] font-black tracking-[0.18em] uppercase border transition-colors'
+  'px-4 py-2 text-[10px] font-black tracking-[0.18em] uppercase border transition-colors style-button'
 const chipActive = 'bg-blue-950 text-white border-blue-950'
 const chipIdle = 'bg-transparent text-blue-950/60 border-blue-950/15 hover:border-blue-950/40 hover:text-blue-950'
 
@@ -360,7 +353,7 @@ function ProductCard({ product, index }: { product: ShopProduct; index: number }
       transition={{ duration: 0.4, delay: Math.min(index * 0.04, 0.24) }}
     >
       <Link href={`/products/${product.slug}`} className="group block">
-        <div className="relative aspect-square bg-[var(--brand-bg)] overflow-hidden mb-3 border border-blue-950/10">
+        <div className="relative aspect-square bg-[var(--brand-bg)] overflow-hidden mb-3 border border-blue-950/10 style-card">
           {product.images?.[0] ? (
             <Image
               src={product.images[0]}
@@ -390,7 +383,7 @@ function ProductCard({ product, index }: { product: ShopProduct; index: number }
           ) : null}
 
           {onSale ? (
-            <span className="absolute top-3 left-3 bg-sky-600 text-white text-[10px] font-black tracking-widest uppercase px-2 py-1">
+            <span className="absolute top-3 left-3 bg-sky-600 text-white text-[10px] font-black tracking-widest uppercase px-2 py-1 style-badge">
               Sale
             </span>
           ) : null}

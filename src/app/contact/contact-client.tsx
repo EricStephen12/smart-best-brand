@@ -5,6 +5,7 @@ import { Mail, Phone, MessageCircle, Clock, Send, Instagram } from 'lucide-react
 import { submitContactInquiry } from '@/actions/contact';
 import { getSupportPhone, getTelHref, getWhatsAppUrl, getContactEmail, getInstagramUrl } from '@/lib/contact-channels';
 import { useSiteSettings } from '@/components/site-settings-context';
+import { CONTACT, CONTACT_SUBJECTS } from '@/lib/constants';
 import toast from 'react-hot-toast';
 
 export default function ContactClient() {
@@ -101,7 +102,7 @@ export default function ContactClient() {
               <div>
                 <h4 className="font-semibold text-blue-950 text-sm mb-1">Business hours</h4>
                 <p className="text-stone-500 text-sm leading-relaxed">
-                  We typically reply within a few hours, 8AM – 8PM.
+                  {CONTACT.responseNotice}
                 </p>
               </div>
             </div>
@@ -145,11 +146,9 @@ export default function ContactClient() {
                   onChange={(e) => setSubject(e.target.value)}
                   className="w-full px-3 py-2.5 bg-white border border-stone-200 focus:border-blue-950 focus:ring-2 focus:ring-blue-950/10 text-sm text-blue-950 outline-none transition-colors appearance-none"
                 >
-                  <option>Product inquiry</option>
-                  <option>Delivery status</option>
-                  <option>Bulk / corporate order</option>
-                  <option>Custom size request</option>
-                  <option>Other</option>
+                  {CONTACT_SUBJECTS.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
                 </select>
               </Field>
               <Field label="Message">

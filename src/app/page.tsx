@@ -10,6 +10,7 @@ import { getAllCategories } from '@/actions/categories'
 import { getActiveBanners } from '@/actions/banners'
 import { buildCollectionTiles } from '@/lib/collections'
 import { pickFeaturedProducts } from '@/lib/featured-products'
+import { FALLBACK_SCROLL_LABELS } from '@/lib/constants'
 import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
@@ -79,13 +80,7 @@ export default async function Home() {
   const scrollLabels =
     labels.length >= 4
       ? labels
-      : [
-          ...labels,
-          { id: 'x1', name: 'Mattresses', href: '/products?category=Mattresses' },
-          { id: 'x2', name: 'Furniture', href: '/products?category=Furniture' },
-          { id: 'x3', name: 'Pillows', href: '/products?category=Pillows' },
-          { id: 'x4', name: 'Shop all', href: '/products' },
-        ]
+      : [...labels, ...FALLBACK_SCROLL_LABELS]
 
   return (
     <div className="bg-white">

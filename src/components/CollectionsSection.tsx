@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import SectionHeading from '@/components/SectionHeading'
 import EditorialBackdrop from '@/components/EditorialBackdrop'
 import { useSiteSettings } from '@/components/site-settings-context'
+import { COLLECTIONS_SECTION } from '@/lib/constants'
 
 export type CollectionTile = {
   id: string
@@ -24,8 +25,8 @@ const FALLBACK_IMAGES = [
 export default function CollectionsSection({ collections }: { collections: CollectionTile[] }) {
   if (!collections.length) return null
   const settings = useSiteSettings()
-  const collectionsTitle = settings.collectionsTitle || 'Shop by category'
-  const collectionsDescription = settings.collectionsDescription || 'Mattresses, pillows, furniture — find exactly what your space is missing.'
+  const collectionsTitle = settings.collectionsTitle || COLLECTIONS_SECTION.title
+  const collectionsDescription = settings.collectionsDescription || COLLECTIONS_SECTION.description
 
   return (
     <section id="collections" className="relative bg-white py-16 sm:py-20 md:py-24 border-t border-blue-950/5 overflow-hidden scroll-mt-16">
@@ -49,7 +50,7 @@ export default function CollectionsSection({ collections }: { collections: Colle
                 transition={{ duration: 0.45, delay: Math.min(index * 0.06, 0.24) }}
               >
                 <Link href={item.href} className="group block">
-                  <div className="relative aspect-square bg-white overflow-hidden mb-3 border border-blue-950/10">
+                  <div className="relative aspect-square bg-white overflow-hidden mb-3 border border-blue-950/10 style-card">
                     <Image
                       src={image}
                       alt={item.name}

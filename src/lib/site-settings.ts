@@ -72,73 +72,139 @@ export type SiteSettingsData = {
     // Collections Section
     collectionsTitle: string
     collectionsDescription: string
+
+    // Design & UI Style
+    buttonShape: 'sharp' | 'rounded' | 'pill'
+    cardStyle: 'sharp' | 'soft' | 'curved'
+    badgeStyle: 'sharp' | 'pill'
+
+    // Editorial Watermarks
+    heroBackdropWord: string
+    storyBackdropWord: string
+
+    // Policies & Guarantees
+    deliveryPolicy: string | null
+    returnPolicy: string | null
+    warrantyPolicy: string | null
+
+    // Custom Size Modal
+    customRequestTitle: string
+    customRequestSubtitle: string
+
+    // FAQs (JSON string)
+    faqsJson: string | null
+}
+
+import {
+    BRAND,
+    COLORS,
+    ANNOUNCEMENT_BAR,
+    STORY_CONTENT,
+    PROMO_BANNER,
+    CONTACT,
+    FOOTER_CONTENT,
+    SHOP_HEADER,
+    FEATURED_SECTION,
+    COLLECTIONS_SECTION,
+    POLICIES,
+    FAQS,
+    SETTINGS_TABS,
+    type SettingsTabId,
+    COLOR_PRESETS,
+    BUTTON_SHAPE_OPTIONS,
+    CARD_STYLE_OPTIONS,
+    BADGE_STYLE_OPTIONS,
+} from '@/lib/constants'
+
+export {
+    SETTINGS_TABS,
+    type SettingsTabId,
+    COLOR_PRESETS,
+    BUTTON_SHAPE_OPTIONS,
+    CARD_STYLE_OPTIONS,
+    BADGE_STYLE_OPTIONS,
 }
 
 export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
     id: 'default',
-    siteName: 'Smart Best Brands',
-    tagline: 'Quality mattresses, pillows & furniture',
+    siteName: BRAND.name,
+    tagline: BRAND.tagline,
     logoUrl: null,
-    primaryColor: '#172554',
-    accentColor: '#0284c7',
-    backgroundColor: '#f7f6f3',
+    primaryColor: COLORS.brandPrimary,
+    accentColor: COLORS.brandAccent,
+    backgroundColor: COLORS.brandBg,
     headingFont: 'Playfair Display',
     bodyFont: 'Inter',
 
-    announcementEnabled: false,
-    announcementText: 'Original Nigerian mattresses & furniture — fast delivery to your door.',
-    announcementLink: '/products',
+    announcementEnabled: ANNOUNCEMENT_BAR.enabled,
+    announcementText: ANNOUNCEMENT_BAR.text,
+    announcementLink: ANNOUNCEMENT_BAR.link,
 
-    heroTitle: 'Quality mattresses, pillows & furniture',
+    heroTitle: BRAND.tagline,
     heroSubtitle:
         'Authentic comfort for Nigerian homes — shop trusted brands with clear pricing and delivery.',
     heroCtaLabel: 'Shop products',
     heroCtaHref: '/products',
 
-    storyBadge: 'Who We Are',
-    storyTitle: 'Original Mattresses, Directly to Your Home.',
-    storyText:
-        "We started Smart Best Brands to make buying genuine mattresses simple in Nigeria. No fake foam, no hidden fees—just original brands like Mouka, Vitafoam, and Royal Foam delivered directly to your doorstep.",
-    storySecondaryBadge: 'Our Promise',
-    storySecondaryTitle: '100% Authentic, Direct From the Factory.',
-    storySecondaryText:
-        'We source directly from authorized factory distributors so you never have to worry about counterfeits. Every mattress comes in its original factory packaging with a real manufacturer warranty.',
+    storyBadge: STORY_CONTENT.badge,
+    storyTitle: STORY_CONTENT.title,
+    storyText: STORY_CONTENT.text,
+    storySecondaryBadge: STORY_CONTENT.secondaryBadge,
+    storySecondaryTitle: STORY_CONTENT.secondaryTitle,
+    storySecondaryText: STORY_CONTENT.secondaryText,
     storyImageUrl: null,
 
-    promoBadge: 'For Nigerian homes',
-    promoTitle: 'Comfort that feels like home',
-    promoCtaLabel: 'Discover now',
-    promoCtaHref: '/products',
+    promoBadge: PROMO_BANNER.badge,
+    promoTitle: PROMO_BANNER.title,
+    promoCtaLabel: PROMO_BANNER.ctaLabel,
+    promoCtaHref: PROMO_BANNER.ctaHref,
     promoImageUrl: null,
 
-    storeAddress: 'Abuja · Benin City',
-    contactEmail: 'hello@smartbestbrands.com',
+    storeAddress: CONTACT.address,
+    contactEmail: CONTACT.email,
     whatsappNumber: null,
     supportPhone: null,
-    instagramUrl: 'https://instagram.com/smartbestbrands',
+    instagramUrl: CONTACT.socials.instagram,
     facebookUrl: null,
     twitterUrl: null,
     tiktokUrl: null,
 
-    footerText: 'Authentic comfort for Nigerian homes. Quality mattresses, pillows, and furniture from trusted brands.',
+    footerText: FOOTER_CONTENT.text,
     bankName: null,
     bankAccountName: null,
     bankAccountNumber: null,
 
-    shopPageTitle: 'The Collection',
-    shopPageTagline: 'Original mattresses, luxury furniture, and bedding — every piece factory-sealed and warranted.',
+    shopPageTitle: SHOP_HEADER.title,
+    shopPageTagline: SHOP_HEADER.tagline,
 
-    statOneBadge: 'Partner Brands',
-    statOneValue: '07',
-    statTwoBadge: 'Original Stock',
-    statTwoValue: '100%',
-    storyLinkLabel: 'Our full story →',
+    statOneBadge: STORY_CONTENT.stats.statOneBadge,
+    statOneValue: STORY_CONTENT.stats.statOneValue,
+    statTwoBadge: STORY_CONTENT.stats.statTwoBadge,
+    statTwoValue: STORY_CONTENT.stats.statTwoValue,
+    storyLinkLabel: STORY_CONTENT.storyLinkLabel,
 
-    featuredTitle: 'What people keep coming back for.',
-    featuredDescription: 'Our most-loved pieces — or browse everything we carry.',
+    featuredTitle: FEATURED_SECTION.title,
+    featuredDescription: FEATURED_SECTION.description,
 
-    collectionsTitle: 'Shop by category',
-    collectionsDescription: 'Mattresses, pillows, furniture — find exactly what your space is missing.',
+    collectionsTitle: COLLECTIONS_SECTION.title,
+    collectionsDescription: COLLECTIONS_SECTION.description,
+
+    buttonShape: 'sharp',
+    cardStyle: 'sharp',
+    badgeStyle: 'sharp',
+
+    heroBackdropWord: 'Comfort',
+    storyBackdropWord: 'Rest',
+
+    deliveryPolicy: POLICIES.delivery.points.join('\n'),
+    returnPolicy: POLICIES.returns.points.join('\n'),
+    warrantyPolicy: POLICIES.warranty.points.join('\n'),
+
+    customRequestTitle: 'Need a Custom Size?',
+    customRequestSubtitle:
+        'Have an imported bed frame or unique room dimensions? We can order custom-sized mattresses directly from the factory for you.',
+
+    faqsJson: JSON.stringify(FAQS),
 }
 
 export const HEADING_FONTS = [
@@ -206,6 +272,20 @@ export function buildThemeCss(settings: SiteSettingsData): string {
     const headingFont = settings.headingFont || DEFAULT_SITE_SETTINGS.headingFont
     const bodyFont = settings.bodyFont || DEFAULT_SITE_SETTINGS.bodyFont
 
+    const buttonRadius =
+        settings.buttonShape === 'pill'
+            ? '9999px'
+            : settings.buttonShape === 'rounded'
+            ? '8px'
+            : '0px'
+    const cardRadius =
+        settings.cardStyle === 'curved'
+            ? '24px'
+            : settings.cardStyle === 'soft'
+            ? '12px'
+            : '0px'
+    const badgeRadius = settings.badgeStyle === 'pill' ? '9999px' : '0px'
+
     return `
 :root {
   --brand-primary: ${primary};
@@ -215,6 +295,9 @@ export function buildThemeCss(settings: SiteSettingsData): string {
   --font-body: '${bodyFont}', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-playfair: var(--font-heading);
   --font-inter: var(--font-body);
+  --button-radius: ${buttonRadius};
+  --card-radius: ${cardRadius};
+  --badge-radius: ${badgeRadius};
 }
 `.trim()
 }

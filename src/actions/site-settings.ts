@@ -71,6 +71,22 @@ function toData(row: any): SiteSettingsData {
 
         collectionsTitle: row.collectionsTitle || DEFAULT_SITE_SETTINGS.collectionsTitle,
         collectionsDescription: row.collectionsDescription || DEFAULT_SITE_SETTINGS.collectionsDescription,
+
+        buttonShape: (row.buttonShape || DEFAULT_SITE_SETTINGS.buttonShape) as any,
+        cardStyle: (row.cardStyle || DEFAULT_SITE_SETTINGS.cardStyle) as any,
+        badgeStyle: (row.badgeStyle || DEFAULT_SITE_SETTINGS.badgeStyle) as any,
+
+        heroBackdropWord: row.heroBackdropWord || DEFAULT_SITE_SETTINGS.heroBackdropWord,
+        storyBackdropWord: row.storyBackdropWord || DEFAULT_SITE_SETTINGS.storyBackdropWord,
+
+        deliveryPolicy: row.deliveryPolicy ?? DEFAULT_SITE_SETTINGS.deliveryPolicy,
+        returnPolicy: row.returnPolicy ?? DEFAULT_SITE_SETTINGS.returnPolicy,
+        warrantyPolicy: row.warrantyPolicy ?? DEFAULT_SITE_SETTINGS.warrantyPolicy,
+
+        customRequestTitle: row.customRequestTitle || DEFAULT_SITE_SETTINGS.customRequestTitle,
+        customRequestSubtitle: row.customRequestSubtitle || DEFAULT_SITE_SETTINGS.customRequestSubtitle,
+
+        faqsJson: row.faqsJson ?? DEFAULT_SITE_SETTINGS.faqsJson,
     }
 }
 
@@ -198,6 +214,22 @@ export async function updateSiteSettings(input: Partial<SiteSettingsData>) {
 
         if (input.collectionsTitle !== undefined) data.collectionsTitle = input.collectionsTitle.trim()
         if (input.collectionsDescription !== undefined) data.collectionsDescription = input.collectionsDescription.trim()
+
+        if (input.buttonShape !== undefined) data.buttonShape = input.buttonShape
+        if (input.cardStyle !== undefined) data.cardStyle = input.cardStyle
+        if (input.badgeStyle !== undefined) data.badgeStyle = input.badgeStyle
+
+        if (input.heroBackdropWord !== undefined) data.heroBackdropWord = input.heroBackdropWord.trim()
+        if (input.storyBackdropWord !== undefined) data.storyBackdropWord = input.storyBackdropWord.trim()
+
+        if (input.deliveryPolicy !== undefined) data.deliveryPolicy = input.deliveryPolicy?.trim() || null
+        if (input.returnPolicy !== undefined) data.returnPolicy = input.returnPolicy?.trim() || null
+        if (input.warrantyPolicy !== undefined) data.warrantyPolicy = input.warrantyPolicy?.trim() || null
+
+        if (input.customRequestTitle !== undefined) data.customRequestTitle = input.customRequestTitle.trim()
+        if (input.customRequestSubtitle !== undefined) data.customRequestSubtitle = input.customRequestSubtitle.trim()
+
+        if (input.faqsJson !== undefined) data.faqsJson = input.faqsJson
 
         const updated = await prisma.siteSettings.upsert({
             where: { id: 'default' },

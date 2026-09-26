@@ -11,6 +11,9 @@
   --brand-primary: #172554;
   --brand-accent: #0284c7;
   --brand-bg: #f7f6f3;
+  --button-radius: 0px;
+  --card-radius: 0px;
+  --badge-radius: 0px;
 }
 
 @layer base {
@@ -41,10 +44,11 @@
 }
 
 @layer components {
-  /* ── Unified button system ── all buttons use sharp rectangles ── */
+  /* ── Unified button system — dynamically controlled by Settings ── */
   .btn-primary {
     @apply text-white font-black py-4 px-10 transition-all duration-300 active:scale-95 text-[10px] uppercase tracking-[0.2em] inline-flex items-center justify-center;
     background-color: var(--brand-primary);
+    border-radius: var(--button-radius, 0px);
   }
 
   .btn-primary:hover {
@@ -56,6 +60,7 @@
     border-color: var(--brand-accent);
     color: var(--brand-accent);
     background-color: transparent;
+    border-radius: var(--button-radius, 0px);
   }
 
   .btn-secondary:hover {
@@ -63,10 +68,11 @@
     color: white;
   }
 
-  /* btn-elite is the primary conversion action — same shape, slightly taller */
+  /* btn-elite is the primary conversion action */
   .btn-elite {
     @apply text-white font-black py-5 px-10 transition-all duration-300 active:scale-95 text-[10px] uppercase tracking-[0.25em] flex items-center justify-center gap-3;
     background-color: var(--brand-primary);
+    border-radius: var(--button-radius, 0px);
   }
 
   .btn-elite:hover {
@@ -104,6 +110,19 @@
 
   .font-body {
     font-family: var(--font-body);
+  }
+
+  /* Dynamic Theme Shapes for No-Code Visual Control */
+  .style-button {
+    border-radius: var(--button-radius, 0px);
+  }
+
+  .style-card {
+    border-radius: var(--card-radius, 0px);
+  }
+
+  .style-badge {
+    border-radius: var(--badge-radius, 0px);
   }
 
   /* Legacy aliases — keep for any components still referencing these */

@@ -3,15 +3,16 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSiteSettings } from '@/components/site-settings-context'
+import { PROMO_BANNER } from '@/lib/constants'
 
 export default function PromoBanner() {
   const settings = useSiteSettings()
 
-  const badge = settings.promoBadge || 'Crafted for Nigerian homes'
-  const title = settings.promoTitle || 'Spaces worth living in.'
-  const ctaLabel = settings.promoCtaLabel || 'Shop the collection'
-  const ctaHref = settings.promoCtaHref || '/products'
-  const imageUrl = settings.promoImageUrl || '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg'
+  const badge = settings.promoBadge || PROMO_BANNER.badge
+  const title = settings.promoTitle || PROMO_BANNER.title
+  const ctaLabel = settings.promoCtaLabel || PROMO_BANNER.ctaLabel
+  const ctaHref = settings.promoCtaHref || PROMO_BANNER.ctaHref
+  const imageUrl = settings.promoImageUrl || PROMO_BANNER.imageUrl
 
   return (
     <section id="promo" className="relative min-h-[42vh] sm:min-h-[50vh] flex items-center justify-center overflow-hidden scroll-mt-16">
@@ -41,7 +42,7 @@ export default function PromoBanner() {
         </h2>
         <Link
           href={ctaHref}
-          className="inline-flex border border-white/90 text-white px-8 py-3.5 text-[11px] font-medium tracking-[0.14em] uppercase hover:bg-white hover:text-[var(--brand-primary)] transition-colors"
+          className="inline-flex border border-white/90 text-white px-8 py-3.5 text-[11px] font-medium tracking-[0.14em] uppercase hover:bg-white hover:text-[var(--brand-primary)] transition-colors style-button"
         >
           {ctaLabel}
         </Link>

@@ -8,6 +8,12 @@ import {
   BODY_FONTS,
   DEFAULT_SITE_SETTINGS,
   type SiteSettingsData,
+  SETTINGS_TABS,
+  type SettingsTabId,
+  COLOR_PRESETS,
+  BUTTON_SHAPE_OPTIONS,
+  CARD_STYLE_OPTIONS,
+  BADGE_STYLE_OPTIONS,
 } from '@/lib/site-settings'
 import CloudinaryUpload from '@/components/CloudinaryUpload'
 import toast from 'react-hot-toast'
@@ -27,33 +33,30 @@ import {
   Type,
   Megaphone,
   Layers,
+  ShieldCheck,
+  HelpCircle,
+  Plus,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react'
+import { FAQS } from '@/lib/constants'
 
-// Tab definitions
-type TabId = 'brand' | 'home' | 'shop' | 'contact' | 'bank'
-
-interface TabDef {
-  id: TabId
-  label: string
-  icon: React.ElementType
-  description: string
+// Map Lucide icons to centralized tab definitions
+const TAB_ICONS: Record<SettingsTabId, React.ElementType> = {
+  brand: Palette,
+  design: Layers,
+  home: Home,
+  shop: ShoppingBag,
+  policies: ShieldCheck,
+  contact: Phone,
+  bank: CreditCard,
 }
 
-const TABS: TabDef[] = [
-  { id: 'brand', label: 'Brand & Theme', icon: Palette, description: 'Store identity, brand colors, and typography' },
-  { id: 'home', label: 'Homepage Writeups', icon: Home, description: 'Hero banner, story, stats, and promo banner copy' },
-  { id: 'shop', label: 'Shop & Collections', icon: ShoppingBag, description: 'Catalog headers, featured products, and categories' },
-  { id: 'contact', label: 'Contact & Socials', icon: Phone, description: 'Phone, WhatsApp, address, and social links' },
-  { id: 'bank', label: 'Bank & Footer', icon: CreditCard, description: 'Bank transfer account details and footer copy' },
-]
-
-const COLOR_PRESETS = [
-  { name: 'Navy & Sky (Default)', primary: '#172554', accent: '#0284c7', bg: '#f7f6f3' },
-  { name: 'Midnight & Gold', primary: '#0f172a', accent: '#d97706', bg: '#fafaf9' },
-  { name: 'Emerald Luxe', primary: '#064e3b', accent: '#10b981', bg: '#f4fbf7' },
-  { name: 'Monochrome Noir', primary: '#18181b', accent: '#475569', bg: '#ffffff' },
-  { name: 'Warm Terracotta', primary: '#431407', accent: '#c2410c', bg: '#fdfbf7' },
-]
+const TABS = SETTINGS_TABS.map((tab) => ({
+  ...tab,
+  icon: TAB_ICONS[tab.id],
+}))
 
 export default function SiteSettingsPage() {
   const [form, setForm] = useState<SiteSettingsData | null>(null)
@@ -61,7 +64,7 @@ export default function SiteSettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [resetting, setResetting] = useState(false)
-  const [activeTab, setActiveTab] = useState<TabId>('brand')
+  const [activeTab, setActiveTab] = useState<SettingsTabId>('brand')
 
   useEffect(() => {
     void getSiteSettings().then((d) => {
@@ -73,6 +76,49 @@ export default function SiteSettingsPage() {
 
   const set = <K extends keyof SiteSettingsData>(k: K, v: SiteSettingsData[K]) =>
     setForm((p) => (p ? { ...p, [k]: v } : p))
+
+  const getFaqsList = (): Array<{ question: string; answer: string }> => {
+    if (!form?.faqsJson) return FAQS.map((f) => ({ question: f.question, answer: f.answer }))
+    try {
+      const arr = JSON.parse(form.faqsJson)
+      if (Array.isArray(arr) && arr.length > 0) return arr
+    } catch {}
+    return FAQS.map((f) => ({ question: f.question, answer: f.answer }))
+  }
+
+  const handleAddFaq = () => {
+    const current = getFaqsList()
+    const updated = [
+      ...current,
+      {
+        question: 'New Frequently Asked Question',
+        answer: 'Provide clear, reassuring information for your customers here.',
+      },
+    ]
+    set('faqsJson', JSON.stringify(updated))
+  }
+
+  const handleUpdateFaq = (index: number, key: 'question' | 'answer', value: string) => {
+    const current = [...getFaqsList()]
+    if (!current[index]) return
+    current[index] = { ...current[index], [key]: value }
+    set('faqsJson', JSON.stringify(current))
+  }
+
+  const handleDeleteFaq = (index: number) => {
+    const current = getFaqsList().filter((_, i) => i !== index)
+    set('faqsJson', JSON.stringify(current))
+  }
+
+  const handleMoveFaq = (index: number, direction: -1 | 1) => {
+    const current = [...getFaqsList()]
+    const target = index + direction
+    if (target < 0 || target >= current.length) return
+    const temp = current[index]
+    current[index] = current[target]
+    current[target] = temp
+    set('faqsJson', JSON.stringify(current))
+  }
 
   const isDirty = form && initialForm ? JSON.stringify(form) !== JSON.stringify(initialForm) : false
 
@@ -366,8 +412,159 @@ export default function SiteSettingsPage() {
               </div>
             </Card>
 
+          </div>
+        )}
+
+        {/* ═════════ TAB 2: Buttons & UI Design ═════════ */}
+        {activeTab === 'design' && (
+          <div className="space-y-6">
+            {/* Button Shapes Card */}
+            <Card title="Button Shape & Style" subtitle="Control button corners and styles across the entire storefront">
+              <div className="space-y-5">
+                <div>
+                  <label className="text-xs font-semibold text-stone-700 block mb-2">Select Button Shape</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {BUTTON_SHAPE_OPTIONS.map((opt) => {
+                      const isSelected = form.buttonShape === opt.value
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => set('buttonShape', opt.value)}
+                          className={`p-4 rounded-xl border text-left transition-all relative ${
+                            isSelected
+                              ? 'border-blue-950 bg-blue-50/40 ring-2 ring-blue-950/10'
+                              : 'border-stone-200 bg-white hover:border-stone-300'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <span
+                              style={{ borderRadius: opt.radius }}
+                              className="inline-block px-3 py-1 bg-blue-950 text-white text-[10px] font-bold uppercase tracking-wider"
+                            >
+                              Sample
+                            </span>
+                            {isSelected && <CheckCircle2 className="w-4 h-4 text-sky-600" />}
+                          </div>
+                          <span className="text-xs font-bold text-blue-950 block">{opt.label}</span>
+                          <span className="text-[11px] text-stone-400 mt-1 block">{opt.desc}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Live Preview Bar */}
+                <div className="p-4 sm:p-5 bg-stone-50 rounded-xl border border-stone-200/80 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-blue-950 uppercase tracking-wider">Live Buttons Preview</span>
+                    <span className="text-[11px] font-mono text-stone-400">
+                      Shape: {form.buttonShape} · Radius: {form.buttonShape === 'pill' ? '9999px' : form.buttonShape === 'rounded' ? '8px' : '0px'}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 p-4 bg-white rounded-xl border border-stone-200/60 shadow-sm">
+                    <button
+                      type="button"
+                      style={{
+                        backgroundColor: form.primaryColor,
+                        borderRadius: form.buttonShape === 'pill' ? '9999px' : form.buttonShape === 'rounded' ? '8px' : '0px',
+                      }}
+                      className="px-6 py-3 text-[11px] font-black text-white uppercase tracking-wider shadow-sm transition-all"
+                    >
+                      Primary Button
+                    </button>
+                    <button
+                      type="button"
+                      style={{
+                        borderColor: form.accentColor,
+                        color: form.accentColor,
+                        borderRadius: form.buttonShape === 'pill' ? '9999px' : form.buttonShape === 'rounded' ? '8px' : '0px',
+                      }}
+                      className="px-6 py-3 text-[11px] font-black border uppercase tracking-wider bg-transparent transition-all"
+                    >
+                      Secondary Outline
+                    </button>
+                    <button
+                      type="button"
+                      style={{
+                        backgroundColor: form.accentColor,
+                        borderRadius: form.buttonShape === 'pill' ? '9999px' : form.buttonShape === 'rounded' ? '8px' : '0px',
+                      }}
+                      className="px-4 py-3 text-[11px] font-black text-white uppercase tracking-wider transition-all"
+                    >
+                      Accent Action
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Card & Container Style */}
+            <Card title="Product Cards & Containers" subtitle="Choose corner curvature for product cards, accordions, and dialogs">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {CARD_STYLE_OPTIONS.map((opt) => {
+                  const isSelected = form.cardStyle === opt.value
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => set('cardStyle', opt.value)}
+                      className={`p-4 rounded-xl border text-left transition-all ${
+                        isSelected
+                          ? 'border-blue-950 bg-blue-50/40 ring-2 ring-blue-950/10'
+                          : 'border-stone-200 bg-white hover:border-stone-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div
+                          style={{ borderRadius: opt.radius }}
+                          className="w-10 h-10 bg-stone-100 border border-stone-300 shadow-inner"
+                        />
+                        {isSelected && <CheckCircle2 className="w-4 h-4 text-sky-600" />}
+                      </div>
+                      <span className="text-xs font-bold text-blue-950 block">{opt.label}</span>
+                      <span className="text-[11px] text-stone-400 mt-1 block">{opt.desc}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </Card>
+
+            {/* Badges Style */}
+            <Card title="Tags & Badges Style" subtitle="Appearance of Sale badges and category chips">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {BADGE_STYLE_OPTIONS.map((opt) => {
+                  const isSelected = form.badgeStyle === opt.value
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => set('badgeStyle', opt.value)}
+                      className={`p-4 rounded-xl border text-left transition-all ${
+                        isSelected
+                          ? 'border-blue-950 bg-blue-50/40 ring-2 ring-blue-950/10'
+                          : 'border-stone-200 bg-white hover:border-stone-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <span
+                          style={{ borderRadius: opt.value === 'pill' ? '9999px' : '0px' }}
+                          className="inline-block px-3 py-1 bg-sky-600 text-white text-[10px] font-black uppercase tracking-wider"
+                        >
+                          SALE 20% OFF
+                        </span>
+                        {isSelected && <CheckCircle2 className="w-4 h-4 text-sky-600" />}
+                      </div>
+                      <span className="text-xs font-bold text-blue-950 block">{opt.label}</span>
+                      <span className="text-[11px] text-stone-400 mt-1 block">{opt.desc}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </Card>
+
             {/* Typography Card */}
-            <Card title="Typography" subtitle="Select font pairing for headings and body text">
+            <Card title="Typography Pairings" subtitle="Select font pairing for headings and interface reading">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="text-xs font-semibold text-stone-700 block mb-2">Heading Font (Playfair / Display)</label>
@@ -432,10 +629,35 @@ export default function SiteSettingsPage() {
                 </div>
               </div>
             </Card>
+
+            {/* Section Watermarks Card */}
+            <Card title="Section Watermark Words" subtitle="Large editorial watermark typography behind main homepage sections">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Field label="Hero Section Watermark" hint="Large faint background word behind hero slide (default: Comfort)">
+                  <input
+                    type="text"
+                    value={form.heroBackdropWord}
+                    onChange={(e) => set('heroBackdropWord', e.target.value)}
+                    placeholder="Comfort"
+                    className={inputClass}
+                  />
+                </Field>
+
+                <Field label="Story Section Watermark" hint="Large faint background word behind story section (default: Rest)">
+                  <input
+                    type="text"
+                    value={form.storyBackdropWord}
+                    onChange={(e) => set('storyBackdropWord', e.target.value)}
+                    placeholder="Rest"
+                    className={inputClass}
+                  />
+                </Field>
+              </div>
+            </Card>
           </div>
         )}
 
-        {/* ═════════ TAB 2: Homepage Writeups ═════════ */}
+        {/* ═════════ TAB 3: Homepage Writeups ═════════ */}
         {activeTab === 'home' && (
           <div className="space-y-6">
             {/* Announcement Bar */}
@@ -852,7 +1074,168 @@ export default function SiteSettingsPage() {
           </div>
         )}
 
-        {/* ═════════ TAB 4: Contact & Socials ═════════ */}
+        {/* ═════════ TAB 5: Policies & FAQs ═════════ */}
+        {activeTab === 'policies' && (
+          <div className="space-y-6">
+            {/* Guarantees & Item Policies */}
+            <Card title="Guarantees & Item Policies" subtitle="Displayed on product pages inside the trust accordion">
+              <div className="space-y-5">
+                <Field
+                  label="1. Delivery & Logistics Policy"
+                  hint="Each line will be displayed as a distinct bullet point for customers"
+                >
+                  <textarea
+                    rows={4}
+                    value={form.deliveryPolicy || ''}
+                    onChange={(e) => set('deliveryPolicy', e.target.value)}
+                    placeholder="Free doorstep delivery on select orders in Abuja & Benin City&#10;Scheduled 24-48 hr dispatch&#10;Careful handling by trained logistics crew"
+                    className={textareaClass}
+                  />
+                </Field>
+
+                <Field
+                  label="2. Returns & Replacement Policy"
+                  hint="Each line will be displayed as a distinct bullet point for customers"
+                >
+                  <textarea
+                    rows={4}
+                    value={form.returnPolicy || ''}
+                    onChange={(e) => set('returnPolicy', e.target.value)}
+                    placeholder="7-day inspection window on factory-sealed items&#10;Prompt replacement if defective or incorrect size&#10;Original packaging must remain intact"
+                    className={textareaClass}
+                  />
+                </Field>
+
+                <Field
+                  label="3. Factory Warranty Policy"
+                  hint="Each line will be displayed as a distinct bullet point for customers"
+                >
+                  <textarea
+                    rows={4}
+                    value={form.warrantyPolicy || ''}
+                    onChange={(e) => set('warrantyPolicy', e.target.value)}
+                    placeholder="100% genuine factory warranty from Mouka, Vitafoam, etc.&#10;Full manufacturer warranty card included&#10;Dedicated warranty support liaison"
+                    className={textareaClass}
+                  />
+                </Field>
+              </div>
+            </Card>
+
+            {/* Custom Size Order Modal Copy */}
+            <Card title="Custom Size Order Modal" subtitle="Text shown in the pop-up modal when a customer clicks 'Custom size' on a product">
+              <div className="space-y-4">
+                <Field label="Modal Headline" hint="e.g. Need a Custom Size?">
+                  <input
+                    type="text"
+                    value={form.customRequestTitle}
+                    onChange={(e) => set('customRequestTitle', e.target.value)}
+                    placeholder="Need a Custom Size?"
+                    className={inputClass}
+                  />
+                </Field>
+
+                <Field label="Modal Subtitle / Instructions" hint="e.g. Have an imported bed frame or unique room dimensions? We can order custom-sized mattresses directly from the factory for you.">
+                  <textarea
+                    rows={3}
+                    value={form.customRequestSubtitle}
+                    onChange={(e) => set('customRequestSubtitle', e.target.value)}
+                    placeholder="Have an imported bed frame or unique room dimensions? We can order custom-sized mattresses directly from the factory for you."
+                    className={textareaClass}
+                  />
+                </Field>
+              </div>
+            </Card>
+
+            {/* FAQs Dynamic Manager */}
+            <Card
+              title="Frequently Asked Questions (FAQs)"
+              subtitle="Add, edit, reorder, or remove questions shown on the /faqs page"
+            >
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                  <span className="text-xs font-semibold text-stone-600">
+                    {getFaqsList().length} Question{getFaqsList().length === 1 ? '' : 's'} Configured
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleAddFaq}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-blue-950 hover:bg-blue-900 rounded-lg transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Question</span>
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {getFaqsList().map((faq, idx) => (
+                    <div
+                      key={idx}
+                      className="p-4 bg-stone-50/70 border border-stone-200/80 rounded-xl space-y-3 transition-all hover:border-stone-300"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-mono font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
+                          Q{idx + 1}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => handleMoveFaq(idx, -1)}
+                            disabled={idx === 0}
+                            title="Move Up"
+                            className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30 disabled:hover:text-stone-400"
+                          >
+                            <ArrowUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleMoveFaq(idx, 1)}
+                            disabled={idx === getFaqsList().length - 1}
+                            title="Move Down"
+                            className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30 disabled:hover:text-stone-400"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteFaq(idx)}
+                            title="Delete FAQ"
+                            className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-semibold text-stone-700 block mb-1">Question</label>
+                        <input
+                          type="text"
+                          value={faq.question}
+                          onChange={(e) => handleUpdateFaq(idx, 'question', e.target.value)}
+                          placeholder="e.g. Do you deliver outside Abuja and Benin City?"
+                          className={inputClass}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-semibold text-stone-700 block mb-1">Answer</label>
+                        <textarea
+                          rows={3}
+                          value={faq.answer}
+                          onChange={(e) => handleUpdateFaq(idx, 'answer', e.target.value)}
+                          placeholder="Detailed, helpful answer..."
+                          className={textareaClass}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* ═════════ TAB 6: Contact & Socials ═════════ */}
         {activeTab === 'contact' && (
           <div className="space-y-6">
             {/* Direct Contact Info */}

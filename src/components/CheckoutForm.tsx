@@ -12,6 +12,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { useSiteSettings } from '@/components/site-settings-context'
+import { BANK_DETAILS } from '@/lib/constants'
 
 interface DeliveryZone {
   id: string
@@ -32,9 +33,9 @@ export default function CheckoutForm({ zones }: CheckoutFormProps) {
   const { state, clearCart, loadCart } = useCart()
   const { user } = useAuth()
   const settings = useSiteSettings()
-  const bankName = settings.bankName || 'Moniepoint MFB / Zenith Bank'
-  const bankAccountName = settings.bankAccountName || 'Smart Best Brands Nigeria'
-  const bankAccountNumber = settings.bankAccountNumber || '08064619479'
+  const bankName = settings.bankName || BANK_DETAILS.bankName
+  const bankAccountName = settings.bankAccountName || BANK_DETAILS.accountName
+  const bankAccountNumber = settings.bankAccountNumber || BANK_DETAILS.accountNumber
   const router = useRouter()
   const searchParams = useSearchParams()
   const recoverToken = searchParams?.get('recover')

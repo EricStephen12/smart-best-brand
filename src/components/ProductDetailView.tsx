@@ -23,7 +23,9 @@ import CustomRequestModal from '@/components/CustomRequestModal'
 import ProductReviews, { type ReviewItem } from '@/components/ProductReviews'
 import RelatedProducts from '@/components/RelatedProducts'
 import EditorialBackdrop from '@/components/EditorialBackdrop'
+import { useSiteSettings } from '@/components/site-settings-context'
 import { getWhatsAppUrl } from '@/lib/contact-channels'
+import { POLICIES, TRUST_BADGES } from '@/lib/constants'
 import toast from 'react-hot-toast'
 
 interface ProductDetailViewProps {
@@ -50,6 +52,22 @@ export default function ProductDetailView({
   relatedCategoryLabel,
 }: ProductDetailViewProps) {
   const { addToCart } = useCart()
+  const settings = useSiteSettings()
+
+  const deliveryPoints = (settings.deliveryPolicy
+    ? settings.deliveryPolicy.split('\n')
+    : POLICIES.delivery.points
+  ).map((s) => s.trim().replace(/^[-•*]\s*/, '')).filter(Boolean)
+
+  const returnPoints = (settings.returnPolicy
+    ? settings.returnPolicy.split('\n')
+    : POLICIES.returns.points
+  ).map((s) => s.trim().replace(/^[-•*]\s*/, '')).filter(Boolean)
+
+  const warrantyPoints = (settings.warrantyPolicy
+    ? settings.warrantyPolicy.split('\n')
+    : POLICIES.warranty.points
+  ).map((s) => s.trim().replace(/^[-•*]\s*/, '')).filter(Boolean)
 
   const initialVariant =
     product?.variants?.find((v: any) => v.price > 0 && v.stock > 0) ||
@@ -238,7 +256,7 @@ export default function ProductDetailView({
                       type="button"
                       onClick={() => setSelectedVariant(v)}
                       disabled={out && !active}
-                      className={`min-w-[4.5rem] px-4 py-2.5 text-[11px] font-black tracking-[0.12em] uppercase border transition-colors ${
+                      className={`min-w-[4.5rem] px-4 py-2.5 text-[11px] font-black tracking-[0.12em] uppercase border transition-colors style-button ${
                         active
                           ? 'bg-blue-950 text-white border-blue-950'
                           : out
@@ -277,7 +295,7 @@ export default function ProductDetailView({
                   type="button"
                   onClick={handleAddToCart}
                   disabled={!canAddToCart}
-                  className="flex-1 inline-flex items-center justify-center gap-2 bg-blue-950 text-white text-[11px] font-black tracking-[0.18em] uppercase py-4 hover:bg-sky-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="flex-1 inline-flex items-center justify-center gap-2 bg-blue-950 text-white text-[11px] font-black tracking-[0.18em] uppercase py-4 hover:bg-sky-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors style-button"
                 >
                   <ShoppingCart className="w-4 h-4" />
                   {stock <= 0 ? 'Sold out' : 'Add to bag'}
@@ -287,7 +305,7 @@ export default function ProductDetailView({
                   onClick={() => toggleWishlist(product)}
                   aria-label={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
                   title={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
-                  className={`px-4 sm:px-5 py-4 border transition-colors flex items-center justify-center ${
+                  className={`px-4 sm:px-5 py-4 border transition-colors flex items-center justify-center style-button ${
                     isWishlisted
                       ? 'bg-rose-50 border-rose-300 text-rose-600'
                       : 'border-blue-950/20 text-blue-950 hover:border-blue-950 hover:bg-stone-50'
@@ -300,7 +318,7 @@ export default function ProductDetailView({
                 <button
                   type="button"
                   onClick={handleNegotiateWhatsApp}
-                  className="w-full inline-flex items-center justify-center gap-2 border border-sky-600 bg-sky-50 text-sky-950 text-[11px] font-black tracking-[0.18em] uppercase py-3.5 hover:bg-sky-100 transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 border border-sky-600 bg-sky-50 text-sky-950 text-[11px] font-black tracking-[0.18em] uppercase py-3.5 hover:bg-sky-100 transition-colors style-button"
                 >
                   <BadgePercent className="w-4 h-4 text-sky-700" />
                   Negotiate Price on WhatsApp
@@ -309,7 +327,7 @@ export default function ProductDetailView({
               <button
                 type="button"
                 onClick={handleWhatsAppOrder}
-                className="w-full inline-flex items-center justify-center gap-2 border border-blue-950 text-blue-950 text-[11px] font-black tracking-[0.18em] uppercase py-4 hover:bg-blue-950 hover:text-white transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 border border-blue-950 text-blue-950 text-[11px] font-black tracking-[0.18em] uppercase py-4 hover:bg-blue-950 hover:text-white transition-colors style-button"
               >
                 <MessageCircle className="w-4 h-4" />
                 Order on WhatsApp
@@ -318,15 +336,14 @@ export default function ProductDetailView({
 
             {/* Trust badges */}
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1">
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
-                <Lock className="w-3 h-3 text-stone-400" /> Secure checkout
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
-                <ShieldCheck className="w-3 h-3 text-stone-400" /> Factory warranty
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
-                <Truck className="w-3 h-3 text-stone-400" /> Nationwide delivery
-              </span>
+              {TRUST_BADGES.map((badge, idx) => {
+                const Icon = [Lock, ShieldCheck, Truck][idx] || Lock
+                return (
+                  <span key={badge.id} className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
+                    <Icon className="w-3 h-3 text-stone-400" /> {badge.label}
+                  </span>
+                )
+              })}
             </div>
 
             {/* Item Policies & Guarantees Accordion */}
@@ -335,7 +352,7 @@ export default function ProductDetailView({
                 Guarantees &amp; Item Policies
               </p>
 
-              <div className="border border-stone-200 divide-y divide-stone-100 overflow-hidden bg-white text-sm">
+              <div className="border border-stone-200 divide-y divide-stone-100 overflow-hidden bg-white text-sm style-card">
                 {/* 1. Delivery & Shipping */}
                 <div>
                   <button
@@ -345,7 +362,7 @@ export default function ProductDetailView({
                   >
                     <span className="flex items-center gap-2.5 text-xs tracking-wide uppercase">
                       <Truck className="w-4 h-4 text-sky-700" />
-                      Delivery &amp; Transit Timelines
+                      {POLICIES.delivery.title}
                     </span>
                     <ChevronDown
                       className={`w-4 h-4 text-stone-400 transition-transform duration-200 ${
@@ -355,15 +372,9 @@ export default function ProductDetailView({
                   </button>
                   {openPolicyTab === 'delivery' && (
                     <div className="px-4 pb-4 text-xs text-stone-500 space-y-2 leading-relaxed bg-stone-50/50">
-                      <p>
-                        • <strong>Abuja &amp; Lagos:</strong> 24–48 hours (same-day dispatch available on morning orders).
-                      </p>
-                      <p>
-                        • <strong>Other States:</strong> 3–5 business days via insured haulage.
-                      </p>
-                      <p>
-                        • <strong>Inspection:</strong> You are encouraged to inspect the item packaging upon delivery before our courier team departs.
-                      </p>
+                      {deliveryPoints.map((pt, i) => (
+                        <p key={i}>• {pt}</p>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -377,7 +388,7 @@ export default function ProductDetailView({
                   >
                     <span className="flex items-center gap-2.5 text-xs tracking-wide uppercase">
                       <RotateCcw className="w-4 h-4 text-emerald-700" />
-                      7-Day Return &amp; Exchange Policy
+                      {POLICIES.returns.title}
                     </span>
                     <ChevronDown
                       className={`w-4 h-4 text-stone-400 transition-transform duration-200 ${
@@ -387,15 +398,9 @@ export default function ProductDetailView({
                   </button>
                   {openPolicyTab === 'return' && (
                     <div className="px-4 pb-4 text-xs text-stone-500 space-y-2 leading-relaxed bg-stone-50/50">
-                      <p>
-                        • <strong>Return Window:</strong> Returns or exchanges accepted within 7 days of delivery.
-                      </p>
-                      <p>
-                        • <strong>Hygiene Standard:</strong> For mattresses, the original factory clear polythene seal must remain intact and unopened.
-                      </p>
-                      <p>
-                        • <strong>Factory Flaws:</strong> If any manufacturing defect or transit damage is detected upon unboxing, we provide an immediate 100% free replacement.
-                      </p>
+                      {returnPoints.map((pt, i) => (
+                        <p key={i}>• {pt}</p>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -409,7 +414,7 @@ export default function ProductDetailView({
                   >
                     <span className="flex items-center gap-2.5 text-xs tracking-wide uppercase">
                       <ShieldCheck className="w-4 h-4 text-amber-700" />
-                      100% Factory Warranty &amp; Authenticity
+                      {POLICIES.warranty.title}
                     </span>
                     <ChevronDown
                       className={`w-4 h-4 text-stone-400 transition-transform duration-200 ${
@@ -419,15 +424,9 @@ export default function ProductDetailView({
                   </button>
                   {openPolicyTab === 'warranty' && (
                     <div className="px-4 pb-4 text-xs text-stone-500 space-y-2 leading-relaxed bg-stone-50/50">
-                      <p>
-                        • <strong>Direct Sourcing:</strong> Genuine factory-sealed products sourced directly from certified brand manufacturing plants.
-                      </p>
-                      <p>
-                        • <strong>Manufacturer Certificate:</strong> Includes official manufacturer warranty documentation.
-                      </p>
-                      <p>
-                        • <strong>Dedicated Support:</strong> Our team coordinates directly with the factory service center if you ever need warranty service.
-                      </p>
+                      {warrantyPoints.map((pt, i) => (
+                        <p key={i}>• {pt}</p>
+                      ))}
                     </div>
                   )}
                 </div>

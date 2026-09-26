@@ -9,6 +9,7 @@ import { useCart } from '@/lib/cart-context'
 import { useWishlist } from '@/lib/wishlist-context'
 import { useSiteSettings } from '@/components/site-settings-context'
 import { brandNameParts } from '@/lib/site-settings'
+import { NAV_LEFT, NAV_RIGHT, NAV_MOBILE, ANIMATION } from '@/lib/constants'
 
 export default function Header() {
   const pathname = usePathname()
@@ -66,8 +67,9 @@ export default function Header() {
 
           {/* Left nav — desktop */}
           <nav className="hidden md:flex items-center space-x-10 flex-1">
-            <Link href="/products" className={linkClass}>Shop</Link>
-            <Link href="/about" className={linkClass}>About</Link>
+            {NAV_LEFT.map((item) => (
+              <Link key={item.href} href={item.href} className={linkClass}>{item.label}</Link>
+            ))}
           </nav>
 
           {/* Mobile hamburger */}
@@ -108,8 +110,9 @@ export default function Header() {
           {/* Right nav — desktop + icon actions */}
           <div className="flex items-center justify-end gap-4 sm:gap-10 flex-1">
             <nav className="hidden md:flex items-center space-x-10">
-              <Link href="/contact" className={linkClass}>Contact</Link>
-              <Link href="/account" className={linkClass}>Account</Link>
+              {NAV_RIGHT.map((item) => (
+                <Link key={item.href} href={item.href} className={linkClass}>{item.label}</Link>
+              ))}
             </nav>
 
             {/* Wishlist */}
@@ -155,14 +158,7 @@ export default function Header() {
           className="md:hidden overflow-hidden"
         >
           <nav className="py-6 space-y-5 border-t border-stone-100">
-            {[
-              { label: 'Shop', href: '/products' },
-              { label: 'Wishlist', href: '/account/wishlist' },
-              { label: 'About', href: '/about' },
-              { label: 'FAQs', href: '/faqs' },
-              { label: 'Contact', href: '/contact' },
-              { label: 'Account', href: '/account' },
-            ].map((item) => (
+            {NAV_MOBILE.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import StorySection from '@/components/StorySection'
 import { Truck, ShieldCheck, Heart, Award, ArrowRight } from 'lucide-react'
 import { getAllBrands } from '@/actions/brands'
+import { VALUES } from '@/lib/constants'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,26 +45,23 @@ export default async function AboutPage() {
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-            <ValueCard
-              icon={ShieldCheck}
-              title="100% Authentic"
-              description="We source every product directly from authorised brand distributors. If it's not original, it doesn't make it onto our shelves."
-            />
-            <ValueCard
-              icon={Truck}
-              title="Reliable Delivery"
-              description="We handle delivery ourselves across Abuja and Benin City so your order arrives exactly as it left the factory."
-            />
-            <ValueCard
-              icon={Award}
-              title="Real Warranties"
-              description="Every mattress and piece of furniture comes with the manufacturer's original warranty — not a store promise, the actual card."
-            />
-            <ValueCard
-              icon={Heart}
-              title="People First"
-              description="We take the time to understand what you actually need. The right mattress isn't the most expensive one — it's the right fit for you."
-            />
+            {VALUES.map((val) => {
+              const iconMap: Record<string, React.ElementType> = {
+                authentic: ShieldCheck,
+                delivery: Truck,
+                warranties: Award,
+                people_first: Heart,
+              }
+              const Icon = iconMap[val.id] || ShieldCheck
+              return (
+                <ValueCard
+                  key={val.id}
+                  icon={Icon}
+                  title={val.title}
+                  description={val.description}
+                />
+              )
+            })}
           </div>
         </div>
       </section>

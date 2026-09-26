@@ -5,6 +5,12 @@ import { Instagram, Facebook, Twitter, MessageCircle, MapPin, Mail, Phone } from
 import { getTelHref, getWhatsAppUrl } from '@/lib/contact-channels'
 import { useSiteSettings } from '@/components/site-settings-context'
 import { brandNameParts } from '@/lib/site-settings'
+import {
+  FOOTER_SHOP_LINKS,
+  FOOTER_COMPANY_LINKS,
+  FOOTER_LEGAL_LINKS,
+  PAYMENT_METHODS,
+} from '@/lib/constants'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -36,24 +42,9 @@ export default function Footer() {
             </p>
           </div>
 
-          <FooterSection
-            title="Shop"
-            links={[
-              { label: 'All products', href: '/products' },
-              { label: 'Mattresses', href: '/products?category=Mattresses' },
-              { label: 'Pillows', href: '/products?category=Pillows' },
-              { label: 'Furniture', href: '/products?category=Furniture' },
-            ]}
-          />
+          <FooterSection title="Shop" links={FOOTER_SHOP_LINKS} />
 
-          <FooterSection
-            title="Company"
-            links={[
-              { label: 'About', href: '/about' },
-              { label: 'Contact', href: '/contact' },
-              { label: 'FAQs', href: '/faqs' },
-            ]}
-          />
+          <FooterSection title="Company" links={FOOTER_COMPANY_LINKS} />
 
           <div>
             <h4 className="text-[10px] font-black tracking-[0.35em] uppercase text-sky-400 mb-5">
@@ -116,26 +107,22 @@ export default function Footer() {
             <span className="text-[10px] font-semibold uppercase tracking-wider text-white/30 mr-1">
               We accept
             </span>
-            {/* Paystack */}
-            <span className="inline-flex items-center px-2.5 py-1 bg-white/10 border border-white/15 text-[10px] font-black tracking-wider text-white/60 uppercase">
-              Paystack
-            </span>
-            {/* Bank Transfer */}
-            <span className="inline-flex items-center px-2.5 py-1 bg-white/10 border border-white/15 text-[10px] font-black tracking-wider text-white/60 uppercase">
-              Bank Transfer
-            </span>
-            {/* WhatsApp */}
-            <span className="inline-flex items-center px-2.5 py-1 bg-white/10 border border-white/15 text-[10px] font-black tracking-wider text-white/60 uppercase">
-              WhatsApp Order
-            </span>
+            {PAYMENT_METHODS.map((m) => (
+              <span
+                key={m.label}
+                className="inline-flex items-center px-2.5 py-1 bg-white/10 border border-white/15 text-[10px] font-black tracking-wider text-white/60 uppercase"
+              >
+                {m.label}
+              </span>
+            ))}
           </div>
 
           <div className="flex flex-col sm:flex-row justify-between gap-4 text-[10px] tracking-[0.2em] uppercase text-white/35">
             <p>© {currentYear} {settings.siteName}</p>
             <div className="flex flex-wrap gap-6">
-              <Link href="/privacy" className="hover:text-white/70">Privacy</Link>
-              <Link href="/terms" className="hover:text-white/70">Terms</Link>
-              <Link href="/refund" className="hover:text-white/70">Refunds</Link>
+              {FOOTER_LEGAL_LINKS.map((l) => (
+                <Link key={l.href} href={l.href} className="hover:text-white/70">{l.label}</Link>
+              ))}
             </div>
           </div>
         </div>
@@ -149,7 +136,7 @@ function FooterSection({
   links,
 }: {
   title: string
-  links: { label: string; href: string }[]
+  links: readonly { label: string; href: string }[]
 }) {
   return (
     <div>

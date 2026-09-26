@@ -1,38 +1,23 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Plus, Minus, MessageCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-
-const faqs = [
-  {
-    question: 'Do you sell original mattresses?',
-    answer: 'Yes. We are authorized distributors for all the brands listed on our site, including Vitafoam, Mouka Foam, and Royal Foam. Every mattress comes in its original factory packaging with a valid manufacturer warranty.',
-  },
-  {
-    question: 'How long does delivery take?',
-    answer: 'For locations within Abuja and Benin, delivery typically takes 24–48 hours. For other locations, it may take 3–5 business days depending on the size of the order.',
-  },
-  {
-    question: 'How do I pay for my order?',
-    answer: 'You can pay securely online via Paystack (debit card), by direct bank transfer, or place your order via WhatsApp. Pay on delivery is not available for large furniture items.',
-  },
-  {
-    question: 'Can I return a mattress?',
-    answer: 'Due to hygiene reasons, mattresses cannot be returned once the factory seal has been opened. If there is a manufacturing defect, we will facilitate a free replacement through the manufacturer warranty process.',
-  },
-  {
-    question: 'Do you offer bulk or corporate discounts?',
-    answer: 'Yes — hotels, hospitals, and large corporate orders qualify for special pricing. Reach out via our contact page for a custom quote.',
-  },
-  {
-    question: 'Can I order a custom size mattress?',
-    answer: 'Yes. If you have a custom bed frame or special room dimensions, we can place a custom order directly with Vitafoam, Mouka, or Royal Foam. Message us on WhatsApp with your exact measurements.',
-  },
-]
+import { FAQS } from '@/lib/constants'
+import { useSiteSettings } from '@/components/site-settings-context'
 
 export default function FAQsClient() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
+  const settings = useSiteSettings()
+
+  const faqsList = useMemo(() => {
+    if (!settings.faqsJson) return FAQS
+    try {
+      const parsed = JSON.parse(settings.faqsJson)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    } catch {}
+    return FAQS
+  }, [settings.faqsJson])
 
   return (
     <div className="pt-28 sm:pt-36 pb-24 bg-white min-h-screen">
@@ -59,14 +44,14 @@ export default function FAQsClient() {
 
         {/* Accordion */}
         <div className="space-y-3">
-          {faqs.map((faq, idx) => (
+          {faqsList.map((faq, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.07 }}
-              className={`border transition-colors duration-300 overflow-hidden ${
+              className={`border transition-colors duration-300 overflow-hidden style-card ${
                 openIndex === idx
                   ? 'border-blue-950/20 bg-white'
                   : 'border-stone-100 bg-stone-50/50 hover:border-blue-950/15'
@@ -82,7 +67,7 @@ export default function FAQsClient() {
                 }`}>
                   {faq.question}
                 </span>
-                <span className={`shrink-0 p-2 border transition-all duration-200 ${
+                <span className={`shrink-0 p-2 border transition-all duration-200 style-button ${
                   openIndex === idx
                     ? 'bg-blue-950 text-white border-blue-950'
                     : 'bg-white text-stone-400 border-stone-200'
@@ -120,7 +105,7 @@ export default function FAQsClient() {
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-20 p-10 sm:p-14 bg-blue-950 text-white"
+          className="mt-20 p-10 sm:p-14 bg-blue-950 text-white style-card"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
@@ -134,7 +119,7 @@ export default function FAQsClient() {
             <div className="flex md:justify-end">
               <a
                 href="/contact"
-                className="inline-flex items-center gap-3 bg-white text-blue-950 px-8 py-4 text-[11px] font-black tracking-[0.2em] uppercase hover:bg-sky-50 transition-colors"
+                className="inline-flex items-center gap-3 bg-white text-blue-950 px-8 py-4 text-[11px] font-black tracking-[0.2em] uppercase hover:bg-sky-50 transition-colors style-button"
               >
                 <MessageCircle className="w-4 h-4" />
                 Get in touch

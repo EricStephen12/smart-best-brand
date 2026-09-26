@@ -8,6 +8,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import EditorialBackdrop from '@/components/EditorialBackdrop'
 import { useSiteSettings } from '@/components/site-settings-context'
 
+import { HERO_BANNERS, ANIMATION } from '@/lib/constants'
+
 export type HeroBanner = {
   id: string
   title: string
@@ -16,33 +18,6 @@ export type HeroBanner = {
   ctaLabel: string | null
   ctaHref: string | null
 }
-
-const HARDCODED_FALLBACKS: HeroBanner[] = [
-  {
-    id: 'fallback-1',
-    title: 'Sleep Like It Matters',
-    subtitle: 'Original mattresses from Nigeria\'s most trusted brands — delivered to your door.',
-    imageUrl: '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
-    ctaLabel: 'Shop the Collection',
-    ctaHref: '/products',
-  },
-  {
-    id: 'fallback-2',
-    title: 'No Fakes. Ever.',
-    subtitle: 'Every piece is factory-direct, sealed, and covered by a real manufacturer\'s warranty.',
-    imageUrl: '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg',
-    ctaLabel: 'See what\'s in stock',
-    ctaHref: '/products',
-  },
-  {
-    id: 'fallback-3',
-    title: 'A Home Worth Coming Back To',
-    subtitle: 'From the bedroom to the living room — furniture that earns its place.',
-    imageUrl: '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg',
-    ctaLabel: 'Explore furniture',
-    ctaHref: '/products',
-  },
-]
 
 /** Full-bleed hero with title text + real multi-image slides. */
 export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }) {
@@ -64,7 +39,7 @@ export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }
   // Combine primary slide with any remaining CMS banner slides or fallbacks
   const additionalSlides = banners.length > 1
     ? banners.slice(1)
-    : HARDCODED_FALLBACKS.slice(1)
+    : HERO_BANNERS.slice(1)
 
   const slides = [primarySlide, ...additionalSlides]
 
@@ -81,7 +56,7 @@ export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }
     if (slides.length < 2) return
     const id = window.setInterval(() => {
       setIndex((i) => (i + 1) % slides.length)
-    }, 6500)
+    }, ANIMATION.heroAutoPlayIntervalMs)
     return () => window.clearInterval(id)
   }, [slides.length])
 
@@ -117,7 +92,7 @@ export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }
       </AnimatePresence>
 
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/30 pointer-events-none" />
-      <EditorialBackdrop text="Comfort" light />
+      <EditorialBackdrop text={settings.heroBackdropWord || "Comfort"} light />
 
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
         <AnimatePresence mode="wait">
@@ -143,13 +118,13 @@ export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }
             <div className="mt-9 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
               <Link
                 href={slide.ctaHref || '/products'}
-                className="inline-flex border border-white/90 text-white px-7 sm:px-8 py-3.5 text-[11px] font-medium tracking-[0.14em] uppercase hover:bg-white hover:text-neutral-950 transition-colors duration-300"
+                className="inline-flex border border-white/90 text-white px-7 sm:px-8 py-3.5 text-[11px] font-medium tracking-[0.14em] uppercase hover:bg-white hover:text-neutral-950 transition-colors duration-300 style-button"
               >
                 {slide.ctaLabel || 'Shop new'}
               </Link>
               <Link
                 href="/about"
-                className="inline-flex border border-white/50 text-white/90 px-7 sm:px-8 py-3.5 text-[11px] font-medium tracking-[0.14em] uppercase hover:border-white hover:text-white transition-colors duration-300"
+                className="inline-flex border border-white/50 text-white/90 px-7 sm:px-8 py-3.5 text-[11px] font-medium tracking-[0.14em] uppercase hover:border-white hover:text-white transition-colors duration-300 style-button"
               >
                 Our story
               </Link>

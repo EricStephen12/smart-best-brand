@@ -4,6 +4,8 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MessageCircle, Ruler, ShieldCheck, Clock } from 'lucide-react';
 import { getWhatsAppUrl } from '@/lib/contact-channels';
+import { CUSTOM_REQUEST_STEPS } from '@/lib/constants';
+import { useSiteSettings } from '@/components/site-settings-context';
 import toast from 'react-hot-toast';
 
 interface CustomRequestModalProps {
@@ -13,6 +15,10 @@ interface CustomRequestModalProps {
 }
 
 export default function CustomRequestModal({ isOpen, onClose, productName }: CustomRequestModalProps) {
+    const settings = useSiteSettings();
+    const title = settings.customRequestTitle || 'Need a Custom Size?';
+    const subtitle = settings.customRequestSubtitle || 'Have an imported bed frame or unique room dimensions? We can order custom-sized mattresses directly from the factory for you.';
+
     const handleWhatsApp = () => {
         const text = `Hello Smart Best Brands, I am interested in a custom size for ${productName}. Please share the next steps.`;
         const url = getWhatsAppUrl(text);
@@ -42,7 +48,7 @@ export default function CustomRequestModal({ isOpen, onClose, productName }: Cus
                             initial={{ scale: 0.9, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl pointer-events-auto relative my-auto mb-10 sm:mb-auto"
+                            className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl pointer-events-auto relative my-auto mb-10 sm:mb-auto style-card"
                         >
                             {/* Close Button */}
                             <button
@@ -61,36 +67,31 @@ export default function CustomRequestModal({ isOpen, onClose, productName }: Cus
                                 </div>
 
                                 <h2 className="text-4xl sm:text-5xl font-black text-blue-950 tracking-tight leading-none mb-4">
-                                    Need a <br />
-                                    <span className="text-sky-600 font-display italic">Custom Size?</span>
+                                    {title}
                                 </h2>
 
                                 <p className="text-lg text-slate-500 font-medium leading-relaxed mb-12">
-                                    Have an imported bed frame or unique room dimensions? We can order custom-sized mattresses directly from the factory for you.
+                                    {subtitle}
                                 </p>
 
                                 {/* Steps Grid */}
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
-                                    <StepCard
-                                        icon={Ruler}
-                                        title="Measure"
-                                        desc="Provide your exact length, width, and height."
-                                    />
-                                    <StepCard
-                                        icon={ShieldCheck}
-                                        title="Confirm"
-                                        desc="We verify dimensions and get an exact quote from the factory."
-                                    />
-                                    <StepCard
-                                        icon={Clock}
-                                        title="Deliver"
-                                        desc="The factory produces your size and we deliver in 5–10 days."
-                                    />
+                                    {CUSTOM_REQUEST_STEPS.map((step, idx) => {
+                                        const StepIcon = [Ruler, ShieldCheck, Clock][idx] || Ruler;
+                                        return (
+                                            <StepCard
+                                                key={step.title}
+                                                icon={StepIcon}
+                                                title={step.title}
+                                                desc={step.desc}
+                                            />
+                                        );
+                                    })}
                                 </div>
 
                 <button
                     onClick={handleWhatsApp}
-                    className="w-full bg-blue-950 text-white py-5 font-black text-xs tracking-[0.3em] uppercase flex items-center justify-center gap-4 hover:bg-sky-600 transition-all active:scale-[0.98]"
+                    className="w-full bg-blue-950 text-white py-5 font-black text-xs tracking-[0.3em] uppercase flex items-center justify-center gap-4 hover:bg-sky-600 transition-all active:scale-[0.98] style-button"
                 >
                     <MessageCircle className="w-5 h-5" />
                     Request Quote on WhatsApp

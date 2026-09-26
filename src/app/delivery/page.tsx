@@ -11,34 +11,9 @@ import {
   ArrowRight,
   HeadphonesIcon
 } from 'lucide-react';
+import { DELIVERY_STEPS, DELIVERY_ZONES } from '@/lib/constants';
 
-const deliverySteps = [
-  {
-    number: "01",
-    title: "Carefully Inspected",
-    description: "Every order is inspected and properly packaged before leaving our store or factory partner.",
-    icon: Package
-  },
-  {
-    number: "02",
-    title: "Handled With Care",
-    description: "Our delivery team transports mattresses and furniture safely so they arrive in perfect, brand-new condition.",
-    icon: ShieldCheck
-  },
-  {
-    number: "03",
-    title: "Coordinated Delivery",
-    description: "We agree on a delivery day and time that works for you, with WhatsApp updates when your driver is on the way.",
-    icon: Truck
-  }
-];
-
-const zones = [
-  { city: "Abuja", price: "₦5,000 - ₦15,000", time: "24-48 Hours", note: "Direct doorstep delivery." },
-  { city: "Benin City", price: "₦5,000 - ₦12,000", time: "24-48 Hours", note: "Local hub fulfillment." },
-  { city: "Lagos", price: "₦15,000 - ₦35,000", time: "3-5 Business Days", note: "Inter-state delivery." },
-  { city: "Other Locations", price: "Calculated at Checkout", time: "5-7 Business Days", note: "Nationwide partner delivery." }
-];
+const STEP_ICONS = [Package, ShieldCheck, Truck];
 
 export default function DeliveryPage() {
   return (
@@ -68,7 +43,7 @@ export default function DeliveryPage() {
       {/* Delivery Process (Editorial Style) */}
       <div className="py-24 sm:py-32 max-w-7xl mx-auto px-4 font-sans">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 sm:gap-20">
-          {deliverySteps.map((step, idx) => (
+          {DELIVERY_STEPS.map((step, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 30 }}
@@ -111,7 +86,7 @@ export default function DeliveryPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {zones.map((zone, idx) => (
+                  {DELIVERY_ZONES.map((zone, idx) => (
                     <tr key={idx} className="group hover:bg-slate-50 transition-colors">
                       <td className="p-8">
                         <div className="flex items-center gap-4">
