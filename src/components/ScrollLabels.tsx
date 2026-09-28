@@ -16,10 +16,10 @@ export default function ScrollLabels({ labels }: { labels: ScrollLabel[] }) {
   const loop = [...labels, ...labels, ...labels]
 
   return (
-    <section className="relative bg-white border-y border-blue-950/5 py-8 sm:py-10 overflow-hidden">
+    <section className="relative bg-transparent border-y border-blue-950/5 py-8 sm:py-10 overflow-hidden">
       <div className="relative">
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-12 sm:w-24 z-10 bg-gradient-to-r from-white to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-12 sm:w-24 z-10 bg-gradient-to-l from-white to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-12 sm:w-24 z-10 bg-gradient-to-r from-[var(--brand-bg)] to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-12 sm:w-24 z-10 bg-gradient-to-l from-[var(--brand-bg)] to-transparent" />
 
         <div className="flex w-max animate-scroll-labels hover:[animation-play-state:paused]">
           {loop.map((label, i) => (

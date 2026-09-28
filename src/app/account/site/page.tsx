@@ -1,20 +1,18 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { getSiteSettings, updateSiteSettings, resetSiteSettings } from '@/actions/site-settings'
 import {
   HEADING_FONTS,
   BODY_FONTS,
-  DEFAULT_SITE_SETTINGS,
   type SiteSettingsData,
-  SETTINGS_TABS,
-  type SettingsTabId,
   COLOR_PRESETS,
   BUTTON_SHAPE_OPTIONS,
   CARD_STYLE_OPTIONS,
   BADGE_STYLE_OPTIONS,
 } from '@/lib/site-settings'
+import { FAQS } from '@/lib/constants'
 import CloudinaryUpload from '@/components/CloudinaryUpload'
 import toast from 'react-hot-toast'
 import {
@@ -29,7 +27,6 @@ import {
   ExternalLink,
   RotateCcw,
   Sparkles,
-  Info,
   Type,
   Megaphone,
   Layers,
@@ -39,24 +36,54 @@ import {
   Trash2,
   ArrowUp,
   ArrowDown,
+  Monitor,
+  Smartphone,
+  Tablet,
+  RefreshCw,
+  Search,
+  ChevronDown,
+  ChevronRight,
+  Sliders,
+  Eye,
+  SlidersHorizontal,
+  X,
 } from 'lucide-react'
-import { FAQS } from '@/lib/constants'
 
-// Map Lucide icons to centralized tab definitions
-const TAB_ICONS: Record<SettingsTabId, React.ElementType> = {
-  brand: Palette,
-  design: Layers,
-  home: Home,
-  shop: ShoppingBag,
-  policies: ShieldCheck,
-  contact: Phone,
-  bank: CreditCard,
-}
+// Preview page routes available in the customizer
+const PREVIEW_PAGES = [
+  { label: 'Home Page', path: '/' },
+  { label: 'Catalog (/products)', path: '/products' },
+  { label: 'Our Story (/about)', path: '/about' },
+  { label: 'Delivery (/delivery)', path: '/delivery' },
+  { label: 'FAQs (/faqs)', path: '/faqs' },
+  { label: 'Contact Us (/contact)', path: '/contact' },
+]
 
-const TABS = SETTINGS_TABS.map((tab) => ({
-  ...tab,
-  icon: TAB_ICONS[tab.id],
-}))
+// Sections list for Shopify-style section editor
+const SECTIONS_LIST = [
+  { id: 'announcement', label: 'Announcement Bar', icon: Megaphone, desc: 'Top promotional ribbon', targetId: 'announcement' },
+  { id: 'hero', label: 'Hero Banner & Slides', icon: Home, desc: 'Headline, CTA buttons & backdrop word', targetId: 'hero' },
+  { id: 'story', label: 'Our Story & Brand Promise', icon: Sparkles, desc: 'Mission writeup, stats & photos', targetId: 'story' },
+  { id: 'shop', label: 'Catalog & Best Sellers', icon: ShoppingBag, desc: 'Shop headers, featured pieces & categories', targetId: 'featured' },
+  { id: 'promo', label: 'Mid-Page Promo Banner', icon: Layers, desc: 'Full-width spotlight callout banner', targetId: 'promo' },
+  { id: 'policies', label: 'Guarantees & Policies', icon: ShieldCheck, desc: 'Delivery, returns & warranty points', targetId: null },
+  { id: 'footer', label: 'Footer & Copyright', icon: CreditCard, desc: 'Footer brand statement and details', targetId: null },
+]
+
+// Theme settings list for global visual styling
+const THEME_SETTINGS_LIST = [
+  { id: 'identity', label: 'Store Identity & Logo', icon: Home, desc: 'Store name, tagline, and official logo' },
+  { id: 'colors', label: 'Brand Colors & Palettes', icon: Palette, desc: 'Curated color themes & hex pickers' },
+  { id: 'buttons', label: 'Buttons & Shape Style', icon: Layers, desc: 'Sharp (0px), Soft (8px), or Pill (9999px)' },
+  { id: 'cards', label: 'Card Corners & Containers', icon: Layers, desc: 'Square (0px), Rounded (12px), Curved (24px)' },
+  { id: 'badges', label: 'Tags & Badges Style', icon: ShieldCheck, desc: 'Sale badges and category chips' },
+  { id: 'typography', label: 'Typography Pairings', icon: Type, desc: 'Serif/Display titles & clean body fonts' },
+  { id: 'watermarks', label: 'Section Watermarks', icon: Sparkles, desc: 'Large background editorial words' },
+  { id: 'faqs', label: 'Dynamic FAQs Manager', icon: HelpCircle, desc: 'Add, edit, reorder & delete FAQ items' },
+  { id: 'customSize', label: 'Custom Size Order Modal', icon: Sliders, desc: 'Popup copy for custom mattress requests' },
+  { id: 'contact', label: 'Contact & Social Channels', icon: Phone, desc: 'Phone, WhatsApp, address & socials' },
+  { id: 'bank', label: 'Bank Transfer Payment', icon: CreditCard, desc: 'Checkout bank account details' },
+]
 
 export default function SiteSettingsPage() {
   const [form, setForm] = useState<SiteSettingsData | null>(null)
@@ -64,7 +91,17 @@ export default function SiteSettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [resetting, setResetting] = useState(false)
-  const [activeTab, setActiveTab] = useState<SettingsTabId>('brand')
+
+  // Shopify-style customizer state
+  const [category, setCategory] = useState<'sections' | 'theme'>('sections')
+  const [expandedSection, setExpandedSection] = useState<string | null>('hero')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
+  const [previewUrl, setPreviewUrl] = useState('/')
+  const [previewKey, setPreviewKey] = useState(0)
+  const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor')
+
+  const iframeRef = useRef<HTMLIFrameElement>(null)
 
   useEffect(() => {
     void getSiteSettings().then((d) => {
@@ -74,9 +111,98 @@ export default function SiteSettingsPage() {
     })
   }, [])
 
+  // Live real-time sync with preview iframe
+  const syncIframe = useCallback((data: SiteSettingsData) => {
+    if (!iframeRef.current || !iframeRef.current.contentWindow) return
+    try {
+      iframeRef.current.contentWindow.postMessage(
+        { type: 'UPDATE_SITE_SETTINGS_PREVIEW', settings: data },
+        '*'
+      )
+    } catch {}
+  }, [])
+
+  const highlightSection = useCallback((targetId: string | null) => {
+    if (!targetId || !iframeRef.current || !iframeRef.current.contentWindow) return
+    try {
+      iframeRef.current.contentWindow.postMessage(
+        { type: 'HIGHLIGHT_SECTION', targetId },
+        '*'
+      )
+    } catch {}
+  }, [])
+
+  // Sync to iframe whenever form state changes
+  useEffect(() => {
+    if (form) {
+      syncIframe(form)
+    }
+  }, [form, syncIframe])
+
+  // Listen for iframe ready message
+  useEffect(() => {
+    const handleMsg = (e: MessageEvent) => {
+      if (e.data?.type === 'SITE_SETTINGS_IFRAME_MOUNTED' && form) {
+        syncIframe(form)
+      }
+    }
+    window.addEventListener('message', handleMsg)
+    return () => window.removeEventListener('message', handleMsg)
+  }, [form, syncIframe])
+
   const set = <K extends keyof SiteSettingsData>(k: K, v: SiteSettingsData[K]) =>
     setForm((p) => (p ? { ...p, [k]: v } : p))
 
+  const isDirty = form && initialForm ? JSON.stringify(form) !== JSON.stringify(initialForm) : false
+
+  const handleSave = async (e?: React.FormEvent) => {
+    e?.preventDefault()
+    if (!form) return
+    setSaving(true)
+    try {
+      const res = await updateSiteSettings(form)
+      if (!res.success) {
+        toast.error(res.error || 'Failed to save settings')
+        return
+      }
+      if (res.data) {
+        setForm(res.data)
+        setInitialForm(res.data)
+        syncIframe(res.data)
+      }
+      toast.success('Site settings published successfully!')
+    } catch {
+      toast.error('An unexpected error occurred.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleReset = async () => {
+    if (!window.confirm('Reset all site settings to factory defaults? Any custom styling and writeups will be restored to original values.')) {
+      return
+    }
+    setResetting(true)
+    try {
+      const res = await resetSiteSettings()
+      if (!res.success) {
+        toast.error(res.error || 'Failed to reset settings')
+        return
+      }
+      if (res.data) {
+        setForm(res.data)
+        setInitialForm(res.data)
+        syncIframe(res.data)
+      }
+      toast.success('Site settings restored to factory defaults!')
+    } catch {
+      toast.error('Failed to reset')
+    } finally {
+      setResetting(false)
+    }
+  }
+
+  // FAQs helpers
   const getFaqsList = (): Array<{ question: string; answer: string }> => {
     if (!form?.faqsJson) return FAQS.map((f) => ({ question: f.question, answer: f.answer }))
     try {
@@ -120,1340 +246,1372 @@ export default function SiteSettingsPage() {
     set('faqsJson', JSON.stringify(current))
   }
 
-  const isDirty = form && initialForm ? JSON.stringify(form) !== JSON.stringify(initialForm) : false
+  // Filter items based on search query
+  const filteredSections = useMemo(() => {
+    if (!searchQuery.trim()) return SECTIONS_LIST
+    const q = searchQuery.toLowerCase()
+    return SECTIONS_LIST.filter(
+      (s) => s.label.toLowerCase().includes(q) || s.desc.toLowerCase().includes(q)
+    )
+  }, [searchQuery])
 
-  const handleSave = async (e?: React.FormEvent) => {
-    e?.preventDefault()
-    if (!form) return
-    setSaving(true)
-    try {
-      const res = await updateSiteSettings(form)
-      if (!res.success) {
-        toast.error(res.error || 'Failed to save settings')
-        return
-      }
-      if (res.data) {
-        setForm(res.data)
-        setInitialForm(res.data)
-      }
-      toast.success('Settings updated successfully!')
-    } catch {
-      toast.error('An unexpected error occurred.')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const handleReset = async () => {
-    if (!window.confirm('Reset all site settings to factory defaults? Any custom text and colors will be replaced.')) {
-      return
-    }
-    setResetting(true)
-    try {
-      const res = await resetSiteSettings()
-      if (!res.success) {
-        toast.error(res.error || 'Failed to reset settings')
-        return
-      }
-      if (res.data) {
-        setForm(res.data)
-        setInitialForm(res.data)
-      }
-      toast.success('Site settings reset to defaults!')
-    } catch {
-      toast.error('Failed to reset')
-    } finally {
-      setResetting(false)
-    }
-  }
+  const filteredThemeSettings = useMemo(() => {
+    if (!searchQuery.trim()) return THEME_SETTINGS_LIST
+    const q = searchQuery.toLowerCase()
+    return THEME_SETTINGS_LIST.filter(
+      (s) => s.label.toLowerCase().includes(q) || s.desc.toLowerCase().includes(q)
+    )
+  }, [searchQuery])
 
   if (loading || !form) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-blue-950" />
-        <p className="text-sm font-medium text-stone-500">Loading site settings…</p>
+        <p className="text-sm font-medium text-stone-500">Loading theme customizer…</p>
       </div>
     )
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-20">
-      {/* ── Page Header & Save Bar ── */}
-      <div className="bg-white border border-stone-200/80 rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold text-blue-950 tracking-tight">Site Settings</h1>
-            {isDirty && (
-              <span className="px-2 py-0.5 text-[11px] font-semibold bg-amber-100 text-amber-800 rounded-full">
-                Unsaved changes
+    <div className="flex flex-col h-full bg-[#f4f3f0] overflow-hidden select-none font-sans">
+      {/* ══════════════════════════════════════════════════════════════
+          1. SHOPIFY-STYLE TOP CUSTOMIZER BAR
+      ══════════════════════════════════════════════════════════════ */}
+      <header className="h-14 sm:h-16 bg-white border-b border-stone-200/90 px-3 sm:px-6 flex items-center justify-between shrink-0 shadow-sm z-30">
+        {/* Left: Brand Identity & Status */}
+        <div className="flex items-center gap-3">
+          <Link
+            href="/account"
+            className="p-2 text-stone-400 hover:text-blue-950 hover:bg-stone-100 rounded-xl transition-colors"
+            title="Back to Admin Dashboard"
+          >
+            <ChevronRight className="w-4 h-4 rotate-180" />
+          </Link>
+
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-playfair text-sm sm:text-base font-extrabold text-blue-950 tracking-tight">
+                {form.siteName || 'Smart Best Brands'}
               </span>
-            )}
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-200/70 hidden sm:inline-block">
+                Theme Studio
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 text-[11px] text-stone-400">
+              {isDirty ? (
+                <span className="flex items-center gap-1 text-amber-700 font-semibold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  Unsaved changes
+                </span>
+              ) : (
+                <span className="flex items-center gap-1 text-emerald-700 font-medium">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  All changes live
+                </span>
+              )}
+            </div>
           </div>
-          <p className="text-xs sm:text-sm text-stone-500 mt-1">
-            Easily customize your store's text, brand colors, contact channels, and payment details without code.
-          </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        {/* Center: Page Selector & Device Viewport (Shopify Standard) */}
+        <div className="hidden md:flex items-center gap-2">
+          {/* Page Picker */}
+          <div className="relative">
+            <select
+              value={previewUrl}
+              onChange={(e) => setPreviewUrl(e.target.value)}
+              className="appearance-none bg-stone-100 hover:bg-stone-200/80 text-blue-950 text-xs font-semibold px-3.5 py-1.5 pr-8 rounded-xl border border-stone-200/70 cursor-pointer outline-none focus:ring-2 focus:ring-blue-950/10 transition-all"
+            >
+              {PREVIEW_PAGES.map((page) => (
+                <option key={page.path} value={page.path}>
+                  {page.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-stone-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          <div className="w-px h-5 bg-stone-200 mx-1" />
+
+          {/* Device Toggles */}
+          <div className="flex items-center bg-stone-100 p-1 rounded-xl border border-stone-200/60">
+            <button
+              type="button"
+              onClick={() => setPreviewDevice('desktop')}
+              title="Desktop View (100%)"
+              className={`p-1.5 rounded-lg transition-all ${
+                previewDevice === 'desktop'
+                  ? 'bg-white text-blue-950 shadow-sm'
+                  : 'text-stone-400 hover:text-stone-700'
+              }`}
+            >
+              <Monitor className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setPreviewDevice('tablet')}
+              title="Tablet View (768px)"
+              className={`p-1.5 rounded-lg transition-all ${
+                previewDevice === 'tablet'
+                  ? 'bg-white text-blue-950 shadow-sm'
+                  : 'text-stone-400 hover:text-stone-700'
+              }`}
+            >
+              <Tablet className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setPreviewDevice('mobile')}
+              title="Mobile View (390px iPhone)"
+              className={`p-1.5 rounded-lg transition-all ${
+                previewDevice === 'mobile'
+                  ? 'bg-white text-blue-950 shadow-sm'
+                  : 'text-stone-400 hover:text-stone-700'
+              }`}
+            >
+              <Smartphone className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Right: Actions (Save, Reset, Live Store, Mobile View Switcher) */}
+        <div className="flex items-center gap-2">
+          {/* Mobile view toggle for small screens */}
+          <div className="flex lg:hidden bg-stone-100 p-1 rounded-xl border border-stone-200/80 mr-1">
+            <button
+              type="button"
+              onClick={() => setMobileTab('editor')}
+              className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
+                mobileTab === 'editor' ? 'bg-white text-blue-950 shadow-sm' : 'text-stone-500'
+              }`}
+            >
+              Controls
+            </button>
+            <button
+              type="button"
+              onClick={() => setMobileTab('preview')}
+              className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
+                mobileTab === 'preview' ? 'bg-white text-blue-950 shadow-sm' : 'text-stone-500'
+              }`}
+            >
+              Preview
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setPreviewKey((k) => k + 1)}
+            title="Reload live preview"
+            className="hidden sm:inline-flex p-2 text-stone-500 hover:text-blue-950 hover:bg-stone-100 rounded-xl transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+
           <Link
-            href="/"
+            href={previewUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-stone-600 bg-stone-50 hover:bg-stone-100 border border-stone-200 rounded-xl transition-colors"
+            title="Open in new window"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-stone-600 bg-stone-50 hover:bg-stone-100 border border-stone-200 rounded-xl transition-colors"
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            <span>View Live Store</span>
+            <span>Store</span>
           </Link>
 
           <button
             type="button"
             onClick={handleReset}
             disabled={resetting || saving}
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-stone-500 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100 rounded-xl transition-colors disabled:opacity-50"
-            title="Reset to original defaults"
+            title="Reset to factory defaults"
+            className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-stone-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors disabled:opacity-50"
           >
-            <RotateCcw className={`w-3.5 h-3.5 ${resetting ? 'animate-spin' : ''}`} />
-            <span>Reset Defaults</span>
+            <RotateCcw className={`w-3 h-3 ${resetting ? 'animate-spin' : ''}`} />
+            <span>Reset</span>
           </button>
 
           <button
             type="button"
             onClick={() => handleSave()}
             disabled={saving}
-            className="inline-flex items-center gap-2 px-5 py-2 text-xs font-semibold text-white bg-blue-950 hover:bg-blue-900 active:scale-[0.98] rounded-xl shadow-sm transition-all disabled:opacity-60"
+            className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 text-xs font-bold text-white bg-blue-950 hover:bg-blue-900 active:scale-[0.98] rounded-xl shadow-sm transition-all disabled:opacity-60"
           >
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            <span>{saving ? 'Saving…' : 'Save Changes'}</span>
+            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+            <span>{saving ? 'Publishing…' : 'Publish'}</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* ── Tab Selector ── */}
-      <div className="bg-stone-100/80 p-1.5 rounded-2xl flex flex-wrap gap-1 border border-stone-200/60">
-        {TABS.map((tab) => {
-          const Icon = tab.icon
-          const isActive = activeTab === tab.id
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 min-w-[140px] sm:min-w-0 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all ${
-                isActive
-                  ? 'bg-white text-blue-950 shadow-sm border border-stone-200/80'
-                  : 'text-stone-500 hover:text-stone-900 hover:bg-white/50'
-              }`}
-            >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-sky-600' : 'text-stone-400'}`} />
-              <span>{tab.label}</span>
-            </button>
-          )
-        })}
-      </div>
+      {/* ══════════════════════════════════════════════════════════════
+          2. SPLIT WORKSPACE: LEFT EDITOR PANEL + RIGHT LIVE PREVIEW
+      ══════════════════════════════════════════════════════════════ */}
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* ── LEFT PANEL: Shopify-Style Section & Settings Drawer ── */}
+        <aside
+          className={`w-full lg:w-[430px] xl:w-[460px] bg-white border-r border-stone-200/90 flex flex-col shrink-0 h-full overflow-hidden z-20 transition-all ${
+            mobileTab === 'preview' ? 'hidden lg:flex' : 'flex'
+          }`}
+        >
+          {/* Top Panel Bar: Search & Category Switcher */}
+          <div className="p-3 border-b border-stone-100 bg-white space-y-2.5">
+            {/* Search filter */}
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Filter settings, copy, or styles…"
+                className="w-full pl-8 pr-7 py-2 bg-stone-50 hover:bg-stone-100/80 focus:bg-white border border-stone-200 rounded-xl text-xs outline-none focus:border-blue-950 focus:ring-2 focus:ring-blue-950/10 transition-all placeholder:text-stone-400 text-blue-950"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
 
-      {/* ── Form Body ── */}
-      <form onSubmit={handleSave} className="space-y-6">
-
-        {/* ═════════ TAB 1: Brand & Theme ═════════ */}
-        {activeTab === 'brand' && (
-          <div className="space-y-6">
-            {/* Identity Card */}
-            <Card title="Store Identity" subtitle="Set your official store name, tagline, and logo">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <Field label="Store Name" hint="Shown in the header, footer, page titles, and invoice emails">
-                  <input
-                    type="text"
-                    required
-                    value={form.siteName}
-                    onChange={(e) => set('siteName', e.target.value)}
-                    placeholder="Smart Best Brands"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field label="Store Tagline" hint="Short brand motto used in headers and meta descriptions">
-                  <input
-                    type="text"
-                    value={form.tagline}
-                    onChange={(e) => set('tagline', e.target.value)}
-                    placeholder="Quality mattresses, pillows & furniture"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <div className="md:col-span-2">
-                  <Field label="Store Logo" hint="Upload a transparent PNG/SVG or paste an image URL. If left empty, the store name text is used.">
-                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                      <div className="flex-1 w-full space-y-2">
-                        <CloudinaryUpload
-                          value={form.logoUrl ? [form.logoUrl] : []}
-                          onChange={(urls) => set('logoUrl', urls[urls.length - 1] || null)}
-                          maxFiles={1}
-                          label="Upload store logo"
-                        />
-                        <input
-                          type="url"
-                          value={form.logoUrl || ''}
-                          onChange={(e) => set('logoUrl', e.target.value || null)}
-                          placeholder="Or paste direct image URL (e.g. https://...)"
-                          className={inputClass}
-                        />
-                      </div>
-
-                      {/* Live Logo Preview Box */}
-                      <div className="h-20 w-44 shrink-0 bg-blue-950 rounded-xl p-3 flex flex-col items-center justify-center border border-blue-900/50 shadow-inner">
-                        <span className="text-[9px] font-mono text-blue-300 uppercase tracking-wider mb-1">Header Preview</span>
-                        {form.logoUrl ? (
-                          <img src={form.logoUrl} alt="Logo preview" className="max-h-9 max-w-full object-contain" />
-                        ) : (
-                          <span className="text-white font-extrabold text-xs tracking-wider truncate max-w-full px-2">
-                            {form.siteName ? form.siteName.toUpperCase() : 'YOUR STORE'}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </Field>
-                </div>
-              </div>
-            </Card>
-
-            {/* Colors Card */}
-            <Card title="Brand Colors" subtitle="Choose colors for buttons, highlights, and backgrounds">
-              <div className="space-y-5">
-                <div>
-                  <label className="text-xs font-semibold text-stone-700 block mb-2">Color Presets</label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
-                    {COLOR_PRESETS.map((preset) => {
-                      const isCurrent =
-                        form.primaryColor.toLowerCase() === preset.primary.toLowerCase() &&
-                        form.accentColor.toLowerCase() === preset.accent.toLowerCase()
-                      return (
-                        <button
-                          key={preset.name}
-                          type="button"
-                          onClick={() => {
-                            set('primaryColor', preset.primary)
-                            set('accentColor', preset.accent)
-                            set('backgroundColor', preset.bg)
-                          }}
-                          className={`p-3 rounded-xl border text-left transition-all ${
-                            isCurrent
-                              ? 'border-blue-950 bg-blue-50/40 ring-2 ring-blue-950/10'
-                              : 'border-stone-200 bg-white hover:border-stone-300'
-                          }`}
-                        >
-                          <div className="flex items-center gap-1.5 mb-2">
-                            <span className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: preset.primary }} />
-                            <span className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: preset.accent }} />
-                            <span className="w-4 h-4 rounded-full shadow-sm border border-stone-200" style={{ backgroundColor: preset.bg }} />
-                          </div>
-                          <span className="text-[11px] font-medium text-stone-700 block truncate">{preset.name}</span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                  <Field label="Primary Color" hint="Header, main buttons, bold headings">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={isValidHex(form.primaryColor) ? form.primaryColor : '#172554'}
-                        onChange={(e) => set('primaryColor', e.target.value)}
-                        className="w-10 h-10 rounded-lg border border-stone-200 cursor-pointer p-0.5 shrink-0 bg-white"
-                      />
-                      <input
-                        type="text"
-                        value={form.primaryColor}
-                        onChange={(e) => set('primaryColor', e.target.value)}
-                        placeholder="#172554"
-                        className={inputClass}
-                      />
-                    </div>
-                  </Field>
-
-                  <Field label="Accent Color" hint="Badges, active links, highlighted text">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={isValidHex(form.accentColor) ? form.accentColor : '#0284c7'}
-                        onChange={(e) => set('accentColor', e.target.value)}
-                        className="w-10 h-10 rounded-lg border border-stone-200 cursor-pointer p-0.5 shrink-0 bg-white"
-                      />
-                      <input
-                        type="text"
-                        value={form.accentColor}
-                        onChange={(e) => set('accentColor', e.target.value)}
-                        placeholder="#0284c7"
-                        className={inputClass}
-                      />
-                    </div>
-                  </Field>
-
-                  <Field label="Page Background" hint="Subtle background for pages & cards">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={isValidHex(form.backgroundColor) ? form.backgroundColor : '#f7f6f3'}
-                        onChange={(e) => set('backgroundColor', e.target.value)}
-                        className="w-10 h-10 rounded-lg border border-stone-200 cursor-pointer p-0.5 shrink-0 bg-white"
-                      />
-                      <input
-                        type="text"
-                        value={form.backgroundColor}
-                        onChange={(e) => set('backgroundColor', e.target.value)}
-                        placeholder="#f7f6f3"
-                        className={inputClass}
-                      />
-                    </div>
-                  </Field>
-                </div>
-              </div>
-            </Card>
-
+            {/* Category Toggle: "Sections" vs "Theme Settings" (Shopify Standard) */}
+            <div className="grid grid-cols-2 p-1 bg-stone-100/80 rounded-xl border border-stone-200/60">
+              <button
+                type="button"
+                onClick={() => {
+                  setCategory('sections')
+                  setExpandedSection('hero')
+                }}
+                className={`flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                  category === 'sections'
+                    ? 'bg-white text-blue-950 shadow-sm border border-stone-200/60'
+                    : 'text-stone-500 hover:text-stone-900'
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5 text-sky-600" />
+                <span>Page Sections</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCategory('theme')
+                  setExpandedSection('identity')
+                }}
+                className={`flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                  category === 'theme'
+                    ? 'bg-white text-blue-950 shadow-sm border border-stone-200/60'
+                    : 'text-stone-500 hover:text-stone-900'
+                }`}
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5 text-sky-600" />
+                <span>Theme Styles</span>
+              </button>
+            </div>
           </div>
-        )}
 
-        {/* ═════════ TAB 2: Buttons & UI Design ═════════ */}
-        {activeTab === 'design' && (
-          <div className="space-y-6">
-            {/* Button Shapes Card */}
-            <Card title="Button Shape & Style" subtitle="Control button corners and styles across the entire storefront">
-              <div className="space-y-5">
-                <div>
-                  <label className="text-xs font-semibold text-stone-700 block mb-2">Select Button Shape</label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {BUTTON_SHAPE_OPTIONS.map((opt) => {
-                      const isSelected = form.buttonShape === opt.value
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          onClick={() => set('buttonShape', opt.value)}
-                          className={`p-4 rounded-xl border text-left transition-all relative ${
-                            isSelected
-                              ? 'border-blue-950 bg-blue-50/40 ring-2 ring-blue-950/10'
-                              : 'border-stone-200 bg-white hover:border-stone-300'
-                          }`}
-                        >
-                          <div className="flex items-center justify-between mb-3">
-                            <span
-                              style={{ borderRadius: opt.radius }}
-                              className="inline-block px-3 py-1 bg-blue-950 text-white text-[10px] font-bold uppercase tracking-wider"
-                            >
-                              Sample
-                            </span>
-                            {isSelected && <CheckCircle2 className="w-4 h-4 text-sky-600" />}
-                          </div>
-                          <span className="text-xs font-bold text-blue-950 block">{opt.label}</span>
-                          <span className="text-[11px] text-stone-400 mt-1 block">{opt.desc}</span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
+          {/* Accordion List Body */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-2 divide-y divide-stone-100">
+            {/* ── 2A. PAGE SECTIONS MODE ── */}
+            {category === 'sections' && (
+              <div className="space-y-2">
+                {filteredSections.map((sec) => {
+                  const Icon = sec.icon
+                  const isOpen = expandedSection === sec.id
 
-                {/* Live Preview Bar */}
-                <div className="p-4 sm:p-5 bg-stone-50 rounded-xl border border-stone-200/80 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-blue-950 uppercase tracking-wider">Live Buttons Preview</span>
-                    <span className="text-[11px] font-mono text-stone-400">
-                      Shape: {form.buttonShape} · Radius: {form.buttonShape === 'pill' ? '9999px' : form.buttonShape === 'rounded' ? '8px' : '0px'}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3 p-4 bg-white rounded-xl border border-stone-200/60 shadow-sm">
-                    <button
-                      type="button"
-                      style={{
-                        backgroundColor: form.primaryColor,
-                        borderRadius: form.buttonShape === 'pill' ? '9999px' : form.buttonShape === 'rounded' ? '8px' : '0px',
-                      }}
-                      className="px-6 py-3 text-[11px] font-black text-white uppercase tracking-wider shadow-sm transition-all"
-                    >
-                      Primary Button
-                    </button>
-                    <button
-                      type="button"
-                      style={{
-                        borderColor: form.accentColor,
-                        color: form.accentColor,
-                        borderRadius: form.buttonShape === 'pill' ? '9999px' : form.buttonShape === 'rounded' ? '8px' : '0px',
-                      }}
-                      className="px-6 py-3 text-[11px] font-black border uppercase tracking-wider bg-transparent transition-all"
-                    >
-                      Secondary Outline
-                    </button>
-                    <button
-                      type="button"
-                      style={{
-                        backgroundColor: form.accentColor,
-                        borderRadius: form.buttonShape === 'pill' ? '9999px' : form.buttonShape === 'rounded' ? '8px' : '0px',
-                      }}
-                      className="px-4 py-3 text-[11px] font-black text-white uppercase tracking-wider transition-all"
-                    >
-                      Accent Action
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            {/* Card & Container Style */}
-            <Card title="Product Cards & Containers" subtitle="Choose corner curvature for product cards, accordions, and dialogs">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {CARD_STYLE_OPTIONS.map((opt) => {
-                  const isSelected = form.cardStyle === opt.value
                   return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => set('cardStyle', opt.value)}
-                      className={`p-4 rounded-xl border text-left transition-all ${
-                        isSelected
-                          ? 'border-blue-950 bg-blue-50/40 ring-2 ring-blue-950/10'
-                          : 'border-stone-200 bg-white hover:border-stone-300'
+                    <div
+                      key={sec.id}
+                      className={`border rounded-xl transition-all overflow-hidden ${
+                        isOpen
+                          ? 'border-blue-950/20 bg-stone-50/40 shadow-sm ring-1 ring-blue-950/5'
+                          : 'border-stone-200/80 bg-white hover:border-stone-300'
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-3">
-                        <div
-                          style={{ borderRadius: opt.radius }}
-                          className="w-10 h-10 bg-stone-100 border border-stone-300 shadow-inner"
-                        />
-                        {isSelected && <CheckCircle2 className="w-4 h-4 text-sky-600" />}
-                      </div>
-                      <span className="text-xs font-bold text-blue-950 block">{opt.label}</span>
-                      <span className="text-[11px] text-stone-400 mt-1 block">{opt.desc}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            </Card>
-
-            {/* Badges Style */}
-            <Card title="Tags & Badges Style" subtitle="Appearance of Sale badges and category chips">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {BADGE_STYLE_OPTIONS.map((opt) => {
-                  const isSelected = form.badgeStyle === opt.value
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => set('badgeStyle', opt.value)}
-                      className={`p-4 rounded-xl border text-left transition-all ${
-                        isSelected
-                          ? 'border-blue-950 bg-blue-50/40 ring-2 ring-blue-950/10'
-                          : 'border-stone-200 bg-white hover:border-stone-300'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <span
-                          style={{ borderRadius: opt.value === 'pill' ? '9999px' : '0px' }}
-                          className="inline-block px-3 py-1 bg-sky-600 text-white text-[10px] font-black uppercase tracking-wider"
-                        >
-                          SALE 20% OFF
-                        </span>
-                        {isSelected && <CheckCircle2 className="w-4 h-4 text-sky-600" />}
-                      </div>
-                      <span className="text-xs font-bold text-blue-950 block">{opt.label}</span>
-                      <span className="text-[11px] text-stone-400 mt-1 block">{opt.desc}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            </Card>
-
-            {/* Typography Card */}
-            <Card title="Typography Pairings" subtitle="Select font pairing for headings and interface reading">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="text-xs font-semibold text-stone-700 block mb-2">Heading Font (Playfair / Display)</label>
-                  <div className="space-y-2">
-                    {HEADING_FONTS.map((font) => {
-                      const isSelected = form.headingFont === font.name
-                      return (
-                        <button
-                          key={font.name}
-                          type="button"
-                          onClick={() => set('headingFont', font.name)}
-                          className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all ${
-                            isSelected
-                              ? 'border-blue-950 bg-blue-950 text-white shadow-sm'
-                              : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300'
-                          }`}
-                        >
-                          <div>
-                            <span className="text-sm font-semibold block" style={{ fontFamily: font.name }}>
-                              {font.label}
-                            </span>
-                            <span className={`text-[10px] block ${isSelected ? 'text-blue-200' : 'text-stone-400'}`}>
-                              The quick brown fox jumps over the lazy dog
-                            </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = isOpen ? null : sec.id
+                          setExpandedSection(next)
+                          if (sec.targetId) {
+                            highlightSection(sec.targetId)
+                          }
+                        }}
+                        className="w-full flex items-center justify-between p-3.5 text-left group"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                              isOpen ? 'bg-blue-950 text-white' : 'bg-stone-100 text-stone-500 group-hover:text-blue-950'
+                            }`}
+                          >
+                            <Icon className="w-4 h-4" />
                           </div>
-                          {isSelected && <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0" />}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-semibold text-stone-700 block mb-2">Body Font (Clean / Readable)</label>
-                  <div className="space-y-2">
-                    {BODY_FONTS.map((font) => {
-                      const isSelected = form.bodyFont === font.name
-                      return (
-                        <button
-                          key={font.name}
-                          type="button"
-                          onClick={() => set('bodyFont', font.name)}
-                          className={`w-full flex items-center justify-between p-3 rounded-xl border text-left transition-all ${
-                            isSelected
-                              ? 'border-blue-950 bg-blue-950 text-white shadow-sm'
-                              : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300'
-                          }`}
-                        >
-                          <div>
-                            <span className="text-sm font-medium block" style={{ fontFamily: font.name }}>
-                              {font.label}
-                            </span>
-                            <span className={`text-[10px] block ${isSelected ? 'text-blue-200' : 'text-stone-400'}`}>
-                              Authentic mattresses and furniture directly to your home
-                            </span>
+                          <div className="min-w-0">
+                            <span className="text-xs font-bold text-blue-950 block truncate">{sec.label}</span>
+                            <span className="text-[11px] text-stone-400 block truncate">{sec.desc}</span>
                           </div>
-                          {isSelected && <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0" />}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            {/* Section Watermarks Card */}
-            <Card title="Section Watermark Words" subtitle="Large editorial watermark typography behind main homepage sections">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label="Hero Section Watermark" hint="Large faint background word behind hero slide (default: Comfort)">
-                  <input
-                    type="text"
-                    value={form.heroBackdropWord}
-                    onChange={(e) => set('heroBackdropWord', e.target.value)}
-                    placeholder="Comfort"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field label="Story Section Watermark" hint="Large faint background word behind story section (default: Rest)">
-                  <input
-                    type="text"
-                    value={form.storyBackdropWord}
-                    onChange={(e) => set('storyBackdropWord', e.target.value)}
-                    placeholder="Rest"
-                    className={inputClass}
-                  />
-                </Field>
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* ═════════ TAB 3: Homepage Writeups ═════════ */}
-        {activeTab === 'home' && (
-          <div className="space-y-6">
-            {/* Announcement Bar */}
-            <Card title="Top Announcement Bar" subtitle="Show a ribbon message at the very top of every page">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-stone-50 rounded-xl border border-stone-200/70">
-                  <div className="flex items-center gap-2.5">
-                    <Megaphone className="w-4 h-4 text-sky-600" />
-                    <div>
-                      <span className="text-xs font-semibold text-blue-950 block">Enable Announcement Bar</span>
-                      <span className="text-[11px] text-stone-400">Toggle whether this ribbon displays above the main header</span>
-                    </div>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.announcementEnabled}
-                      onChange={(e) => set('announcementEnabled', e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-10 h-5 bg-stone-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-950" />
-                  </label>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Field label="Announcement Text" hint="e.g. Free delivery on orders over ₦150,000 in Abuja & Benin City">
-                    <input
-                      type="text"
-                      value={form.announcementText || ''}
-                      onChange={(e) => set('announcementText', e.target.value)}
-                      placeholder="Free delivery on orders above ₦150,000"
-                      className={inputClass}
-                    />
-                  </Field>
-
-                  <Field label="Target Link (Optional)" hint="e.g. /products or /delivery">
-                    <input
-                      type="text"
-                      value={form.announcementLink || ''}
-                      onChange={(e) => set('announcementLink', e.target.value || null)}
-                      placeholder="/products"
-                      className={inputClass}
-                    />
-                  </Field>
-                </div>
-              </div>
-            </Card>
-
-            {/* Hero Section Writeup */}
-            <Card title="Hero Section" subtitle="Main banner text on the homepage">
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Field label="Hero Headline" hint="The bold, large text visitors see first">
-                    <input
-                      type="text"
-                      value={form.heroTitle}
-                      onChange={(e) => set('heroTitle', e.target.value)}
-                      placeholder="Sleep Like It Matters"
-                      className={inputClass}
-                    />
-                  </Field>
-
-                  <Field label="Hero Subtitle / Description" hint="Supporting paragraph below the headline">
-                    <input
-                      type="text"
-                      value={form.heroSubtitle}
-                      onChange={(e) => set('heroSubtitle', e.target.value)}
-                      placeholder="Original mattresses from Nigeria's most trusted brands."
-                      className={inputClass}
-                    />
-                  </Field>
-
-                  <Field label="CTA Button Label" hint="The primary call-to-action button text">
-                    <input
-                      type="text"
-                      value={form.heroCtaLabel}
-                      onChange={(e) => set('heroCtaLabel', e.target.value)}
-                      placeholder="Shop the Collection"
-                      className={inputClass}
-                    />
-                  </Field>
-
-                  <Field label="CTA Button Link" hint="Where the button navigates to">
-                    <input
-                      type="text"
-                      value={form.heroCtaHref}
-                      onChange={(e) => set('heroCtaHref', e.target.value)}
-                      placeholder="/products"
-                      className={inputClass}
-                    />
-                  </Field>
-                </div>
-              </div>
-            </Card>
-
-            {/* Story / About Section */}
-            <Card title="Our Story & Brand Promise" subtitle="The two editorial story cards on the homepage">
-              <div className="space-y-6">
-                {/* Block 1 */}
-                <div className="p-4 bg-stone-50/70 border border-stone-200/80 rounded-xl space-y-4">
-                  <span className="text-xs font-bold text-blue-950 uppercase tracking-wider block">
-                    Story Block 1: Who We Are
-                  </span>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Field label="Section Badge" hint="Small uppercase tag above title">
-                      <input
-                        type="text"
-                        value={form.storyBadge}
-                        onChange={(e) => set('storyBadge', e.target.value)}
-                        placeholder="Who We Are"
-                        className={inputClass}
-                      />
-                    </Field>
-                    <Field label="Headline" hint="Main heading for this block">
-                      <input
-                        type="text"
-                        value={form.storyTitle}
-                        onChange={(e) => set('storyTitle', e.target.value)}
-                        placeholder="Original Mattresses, Directly to Your Home."
-                        className={inputClass}
-                      />
-                    </Field>
-                  </div>
-                  <Field label="Story Paragraph" hint="Main body text explaining your mission">
-                    <textarea
-                      rows={4}
-                      value={form.storyText}
-                      onChange={(e) => set('storyText', e.target.value)}
-                      placeholder="We started Smart Best Brands to make buying genuine mattresses simple in Nigeria..."
-                      className={textareaClass}
-                    />
-                  </Field>
-                  <Field label="Story Image" hint="Featured lifestyle / warehouse image">
-                    <div className="flex flex-col sm:flex-row gap-3 items-center">
-                      <div className="flex-1 w-full">
-                        <CloudinaryUpload
-                          value={form.storyImageUrl ? [form.storyImageUrl] : []}
-                          onChange={(urls) => set('storyImageUrl', urls[urls.length - 1] || null)}
-                          maxFiles={1}
-                          label="Upload story image"
+                        </div>
+                        <ChevronDown
+                          className={`w-4 h-4 text-stone-400 transition-transform duration-200 shrink-0 ${
+                            isOpen ? 'rotate-180 text-blue-950' : ''
+                          }`}
                         />
-                        <input
-                          type="url"
-                          value={form.storyImageUrl || ''}
-                          onChange={(e) => set('storyImageUrl', e.target.value || null)}
-                          placeholder="Or paste image URL"
-                          className={`${inputClass} mt-1`}
-                        />
-                      </div>
-                      {form.storyImageUrl && (
-                        <img
-                          src={form.storyImageUrl}
-                          alt="Story preview"
-                          className="w-24 h-20 object-cover rounded-lg border border-stone-200 shrink-0"
-                        />
+                      </button>
+
+                      {isOpen && (
+                        <div className="p-4 pt-1 border-t border-stone-200/60 bg-white space-y-4">
+                          {/* 1. Announcement Bar Form */}
+                          {sec.id === 'announcement' && (
+                            <div className="space-y-3 pt-2">
+                              <div className="flex items-center justify-between p-3 bg-stone-50 rounded-xl border border-stone-200/70">
+                                <div>
+                                  <span className="text-xs font-bold text-blue-950 block">Enable Ribbon Bar</span>
+                                  <span className="text-[10px] text-stone-400">Show message above main site header</span>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={form.announcementEnabled}
+                                    onChange={(e) => set('announcementEnabled', e.target.checked)}
+                                    className="sr-only peer"
+                                  />
+                                  <div className="w-9 h-5 bg-stone-200 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-950" />
+                                </label>
+                              </div>
+
+                              <Field label="Ribbon Text" hint="e.g. Free delivery on orders over ₦150,000">
+                                <input
+                                  type="text"
+                                  value={form.announcementText || ''}
+                                  onChange={(e) => set('announcementText', e.target.value)}
+                                  placeholder="Free delivery in Abuja & Benin City"
+                                  className={inputClass}
+                                />
+                              </Field>
+
+                              <Field label="Target Link (Optional)" hint="e.g. /products or /delivery">
+                                <input
+                                  type="text"
+                                  value={form.announcementLink || ''}
+                                  onChange={(e) => set('announcementLink', e.target.value || null)}
+                                  placeholder="/products"
+                                  className={inputClass}
+                                />
+                              </Field>
+                            </div>
+                          )}
+
+                          {/* 2. Hero Section Form */}
+                          {sec.id === 'hero' && (
+                            <div className="space-y-3 pt-2">
+                              <Field label="Hero Headline" hint="Bold large statement visitors see first">
+                                <input
+                                  type="text"
+                                  value={form.heroTitle}
+                                  onChange={(e) => set('heroTitle', e.target.value)}
+                                  placeholder="Sleep Like It Matters"
+                                  className={inputClass}
+                                />
+                              </Field>
+
+                              <Field label="Hero Subtitle" hint="Supporting paragraph below headline">
+                                <textarea
+                                  rows={3}
+                                  value={form.heroSubtitle}
+                                  onChange={(e) => set('heroSubtitle', e.target.value)}
+                                  placeholder="Authentic comfort for Nigerian homes..."
+                                  className={textareaClass}
+                                />
+                              </Field>
+
+                              <div className="grid grid-cols-2 gap-2">
+                                <Field label="Button Label">
+                                  <input
+                                    type="text"
+                                    value={form.heroCtaLabel}
+                                    onChange={(e) => set('heroCtaLabel', e.target.value)}
+                                    placeholder="Shop products"
+                                    className={inputClass}
+                                  />
+                                </Field>
+                                <Field label="Button Link">
+                                  <input
+                                    type="text"
+                                    value={form.heroCtaHref}
+                                    onChange={(e) => set('heroCtaHref', e.target.value)}
+                                    placeholder="/products"
+                                    className={inputClass}
+                                  />
+                                </Field>
+                              </div>
+
+                              <Field label="Hero Watermark Word" hint="Large faint background typography (default: Comfort)">
+                                <input
+                                  type="text"
+                                  value={form.heroBackdropWord}
+                                  onChange={(e) => set('heroBackdropWord', e.target.value)}
+                                  placeholder="Comfort"
+                                  className={inputClass}
+                                />
+                              </Field>
+                            </div>
+                          )}
+
+                          {/* 3. Story Section Form */}
+                          {sec.id === 'story' && (
+                            <div className="space-y-4 pt-2">
+                              <div className="space-y-3 p-3 bg-stone-50 rounded-xl border border-stone-200/70">
+                                <span className="text-[11px] font-bold text-blue-950 uppercase tracking-wider block">
+                                  Story Block 1: Who We Are
+                                </span>
+                                <Field label="Section Badge">
+                                  <input
+                                    type="text"
+                                    value={form.storyBadge}
+                                    onChange={(e) => set('storyBadge', e.target.value)}
+                                    placeholder="Who We Are"
+                                    className={inputClass}
+                                  />
+                                </Field>
+                                <Field label="Headline">
+                                  <input
+                                    type="text"
+                                    value={form.storyTitle}
+                                    onChange={(e) => set('storyTitle', e.target.value)}
+                                    placeholder="Original Mattresses, Directly to Your Home."
+                                    className={inputClass}
+                                  />
+                                </Field>
+                                <Field label="Story Paragraph">
+                                  <textarea
+                                    rows={3}
+                                    value={form.storyText}
+                                    onChange={(e) => set('storyText', e.target.value)}
+                                    className={textareaClass}
+                                  />
+                                </Field>
+                                <Field label="Story Image" hint="Featured lifestyle photo">
+                                  <CloudinaryUpload
+                                    value={form.storyImageUrl ? [form.storyImageUrl] : []}
+                                    onChange={(urls) => set('storyImageUrl', urls[urls.length - 1] || null)}
+                                    maxFiles={1}
+                                    label="Upload story image"
+                                  />
+                                </Field>
+                              </div>
+
+                              <div className="space-y-3 p-3 bg-stone-50 rounded-xl border border-stone-200/70">
+                                <span className="text-[11px] font-bold text-blue-950 uppercase tracking-wider block">
+                                  Story Block 2: Our Promise
+                                </span>
+                                <Field label="Promise Badge">
+                                  <input
+                                    type="text"
+                                    value={form.storySecondaryBadge}
+                                    onChange={(e) => set('storySecondaryBadge', e.target.value)}
+                                    placeholder="Our Promise"
+                                    className={inputClass}
+                                  />
+                                </Field>
+                                <Field label="Promise Headline">
+                                  <input
+                                    type="text"
+                                    value={form.storySecondaryTitle}
+                                    onChange={(e) => set('storySecondaryTitle', e.target.value)}
+                                    placeholder="100% Authentic, Direct From the Factory."
+                                    className={inputClass}
+                                  />
+                                </Field>
+                                <Field label="Promise Paragraph">
+                                  <textarea
+                                    rows={3}
+                                    value={form.storySecondaryText}
+                                    onChange={(e) => set('storySecondaryText', e.target.value)}
+                                    className={textareaClass}
+                                  />
+                                </Field>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-2">
+                                <Field label="Stat 1 (Number / Badge)">
+                                  <input
+                                    type="text"
+                                    value={form.statOneValue}
+                                    onChange={(e) => set('statOneValue', e.target.value)}
+                                    placeholder="07"
+                                    className={inputClass}
+                                  />
+                                  <input
+                                    type="text"
+                                    value={form.statOneBadge}
+                                    onChange={(e) => set('statOneBadge', e.target.value)}
+                                    placeholder="Partner Brands"
+                                    className={`${inputClass} mt-1`}
+                                  />
+                                </Field>
+                                <Field label="Stat 2 (Number / Badge)">
+                                  <input
+                                    type="text"
+                                    value={form.statTwoValue}
+                                    onChange={(e) => set('statTwoValue', e.target.value)}
+                                    placeholder="100%"
+                                    className={inputClass}
+                                  />
+                                  <input
+                                    type="text"
+                                    value={form.statTwoBadge}
+                                    onChange={(e) => set('statTwoBadge', e.target.value)}
+                                    placeholder="Original Stock"
+                                    className={`${inputClass} mt-1`}
+                                  />
+                                </Field>
+                              </div>
+
+                              <Field label="Story Watermark Word" hint="Default: Rest">
+                                <input
+                                  type="text"
+                                  value={form.storyBackdropWord}
+                                  onChange={(e) => set('storyBackdropWord', e.target.value)}
+                                  placeholder="Rest"
+                                  className={inputClass}
+                                />
+                              </Field>
+                            </div>
+                          )}
+
+                          {/* 4. Shop Headers Form */}
+                          {sec.id === 'shop' && (
+                            <div className="space-y-3 pt-2">
+                              <Field label="Shop Page (/products) Title">
+                                <input
+                                  type="text"
+                                  value={form.shopPageTitle}
+                                  onChange={(e) => set('shopPageTitle', e.target.value)}
+                                  placeholder="The Collection"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Shop Page Tagline">
+                                <input
+                                  type="text"
+                                  value={form.shopPageTagline}
+                                  onChange={(e) => set('shopPageTagline', e.target.value)}
+                                  placeholder="Original mattresses, luxury furniture, and bedding..."
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Homepage Best Sellers Title">
+                                <input
+                                  type="text"
+                                  value={form.featuredTitle}
+                                  onChange={(e) => set('featuredTitle', e.target.value)}
+                                  placeholder="What people keep coming back for."
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Homepage Best Sellers Subtitle">
+                                <input
+                                  type="text"
+                                  value={form.featuredDescription}
+                                  onChange={(e) => set('featuredDescription', e.target.value)}
+                                  placeholder="Our most-loved pieces — or browse everything we carry."
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Categories Grid Title">
+                                <input
+                                  type="text"
+                                  value={form.collectionsTitle}
+                                  onChange={(e) => set('collectionsTitle', e.target.value)}
+                                  placeholder="Shop by category"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Categories Grid Subtitle">
+                                <input
+                                  type="text"
+                                  value={form.collectionsDescription}
+                                  onChange={(e) => set('collectionsDescription', e.target.value)}
+                                  placeholder="Mattresses, pillows, furniture — find exactly what your space is missing."
+                                  className={inputClass}
+                                />
+                              </Field>
+                            </div>
+                          )}
+
+                          {/* 5. Promo Banner Form */}
+                          {sec.id === 'promo' && (
+                            <div className="space-y-3 pt-2">
+                              <Field label="Banner Badge">
+                                <input
+                                  type="text"
+                                  value={form.promoBadge}
+                                  onChange={(e) => set('promoBadge', e.target.value)}
+                                  placeholder="Crafted for Nigerian homes"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Banner Headline">
+                                <input
+                                  type="text"
+                                  value={form.promoTitle}
+                                  onChange={(e) => set('promoTitle', e.target.value)}
+                                  placeholder="Spaces worth living in."
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <div className="grid grid-cols-2 gap-2">
+                                <Field label="Button Label">
+                                  <input
+                                    type="text"
+                                    value={form.promoCtaLabel}
+                                    onChange={(e) => set('promoCtaLabel', e.target.value)}
+                                    placeholder="Shop the collection"
+                                    className={inputClass}
+                                  />
+                                </Field>
+                                <Field label="Button Link">
+                                  <input
+                                    type="text"
+                                    value={form.promoCtaHref}
+                                    onChange={(e) => set('promoCtaHref', e.target.value)}
+                                    placeholder="/products"
+                                    className={inputClass}
+                                  />
+                                </Field>
+                              </div>
+                              <Field label="Banner Photo">
+                                <CloudinaryUpload
+                                  value={form.promoImageUrl ? [form.promoImageUrl] : []}
+                                  onChange={(urls) => set('promoImageUrl', urls[urls.length - 1] || null)}
+                                  maxFiles={1}
+                                  label="Upload banner image"
+                                />
+                              </Field>
+                            </div>
+                          )}
+
+                          {/* 6. Policies Accordion Form */}
+                          {sec.id === 'policies' && (
+                            <div className="space-y-3 pt-2">
+                              <Field label="Delivery Policy" hint="One bullet per line">
+                                <textarea
+                                  rows={3}
+                                  value={form.deliveryPolicy || ''}
+                                  onChange={(e) => set('deliveryPolicy', e.target.value)}
+                                  placeholder="Free doorstep delivery on select orders..."
+                                  className={textareaClass}
+                                />
+                              </Field>
+                              <Field label="Return Policy" hint="One bullet per line">
+                                <textarea
+                                  rows={3}
+                                  value={form.returnPolicy || ''}
+                                  onChange={(e) => set('returnPolicy', e.target.value)}
+                                  placeholder="7-day inspection window on factory-sealed items..."
+                                  className={textareaClass}
+                                />
+                              </Field>
+                              <Field label="Factory Warranty Policy" hint="One bullet per line">
+                                <textarea
+                                  rows={3}
+                                  value={form.warrantyPolicy || ''}
+                                  onChange={(e) => set('warrantyPolicy', e.target.value)}
+                                  placeholder="100% genuine factory warranty..."
+                                  className={textareaClass}
+                                />
+                              </Field>
+                            </div>
+                          )}
+
+                          {/* 7. Footer Copy Form */}
+                          {sec.id === 'footer' && (
+                            <div className="space-y-3 pt-2">
+                              <Field label="Footer Bio / Brand Copy" hint="Displayed on every page above copyright">
+                                <textarea
+                                  rows={3}
+                                  value={form.footerText}
+                                  onChange={(e) => set('footerText', e.target.value)}
+                                  placeholder="Original mattresses, luxury furniture, and bedding — delivered to your door."
+                                  className={textareaClass}
+                                />
+                              </Field>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
-                  </Field>
-                </div>
-
-                {/* Block 2 */}
-                <div className="p-4 bg-stone-50/70 border border-stone-200/80 rounded-xl space-y-4">
-                  <span className="text-xs font-bold text-blue-950 uppercase tracking-wider block">
-                    Story Block 2: Our Promise & Guarantee
-                  </span>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Field label="Section Badge" hint="Small uppercase tag above title">
-                      <input
-                        type="text"
-                        value={form.storySecondaryBadge}
-                        onChange={(e) => set('storySecondaryBadge', e.target.value)}
-                        placeholder="Our Promise"
-                        className={inputClass}
-                      />
-                    </Field>
-                    <Field label="Headline" hint="Main promise heading">
-                      <input
-                        type="text"
-                        value={form.storySecondaryTitle}
-                        onChange={(e) => set('storySecondaryTitle', e.target.value)}
-                        placeholder="100% Authentic, Direct From the Factory."
-                        className={inputClass}
-                      />
-                    </Field>
-                  </div>
-                  <Field label="Promise Paragraph" hint="Details on warranty, factory seal, and authenticity">
-                    <textarea
-                      rows={3}
-                      value={form.storySecondaryText}
-                      onChange={(e) => set('storySecondaryText', e.target.value)}
-                      placeholder="We source directly from authorized factory distributors..."
-                      className={textareaClass}
-                    />
-                  </Field>
-                </div>
-
-                {/* Stats & Link */}
-                <div className="p-4 bg-stone-50/70 border border-stone-200/80 rounded-xl space-y-4">
-                  <span className="text-xs font-bold text-blue-950 uppercase tracking-wider block">
-                    Highlights & Numbers
-                  </span>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Field label="Stat 1: Number" hint="e.g. 07 or 15+">
-                        <input
-                          type="text"
-                          value={form.statOneValue}
-                          onChange={(e) => set('statOneValue', e.target.value)}
-                          placeholder="07"
-                          className={inputClass}
-                        />
-                      </Field>
-                      <Field label="Stat 1: Label" hint="e.g. Partner Brands">
-                        <input
-                          type="text"
-                          value={form.statOneBadge}
-                          onChange={(e) => set('statOneBadge', e.target.value)}
-                          placeholder="Partner Brands"
-                          className={inputClass}
-                        />
-                      </Field>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Field label="Stat 2: Number" hint="e.g. 100%">
-                        <input
-                          type="text"
-                          value={form.statTwoValue}
-                          onChange={(e) => set('statTwoValue', e.target.value)}
-                          placeholder="100%"
-                          className={inputClass}
-                        />
-                      </Field>
-                      <Field label="Stat 2: Label" hint="e.g. Original Stock">
-                        <input
-                          type="text"
-                          value={form.statTwoBadge}
-                          onChange={(e) => set('statTwoBadge', e.target.value)}
-                          placeholder="Original Stock"
-                          className={inputClass}
-                        />
-                      </Field>
-                    </div>
-
-                    <div className="sm:col-span-2 md:col-span-1">
-                      <Field label="Story Link Label" hint="Call to action link at bottom of story">
-                        <input
-                          type="text"
-                          value={form.storyLinkLabel}
-                          onChange={(e) => set('storyLinkLabel', e.target.value)}
-                          placeholder="Our full story →"
-                          className={inputClass}
-                        />
-                      </Field>
-                    </div>
-                  </div>
-                </div>
+                  )
+                })}
               </div>
-            </Card>
+            )}
 
-            {/* Promo Banner */}
-            <Card title="Mid-Page Promo Banner" subtitle="Full-width callout banner between product sections">
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Field label="Badge / Subtitle" hint="Small tagline above banner headline">
-                    <input
-                      type="text"
-                      value={form.promoBadge}
-                      onChange={(e) => set('promoBadge', e.target.value)}
-                      placeholder="Crafted for Nigerian homes"
-                      className={inputClass}
-                    />
-                  </Field>
+            {/* ── 2B. THEME STYLES MODE ── */}
+            {category === 'theme' && (
+              <div className="space-y-2">
+                {filteredThemeSettings.map((thm) => {
+                  const Icon = thm.icon
+                  const isOpen = expandedSection === thm.id
 
-                  <Field label="Headline" hint="Main callout headline">
-                    <input
-                      type="text"
-                      value={form.promoTitle}
-                      onChange={(e) => set('promoTitle', e.target.value)}
-                      placeholder="Spaces worth living in."
-                      className={inputClass}
-                    />
-                  </Field>
-
-                  <Field label="Button Label">
-                    <input
-                      type="text"
-                      value={form.promoCtaLabel}
-                      onChange={(e) => set('promoCtaLabel', e.target.value)}
-                      placeholder="Shop the collection"
-                      className={inputClass}
-                    />
-                  </Field>
-
-                  <Field label="Button Link">
-                    <input
-                      type="text"
-                      value={form.promoCtaHref}
-                      onChange={(e) => set('promoCtaHref', e.target.value)}
-                      placeholder="/products"
-                      className={inputClass}
-                    />
-                  </Field>
-                </div>
-
-                <Field label="Background Image" hint="High resolution photo for the promotional banner">
-                  <div className="flex flex-col sm:flex-row gap-3 items-center">
-                    <div className="flex-1 w-full">
-                      <CloudinaryUpload
-                        value={form.promoImageUrl ? [form.promoImageUrl] : []}
-                        onChange={(urls) => set('promoImageUrl', urls[urls.length - 1] || null)}
-                        maxFiles={1}
-                        label="Upload promo banner"
-                      />
-                      <input
-                        type="url"
-                        value={form.promoImageUrl || ''}
-                        onChange={(e) => set('promoImageUrl', e.target.value || null)}
-                        placeholder="Or paste banner image URL"
-                        className={`${inputClass} mt-1`}
-                      />
-                    </div>
-                    {form.promoImageUrl && (
-                      <img
-                        src={form.promoImageUrl}
-                        alt="Promo preview"
-                        className="w-28 h-20 object-cover rounded-lg border border-stone-200 shrink-0"
-                      />
-                    )}
-                  </div>
-                </Field>
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* ═════════ TAB 3: Shop & Collections ═════════ */}
-        {activeTab === 'shop' && (
-          <div className="space-y-6">
-            {/* Products Page Header */}
-            <Card title="Products Catalog Header (/products)" subtitle="Header text displayed at the top of the shop collection page">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label="Shop Page Title" hint="Main title (e.g. The Collection or All Mattresses & Bedding)">
-                  <input
-                    type="text"
-                    value={form.shopPageTitle}
-                    onChange={(e) => set('shopPageTitle', e.target.value)}
-                    placeholder="The Collection"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field label="Shop Page Tagline" hint="Descriptive subtitle explaining the quality and authenticity">
-                  <input
-                    type="text"
-                    value={form.shopPageTagline}
-                    onChange={(e) => set('shopPageTagline', e.target.value)}
-                    placeholder="Original mattresses, luxury furniture, and bedding — every piece factory-sealed and warranted."
-                    className={inputClass}
-                  />
-                </Field>
-              </div>
-            </Card>
-
-            {/* Featured Section on Homepage */}
-            <Card title="Featured Products Section" subtitle="Heading on the homepage best-sellers grid">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label="Section Title" hint="e.g. What people keep coming back for.">
-                  <input
-                    type="text"
-                    value={form.featuredTitle}
-                    onChange={(e) => set('featuredTitle', e.target.value)}
-                    placeholder="What people keep coming back for."
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field label="Section Subtitle" hint="e.g. Our most-loved pieces — or browse everything we carry.">
-                  <input
-                    type="text"
-                    value={form.featuredDescription}
-                    onChange={(e) => set('featuredDescription', e.target.value)}
-                    placeholder="Our most-loved pieces — or browse everything we carry."
-                    className={inputClass}
-                  />
-                </Field>
-              </div>
-            </Card>
-
-            {/* Collections / Categories Section */}
-            <Card title="Categories Grid Section" subtitle="Heading on the homepage category browse section">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label="Section Title" hint="e.g. Shop by category">
-                  <input
-                    type="text"
-                    value={form.collectionsTitle}
-                    onChange={(e) => set('collectionsTitle', e.target.value)}
-                    placeholder="Shop by category"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field label="Section Subtitle" hint="e.g. Mattresses, pillows, furniture — find exactly what your space is missing.">
-                  <input
-                    type="text"
-                    value={form.collectionsDescription}
-                    onChange={(e) => set('collectionsDescription', e.target.value)}
-                    placeholder="Mattresses, pillows, furniture — find exactly what your space is missing."
-                    className={inputClass}
-                  />
-                </Field>
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* ═════════ TAB 5: Policies & FAQs ═════════ */}
-        {activeTab === 'policies' && (
-          <div className="space-y-6">
-            {/* Guarantees & Item Policies */}
-            <Card title="Guarantees & Item Policies" subtitle="Displayed on product pages inside the trust accordion">
-              <div className="space-y-5">
-                <Field
-                  label="1. Delivery & Logistics Policy"
-                  hint="Each line will be displayed as a distinct bullet point for customers"
-                >
-                  <textarea
-                    rows={4}
-                    value={form.deliveryPolicy || ''}
-                    onChange={(e) => set('deliveryPolicy', e.target.value)}
-                    placeholder="Free doorstep delivery on select orders in Abuja & Benin City&#10;Scheduled 24-48 hr dispatch&#10;Careful handling by trained logistics crew"
-                    className={textareaClass}
-                  />
-                </Field>
-
-                <Field
-                  label="2. Returns & Replacement Policy"
-                  hint="Each line will be displayed as a distinct bullet point for customers"
-                >
-                  <textarea
-                    rows={4}
-                    value={form.returnPolicy || ''}
-                    onChange={(e) => set('returnPolicy', e.target.value)}
-                    placeholder="7-day inspection window on factory-sealed items&#10;Prompt replacement if defective or incorrect size&#10;Original packaging must remain intact"
-                    className={textareaClass}
-                  />
-                </Field>
-
-                <Field
-                  label="3. Factory Warranty Policy"
-                  hint="Each line will be displayed as a distinct bullet point for customers"
-                >
-                  <textarea
-                    rows={4}
-                    value={form.warrantyPolicy || ''}
-                    onChange={(e) => set('warrantyPolicy', e.target.value)}
-                    placeholder="100% genuine factory warranty from Mouka, Vitafoam, etc.&#10;Full manufacturer warranty card included&#10;Dedicated warranty support liaison"
-                    className={textareaClass}
-                  />
-                </Field>
-              </div>
-            </Card>
-
-            {/* Custom Size Order Modal Copy */}
-            <Card title="Custom Size Order Modal" subtitle="Text shown in the pop-up modal when a customer clicks 'Custom size' on a product">
-              <div className="space-y-4">
-                <Field label="Modal Headline" hint="e.g. Need a Custom Size?">
-                  <input
-                    type="text"
-                    value={form.customRequestTitle}
-                    onChange={(e) => set('customRequestTitle', e.target.value)}
-                    placeholder="Need a Custom Size?"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field label="Modal Subtitle / Instructions" hint="e.g. Have an imported bed frame or unique room dimensions? We can order custom-sized mattresses directly from the factory for you.">
-                  <textarea
-                    rows={3}
-                    value={form.customRequestSubtitle}
-                    onChange={(e) => set('customRequestSubtitle', e.target.value)}
-                    placeholder="Have an imported bed frame or unique room dimensions? We can order custom-sized mattresses directly from the factory for you."
-                    className={textareaClass}
-                  />
-                </Field>
-              </div>
-            </Card>
-
-            {/* FAQs Dynamic Manager */}
-            <Card
-              title="Frequently Asked Questions (FAQs)"
-              subtitle="Add, edit, reorder, or remove questions shown on the /faqs page"
-            >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-                  <span className="text-xs font-semibold text-stone-600">
-                    {getFaqsList().length} Question{getFaqsList().length === 1 ? '' : 's'} Configured
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleAddFaq}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-blue-950 hover:bg-blue-900 rounded-lg transition-colors"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add Question</span>
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  {getFaqsList().map((faq, idx) => (
+                  return (
                     <div
-                      key={idx}
-                      className="p-4 bg-stone-50/70 border border-stone-200/80 rounded-xl space-y-3 transition-all hover:border-stone-300"
+                      key={thm.id}
+                      className={`border rounded-xl transition-all overflow-hidden ${
+                        isOpen
+                          ? 'border-blue-950/20 bg-stone-50/40 shadow-sm ring-1 ring-blue-950/5'
+                          : 'border-stone-200/80 bg-white hover:border-stone-300'
+                      }`}
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-[11px] font-mono font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
-                          Q{idx + 1}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          <button
-                            type="button"
-                            onClick={() => handleMoveFaq(idx, -1)}
-                            disabled={idx === 0}
-                            title="Move Up"
-                            className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30 disabled:hover:text-stone-400"
+                      <button
+                        type="button"
+                        onClick={() => setExpandedSection(isOpen ? null : thm.id)}
+                        className="w-full flex items-center justify-between p-3.5 text-left group"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                              isOpen ? 'bg-blue-950 text-white' : 'bg-stone-100 text-stone-500 group-hover:text-blue-950'
+                            }`}
                           >
-                            <ArrowUp className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleMoveFaq(idx, 1)}
-                            disabled={idx === getFaqsList().length - 1}
-                            title="Move Down"
-                            className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30 disabled:hover:text-stone-400"
-                          >
-                            <ArrowDown className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteFaq(idx)}
-                            title="Delete FAQ"
-                            className="p-1 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <span className="text-xs font-bold text-blue-950 block truncate">{thm.label}</span>
+                            <span className="text-[11px] text-stone-400 block truncate">{thm.desc}</span>
+                          </div>
                         </div>
-                      </div>
-
-                      <div>
-                        <label className="text-[11px] font-semibold text-stone-700 block mb-1">Question</label>
-                        <input
-                          type="text"
-                          value={faq.question}
-                          onChange={(e) => handleUpdateFaq(idx, 'question', e.target.value)}
-                          placeholder="e.g. Do you deliver outside Abuja and Benin City?"
-                          className={inputClass}
+                        <ChevronDown
+                          className={`w-4 h-4 text-stone-400 transition-transform duration-200 shrink-0 ${
+                            isOpen ? 'rotate-180 text-blue-950' : ''
+                          }`}
                         />
-                      </div>
+                      </button>
 
-                      <div>
-                        <label className="text-[11px] font-semibold text-stone-700 block mb-1">Answer</label>
-                        <textarea
-                          rows={3}
-                          value={faq.answer}
-                          onChange={(e) => handleUpdateFaq(idx, 'answer', e.target.value)}
-                          placeholder="Detailed, helpful answer..."
-                          className={textareaClass}
-                        />
-                      </div>
+                      {isOpen && (
+                        <div className="p-4 pt-1 border-t border-stone-200/60 bg-white space-y-4">
+                          {/* 1. Identity & Logo */}
+                          {thm.id === 'identity' && (
+                            <div className="space-y-3 pt-2">
+                              <Field label="Store Name" hint="Shown in header, metadata, emails">
+                                <input
+                                  type="text"
+                                  value={form.siteName}
+                                  onChange={(e) => set('siteName', e.target.value)}
+                                  placeholder="Smart Best Brands"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Store Tagline">
+                                <input
+                                  type="text"
+                                  value={form.tagline}
+                                  onChange={(e) => set('tagline', e.target.value)}
+                                  placeholder="Quality mattresses, pillows & furniture"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Store Logo" hint="Upload transparent PNG/SVG or paste URL">
+                                <CloudinaryUpload
+                                  value={form.logoUrl ? [form.logoUrl] : []}
+                                  onChange={(urls) => set('logoUrl', urls[urls.length - 1] || null)}
+                                  maxFiles={1}
+                                  label="Upload store logo"
+                                />
+                                <input
+                                  type="url"
+                                  value={form.logoUrl || ''}
+                                  onChange={(e) => set('logoUrl', e.target.value || null)}
+                                  placeholder="Or paste direct image URL (https://...)"
+                                  className={`${inputClass} mt-1`}
+                                />
+                              </Field>
+                            </div>
+                          )}
+
+                          {/* 2. Colors & Palettes */}
+                          {thm.id === 'colors' && (
+                            <div className="space-y-4 pt-2">
+                              <div>
+                                <label className="text-xs font-bold text-stone-700 block mb-2">Curated Color Palettes</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                  {COLOR_PRESETS.map((preset) => (
+                                    <button
+                                      key={preset.name}
+                                      type="button"
+                                      onClick={() => {
+                                        set('primaryColor', preset.primary)
+                                        set('accentColor', preset.accent)
+                                        set('backgroundColor', preset.bg)
+                                      }}
+                                      className="p-2.5 rounded-xl border border-stone-200 hover:border-blue-950 text-left transition-all bg-white hover:shadow-sm"
+                                    >
+                                      <div className="flex items-center gap-1.5 mb-1">
+                                        <span className="w-3.5 h-3.5 rounded-full shadow-sm" style={{ backgroundColor: preset.primary }} />
+                                        <span className="w-3.5 h-3.5 rounded-full shadow-sm" style={{ backgroundColor: preset.accent }} />
+                                        <span className="w-3.5 h-3.5 rounded-full shadow-sm border border-stone-200" style={{ backgroundColor: preset.bg }} />
+                                      </div>
+                                      <span className="text-[11px] font-semibold text-stone-700 block truncate">{preset.name}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="space-y-3 pt-2 border-t border-stone-100">
+                                <Field label="Primary Color (Buttons & Headers)">
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="color"
+                                      value={isValidHex(form.primaryColor) ? form.primaryColor : '#172554'}
+                                      onChange={(e) => set('primaryColor', e.target.value)}
+                                      className="w-9 h-9 rounded-lg border border-stone-200 cursor-pointer p-0.5 shrink-0 bg-white"
+                                    />
+                                    <input
+                                      type="text"
+                                      value={form.primaryColor}
+                                      onChange={(e) => set('primaryColor', e.target.value)}
+                                      className={inputClass}
+                                    />
+                                  </div>
+                                </Field>
+
+                                <Field label="Accent Color (Highlights & Badges)">
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="color"
+                                      value={isValidHex(form.accentColor) ? form.accentColor : '#0284c7'}
+                                      onChange={(e) => set('accentColor', e.target.value)}
+                                      className="w-9 h-9 rounded-lg border border-stone-200 cursor-pointer p-0.5 shrink-0 bg-white"
+                                    />
+                                    <input
+                                      type="text"
+                                      value={form.accentColor}
+                                      onChange={(e) => set('accentColor', e.target.value)}
+                                      className={inputClass}
+                                    />
+                                  </div>
+                                </Field>
+
+                                <Field label="Page Background Color">
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="color"
+                                      value={isValidHex(form.backgroundColor) ? form.backgroundColor : '#f7f6f3'}
+                                      onChange={(e) => set('backgroundColor', e.target.value)}
+                                      className="w-9 h-9 rounded-lg border border-stone-200 cursor-pointer p-0.5 shrink-0 bg-white"
+                                    />
+                                    <input
+                                      type="text"
+                                      value={form.backgroundColor}
+                                      onChange={(e) => set('backgroundColor', e.target.value)}
+                                      className={inputClass}
+                                    />
+                                  </div>
+                                </Field>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 3. Button Shapes & Styles */}
+                          {thm.id === 'buttons' && (
+                            <div className="space-y-4 pt-2">
+                              <label className="text-xs font-bold text-stone-700 block">Button Corner Radius</label>
+                              <div className="grid grid-cols-3 gap-2">
+                                {BUTTON_SHAPE_OPTIONS.map((opt) => {
+                                  const isSel = form.buttonShape === opt.value
+                                  return (
+                                    <button
+                                      key={opt.value}
+                                      type="button"
+                                      onClick={() => set('buttonShape', opt.value)}
+                                      className={`p-3 rounded-xl border text-center transition-all ${
+                                        isSel
+                                          ? 'border-blue-950 bg-blue-50/50 ring-2 ring-blue-950/10'
+                                          : 'border-stone-200 bg-white hover:border-stone-300'
+                                      }`}
+                                    >
+                                      <div
+                                        style={{ borderRadius: opt.radius }}
+                                        className="h-6 w-full bg-blue-950 text-white text-[9px] font-bold uppercase tracking-wider flex items-center justify-center mx-auto mb-2"
+                                      >
+                                        BTN
+                                      </div>
+                                      <span className="text-[11px] font-bold text-blue-950 block">{opt.label}</span>
+                                    </button>
+                                  )
+                                })}
+                              </div>
+
+                              {/* Interactive Live Button Swatch */}
+                              <div className="p-3 bg-stone-50 rounded-xl border border-stone-200/80 space-y-2">
+                                <span className="text-[10px] font-mono text-stone-400 uppercase tracking-wider block">Live Button Swatch</span>
+                                <div className="flex flex-wrap gap-2">
+                                  <button
+                                    type="button"
+                                    style={{
+                                      backgroundColor: form.primaryColor,
+                                      borderRadius: form.buttonShape === 'pill' ? '9999px' : form.buttonShape === 'rounded' ? '8px' : '0px',
+                                    }}
+                                    className="px-4 py-2 text-[10px] font-black text-white uppercase tracking-wider shadow-sm"
+                                  >
+                                    Primary
+                                  </button>
+                                  <button
+                                    type="button"
+                                    style={{
+                                      borderColor: form.accentColor,
+                                      color: form.accentColor,
+                                      borderRadius: form.buttonShape === 'pill' ? '9999px' : form.buttonShape === 'rounded' ? '8px' : '0px',
+                                    }}
+                                    className="px-4 py-2 text-[10px] font-black border uppercase tracking-wider bg-transparent"
+                                  >
+                                    Secondary
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 4. Card Corners & Containers */}
+                          {thm.id === 'cards' && (
+                            <div className="space-y-4 pt-2">
+                              <label className="text-xs font-bold text-stone-700 block">Product Cards & Tiles Radius</label>
+                              <div className="grid grid-cols-3 gap-2">
+                                {CARD_STYLE_OPTIONS.map((opt) => {
+                                  const isSel = form.cardStyle === opt.value
+                                  return (
+                                    <button
+                                      key={opt.value}
+                                      type="button"
+                                      onClick={() => set('cardStyle', opt.value)}
+                                      className={`p-3 rounded-xl border text-center transition-all ${
+                                        isSel
+                                          ? 'border-blue-950 bg-blue-50/50 ring-2 ring-blue-950/10'
+                                          : 'border-stone-200 bg-white hover:border-stone-300'
+                                      }`}
+                                    >
+                                      <div
+                                        style={{ borderRadius: opt.radius }}
+                                        className="w-8 h-8 bg-stone-200 border border-stone-300 mx-auto mb-2 shadow-inner"
+                                      />
+                                      <span className="text-[11px] font-bold text-blue-950 block">{opt.label}</span>
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 5. Badges & Tags */}
+                          {thm.id === 'badges' && (
+                            <div className="space-y-4 pt-2">
+                              <label className="text-xs font-bold text-stone-700 block">Tag & Badge Style</label>
+                              <div className="grid grid-cols-2 gap-2">
+                                {BADGE_STYLE_OPTIONS.map((opt) => {
+                                  const isSel = form.badgeStyle === opt.value
+                                  return (
+                                    <button
+                                      key={opt.value}
+                                      type="button"
+                                      onClick={() => set('badgeStyle', opt.value)}
+                                      className={`p-3 rounded-xl border text-center transition-all ${
+                                        isSel
+                                          ? 'border-blue-950 bg-blue-50/50 ring-2 ring-blue-950/10'
+                                          : 'border-stone-200 bg-white hover:border-stone-300'
+                                      }`}
+                                    >
+                                      <span
+                                        style={{ borderRadius: opt.value === 'pill' ? '9999px' : '0px' }}
+                                        className="inline-block px-2.5 py-1 bg-sky-600 text-white text-[9px] font-bold uppercase tracking-wider mb-2"
+                                      >
+                                        SALE 20%
+                                      </span>
+                                      <span className="text-[11px] font-bold text-blue-950 block">{opt.label}</span>
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 6. Typography Pairings */}
+                          {thm.id === 'typography' && (
+                            <div className="space-y-4 pt-2">
+                              <div>
+                                <label className="text-xs font-bold text-stone-700 block mb-2">Heading Display Font</label>
+                                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                                  {HEADING_FONTS.map((font) => (
+                                    <button
+                                      key={font.name}
+                                      type="button"
+                                      onClick={() => set('headingFont', font.name)}
+                                      className={`w-full flex items-center justify-between p-2.5 rounded-xl border text-left text-xs transition-all ${
+                                        form.headingFont === font.name
+                                          ? 'border-blue-950 bg-blue-950 text-white shadow-sm'
+                                          : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300'
+                                      }`}
+                                    >
+                                      <span style={{ fontFamily: font.name }} className="font-bold text-sm">
+                                        {font.label}
+                                      </span>
+                                      {form.headingFont === font.name && <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="pt-2 border-t border-stone-100">
+                                <label className="text-xs font-bold text-stone-700 block mb-2">Body Reading Font</label>
+                                <div className="space-y-1.5">
+                                  {BODY_FONTS.map((font) => (
+                                    <button
+                                      key={font.name}
+                                      type="button"
+                                      onClick={() => set('bodyFont', font.name)}
+                                      className={`w-full flex items-center justify-between p-2.5 rounded-xl border text-left text-xs transition-all ${
+                                        form.bodyFont === font.name
+                                          ? 'border-blue-950 bg-blue-950 text-white shadow-sm'
+                                          : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300'
+                                      }`}
+                                    >
+                                      <span style={{ fontFamily: font.name }} className="font-medium text-sm">
+                                        {font.label}
+                                      </span>
+                                      {form.bodyFont === font.name && <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 7. FAQs Manager */}
+                          {thm.id === 'faqs' && (
+                            <div className="space-y-3 pt-2">
+                              <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                                <span className="text-xs font-semibold text-stone-600">
+                                  {getFaqsList().length} Questions Configured
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={handleAddFaq}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-white bg-blue-950 hover:bg-blue-900 rounded-lg transition-colors"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                  <span>Add FAQ</span>
+                                </button>
+                              </div>
+
+                              <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                                {getFaqsList().map((faq, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="p-3 bg-stone-50/80 border border-stone-200 rounded-xl space-y-2"
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-[10px] font-mono font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
+                                        Q{idx + 1}
+                                      </span>
+                                      <div className="flex items-center gap-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleMoveFaq(idx, -1)}
+                                          disabled={idx === 0}
+                                          className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30"
+                                        >
+                                          <ArrowUp className="w-3 h-3" />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleMoveFaq(idx, 1)}
+                                          disabled={idx === getFaqsList().length - 1}
+                                          className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30"
+                                        >
+                                          <ArrowDown className="w-3 h-3" />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleDeleteFaq(idx)}
+                                          className="p-1 text-rose-500 hover:text-rose-700"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                    <input
+                                      type="text"
+                                      value={faq.question}
+                                      onChange={(e) => handleUpdateFaq(idx, 'question', e.target.value)}
+                                      placeholder="Question..."
+                                      className={inputClass}
+                                    />
+                                    <textarea
+                                      rows={2}
+                                      value={faq.answer}
+                                      onChange={(e) => handleUpdateFaq(idx, 'answer', e.target.value)}
+                                      placeholder="Answer..."
+                                      className={textareaClass}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 8. Custom Size Modal */}
+                          {thm.id === 'customSize' && (
+                            <div className="space-y-3 pt-2">
+                              <Field label="Modal Headline">
+                                <input
+                                  type="text"
+                                  value={form.customRequestTitle}
+                                  onChange={(e) => set('customRequestTitle', e.target.value)}
+                                  placeholder="Need a Custom Size?"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Modal Subtitle / Instructions">
+                                <textarea
+                                  rows={3}
+                                  value={form.customRequestSubtitle}
+                                  onChange={(e) => set('customRequestSubtitle', e.target.value)}
+                                  className={textareaClass}
+                                />
+                              </Field>
+                            </div>
+                          )}
+
+                          {/* 9. Contact & Socials */}
+                          {thm.id === 'contact' && (
+                            <div className="space-y-3 pt-2">
+                              <Field label="Store Address">
+                                <input
+                                  type="text"
+                                  value={form.storeAddress}
+                                  onChange={(e) => set('storeAddress', e.target.value)}
+                                  placeholder="Abuja · Benin City"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Support Email">
+                                <input
+                                  type="email"
+                                  value={form.contactEmail}
+                                  onChange={(e) => set('contactEmail', e.target.value)}
+                                  placeholder="hello@smartbestbrands.com"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="WhatsApp Number">
+                                <input
+                                  type="text"
+                                  value={form.whatsappNumber || ''}
+                                  onChange={(e) => set('whatsappNumber', e.target.value || null)}
+                                  placeholder="08012345678"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Support Phone Call">
+                                <input
+                                  type="text"
+                                  value={form.supportPhone || ''}
+                                  onChange={(e) => set('supportPhone', e.target.value || null)}
+                                  placeholder="+234 800 000 0000"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <div className="pt-2 border-t border-stone-100 space-y-2">
+                                <span className="text-[11px] font-bold text-stone-700 block">Social Links</span>
+                                <input
+                                  type="url"
+                                  value={form.instagramUrl || ''}
+                                  onChange={(e) => set('instagramUrl', e.target.value || null)}
+                                  placeholder="Instagram URL"
+                                  className={inputClass}
+                                />
+                                <input
+                                  type="url"
+                                  value={form.facebookUrl || ''}
+                                  onChange={(e) => set('facebookUrl', e.target.value || null)}
+                                  placeholder="Facebook URL"
+                                  className={inputClass}
+                                />
+                                <input
+                                  type="url"
+                                  value={form.twitterUrl || ''}
+                                  onChange={(e) => set('twitterUrl', e.target.value || null)}
+                                  placeholder="X (Twitter) URL"
+                                  className={inputClass}
+                                />
+                                <input
+                                  type="url"
+                                  value={form.tiktokUrl || ''}
+                                  onChange={(e) => set('tiktokUrl', e.target.value || null)}
+                                  placeholder="TikTok URL"
+                                  className={inputClass}
+                                />
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 10. Bank Transfer Payment */}
+                          {thm.id === 'bank' && (
+                            <div className="space-y-3 pt-2">
+                              <Field label="Bank Name">
+                                <input
+                                  type="text"
+                                  value={form.bankName || ''}
+                                  onChange={(e) => set('bankName', e.target.value || null)}
+                                  placeholder="Moniepoint Microfinance Bank"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Account Name">
+                                <input
+                                  type="text"
+                                  value={form.bankAccountName || ''}
+                                  onChange={(e) => set('bankAccountName', e.target.value || null)}
+                                  placeholder="Smart Best Brands Nigeria"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Account Number">
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={form.bankAccountNumber || ''}
+                                  onChange={(e) => set('bankAccountNumber', e.target.value || null)}
+                                  placeholder="0123456789"
+                                  className={inputClass}
+                                />
+                              </Field>
+                            </div>
+                          )}
+
+                          {/* 11. Section Watermarks */}
+                          {thm.id === 'watermarks' && (
+                            <div className="space-y-3 pt-2">
+                              <Field label="Hero Section Watermark" hint="Default: Comfort">
+                                <input
+                                  type="text"
+                                  value={form.heroBackdropWord}
+                                  onChange={(e) => set('heroBackdropWord', e.target.value)}
+                                  placeholder="Comfort"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Story Section Watermark" hint="Default: Rest">
+                                <input
+                                  type="text"
+                                  value={form.storyBackdropWord}
+                                  onChange={(e) => set('storyBackdropWord', e.target.value)}
+                                  placeholder="Rest"
+                                  className={inputClass}
+                                />
+                              </Field>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
+                  )
+                })}
               </div>
-            </Card>
-          </div>
-        )}
-
-        {/* ═════════ TAB 6: Contact & Socials ═════════ */}
-        {activeTab === 'contact' && (
-          <div className="space-y-6">
-            {/* Direct Contact Info */}
-            <Card title="Direct Contact Channels" subtitle="Addresses, email, phone numbers, and WhatsApp">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label="Store Address / Hubs" hint="Locations displayed in footer and contact page">
-                  <input
-                    type="text"
-                    value={form.storeAddress}
-                    onChange={(e) => set('storeAddress', e.target.value)}
-                    placeholder="Abuja · Benin City"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field label="Customer Support Email" hint="Inquiries and notifications">
-                  <input
-                    type="email"
-                    required
-                    value={form.contactEmail}
-                    onChange={(e) => set('contactEmail', e.target.value)}
-                    placeholder="hello@smartbestbrands.com"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field label="WhatsApp Number" hint="Direct click-to-chat. Can enter 080... or 23480...">
-                  <input
-                    type="text"
-                    value={form.whatsappNumber || ''}
-                    onChange={(e) => set('whatsappNumber', e.target.value || null)}
-                    placeholder="08012345678 or 2348012345678"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field label="Support Phone Call" hint="Direct telephone number for voice calls">
-                  <input
-                    type="text"
-                    value={form.supportPhone || ''}
-                    onChange={(e) => set('supportPhone', e.target.value || null)}
-                    placeholder="+234 800 000 0000"
-                    className={inputClass}
-                  />
-                </Field>
-              </div>
-            </Card>
-
-            {/* Social Media Links */}
-            <Card title="Social Media Profiles" subtitle="Links to your social accounts shown in header and footer">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label="Instagram Profile URL">
-                  <input
-                    type="url"
-                    value={form.instagramUrl || ''}
-                    onChange={(e) => set('instagramUrl', e.target.value || null)}
-                    placeholder="https://instagram.com/smartbestbrands"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field label="Facebook Page URL">
-                  <input
-                    type="url"
-                    value={form.facebookUrl || ''}
-                    onChange={(e) => set('facebookUrl', e.target.value || null)}
-                    placeholder="https://facebook.com/smartbestbrands"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field label="X (Twitter) Profile URL">
-                  <input
-                    type="url"
-                    value={form.twitterUrl || ''}
-                    onChange={(e) => set('twitterUrl', e.target.value || null)}
-                    placeholder="https://x.com/smartbestbrands"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field label="TikTok Profile URL">
-                  <input
-                    type="url"
-                    value={form.tiktokUrl || ''}
-                    onChange={(e) => set('tiktokUrl', e.target.value || null)}
-                    placeholder="https://tiktok.com/@smartbestbrands"
-                    className={inputClass}
-                  />
-                </Field>
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* ═════════ TAB 5: Bank & Footer ═════════ */}
-        {activeTab === 'bank' && (
-          <div className="space-y-6">
-            {/* Bank Transfer Details */}
-            <Card title="Bank Transfer Checkout Details" subtitle="Displayed on checkout when customers choose bank transfer payment">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Field label="Bank Name" hint="e.g. Moniepoint MFB, Zenith Bank">
-                  <input
-                    type="text"
-                    value={form.bankName || ''}
-                    onChange={(e) => set('bankName', e.target.value || null)}
-                    placeholder="Moniepoint Microfinance Bank"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field label="Account Name" hint="Registered account holder name">
-                  <input
-                    type="text"
-                    value={form.bankAccountName || ''}
-                    onChange={(e) => set('bankAccountName', e.target.value || null)}
-                    placeholder="Smart Best Brands Nigeria"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field label="Account Number" hint="10-digit NUBAN number">
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={form.bankAccountNumber || ''}
-                    onChange={(e) => set('bankAccountNumber', e.target.value || null)}
-                    placeholder="0123456789"
-                    className={inputClass}
-                  />
-                </Field>
-              </div>
-            </Card>
-
-            {/* Footer Copy */}
-            <Card title="Footer Copy" subtitle="About blurb displayed at the bottom of every page">
-              <Field label="Footer Brand Description" hint="Brief summary of your company, promise, and warranty">
-                <textarea
-                  rows={3}
-                  value={form.footerText}
-                  onChange={(e) => set('footerText', e.target.value)}
-                  placeholder="Original mattresses, luxury furniture, and bedding — factory-direct, delivered to your door."
-                  className={textareaClass}
-                />
-              </Field>
-            </Card>
-          </div>
-        )}
-
-        {/* ── Bottom Save Action Bar ── */}
-        <div className="sticky bottom-4 z-20 bg-white/95 backdrop-blur-md border border-stone-200 shadow-xl rounded-2xl p-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            {isDirty ? (
-              <span className="flex items-center gap-1.5 text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                Unsaved changes
-              </span>
-            ) : (
-              <span className="flex items-center gap-1.5 text-xs text-stone-500">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                All changes saved
-              </span>
             )}
           </div>
+        </aside>
 
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={handleReset}
-              disabled={resetting || saving}
-              className="px-3.5 py-2 text-xs font-medium text-stone-500 hover:text-stone-800 transition-colors disabled:opacity-50"
-            >
-              Reset
-            </button>
+        {/* ── RIGHT PANEL: Shopify Live Storefront Preview Canvas ── */}
+        <main
+          className={`flex-1 flex flex-col bg-stone-200/60 overflow-hidden relative ${
+            mobileTab === 'editor' ? 'hidden lg:flex' : 'flex'
+          }`}
+        >
+          {/* Top Canvas Bar (URL & Preview Info) */}
+          <div className="h-10 bg-stone-100/90 border-b border-stone-200 px-4 flex items-center justify-between text-xs text-stone-500">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span className="font-mono text-[11px] text-stone-600 truncate max-w-[280px] sm:max-w-md">
+                Live Preview: {previewUrl}
+              </span>
+            </div>
 
-            <button
-              type="submit"
-              disabled={saving}
-              className="inline-flex items-center gap-2 px-6 py-2.5 text-xs font-semibold text-white bg-blue-950 hover:bg-blue-900 active:scale-[0.98] rounded-xl shadow-md transition-all disabled:opacity-60"
-            >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              <span>{saving ? 'Saving changes…' : 'Save Changes'}</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-stone-400 font-mono hidden sm:inline">
+                {previewDevice === 'mobile' ? '390 × 844 px' : previewDevice === 'tablet' ? '768 × 1024 px' : '100% Fluid'}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPreviewKey((k) => k + 1)}
+                className="text-[11px] font-semibold text-sky-700 hover:text-blue-950 transition-colors"
+              >
+                Reload
+              </button>
+            </div>
           </div>
-        </div>
 
-      </form>
+          {/* Device Frame Viewport Container */}
+          <div className="flex-1 overflow-auto p-2 sm:p-6 flex items-start justify-center">
+            {previewDevice === 'desktop' && (
+              <div className="w-full h-full bg-white rounded-xl shadow-lg border border-stone-300 overflow-hidden flex flex-col">
+                <iframe
+                  key={`${previewUrl}-${previewKey}`}
+                  ref={iframeRef}
+                  src={previewUrl}
+                  title="Live Storefront Desktop Preview"
+                  className="w-full h-full border-0 bg-white"
+                />
+              </div>
+            )}
+
+            {previewDevice === 'tablet' && (
+              <div className="w-[768px] h-[980px] max-h-full bg-white rounded-2xl shadow-2xl border-[10px] border-stone-800 overflow-hidden flex flex-col shrink-0">
+                {/* Tablet Frame Header */}
+                <div className="h-5 bg-stone-800 flex items-center justify-center shrink-0">
+                  <span className="w-2.5 h-2.5 rounded-full bg-stone-900 border border-stone-700" />
+                </div>
+                <iframe
+                  key={`${previewUrl}-${previewKey}`}
+                  ref={iframeRef}
+                  src={previewUrl}
+                  title="Live Storefront Tablet Preview"
+                  className="w-full flex-1 border-0 bg-white"
+                />
+              </div>
+            )}
+
+            {previewDevice === 'mobile' && (
+              <div className="w-[390px] h-[810px] max-h-full bg-white rounded-[40px] shadow-2xl border-[12px] border-stone-900 overflow-hidden flex flex-col shrink-0 relative">
+                {/* iPhone Dynamic Island / Speaker Notch */}
+                <div className="h-6 bg-stone-900 flex items-center justify-center shrink-0 z-10 relative">
+                  <div className="w-24 h-4 bg-black rounded-full" />
+                </div>
+                <iframe
+                  key={`${previewUrl}-${previewKey}`}
+                  ref={iframeRef}
+                  src={previewUrl}
+                  title="Live Storefront Mobile Preview"
+                  className="w-full flex-1 border-0 bg-white"
+                />
+                {/* Home Indicator Bar */}
+                <div className="h-4 bg-stone-900 flex items-center justify-center shrink-0">
+                  <div className="w-32 h-1 bg-stone-600 rounded-full" />
+                </div>
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
     </div>
   )
 }
 
-// ── Shared UI Components ──
+// ── Shared UI Utilities ──
 
 const inputClass =
-  'w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-xs outline-none focus:border-blue-950 focus:ring-2 focus:ring-blue-950/10 transition-all text-blue-950 bg-white placeholder:text-stone-300'
+  'w-full px-3 py-2 border border-stone-200 rounded-xl text-xs outline-none focus:border-blue-950 focus:ring-2 focus:ring-blue-950/10 transition-all text-blue-950 bg-white placeholder:text-stone-300'
 
 const textareaClass =
-  'w-full px-3.5 py-2.5 border border-stone-200 rounded-xl text-xs outline-none focus:border-blue-950 focus:ring-2 focus:ring-blue-950/10 transition-all text-blue-950 bg-white placeholder:text-stone-300 resize-y'
-
-function Card({
-  title,
-  subtitle,
-  children,
-}: {
-  title: string
-  subtitle?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="bg-white border border-stone-200/80 rounded-2xl p-5 sm:p-6 shadow-sm space-y-5">
-      <div className="border-b border-stone-100 pb-3">
-        <h2 className="text-base font-bold text-blue-950">{title}</h2>
-        {subtitle && <p className="text-xs text-stone-400 mt-0.5">{subtitle}</p>}
-      </div>
-      <div>{children}</div>
-    </div>
-  )
-}
+  'w-full px-3 py-2 border border-stone-200 rounded-xl text-xs outline-none focus:border-blue-950 focus:ring-2 focus:ring-blue-950/10 transition-all text-blue-950 bg-white placeholder:text-stone-300 resize-y'
 
 function Field({
   label,
@@ -1465,9 +1623,9 @@ function Field({
   children: React.ReactNode
 }) {
   return (
-    <div className="space-y-1.5">
-      <label className="text-xs font-semibold text-stone-800 block">{label}</label>
-      {hint && <p className="text-[11px] text-stone-400 leading-tight">{hint}</p>}
+    <div className="space-y-1">
+      <label className="text-[11px] font-bold text-stone-700 block">{label}</label>
+      {hint && <p className="text-[10px] text-stone-400 leading-tight">{hint}</p>}
       {children}
     </div>
   )

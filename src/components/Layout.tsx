@@ -4,6 +4,8 @@ import { usePathname } from 'next/navigation'
 import Header from './Header'
 import Footer from './Footer'
 import CartDrawer from './CartDrawer'
+import RecentSalesToast from './RecentSalesToast'
+import ScrollToTop from './ScrollToTop'
 import { useAuth } from '@/hooks/use-auth'
 import { useCart } from '@/lib/cart-context'
 
@@ -23,7 +25,7 @@ export default function Layout({ children }: LayoutProps) {
   const hideHeaderFooter = (isAccount && isAdmin) || isCheckout
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-[var(--brand-bg)] flex flex-col">
       {!hideHeaderFooter && <Header />}
       <main className="flex-1">
         {children}
@@ -31,6 +33,8 @@ export default function Layout({ children }: LayoutProps) {
       {!hideHeaderFooter && <Footer />}
       {/* CartDrawer lives here — outside <header> — so it can portal over everything */}
       {!isCheckout && <CartDrawer isOpen={state.isOpen} onClose={toggleCart} />}
+      {!hideHeaderFooter && <RecentSalesToast />}
+      {!hideHeaderFooter && <ScrollToTop />}
     </div>
   )
 }

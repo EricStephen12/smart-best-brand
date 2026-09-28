@@ -1,9 +1,11 @@
 import HeroSection from '@/components/HeroSection'
 import StorySection from '@/components/StorySection'
+import SleepMatcherCapsule from '@/components/SleepMatcherCapsule'
 import ScrollLabels from '@/components/ScrollLabels'
 import CollectionsSection from '@/components/CollectionsSection'
 import PromoBanner from '@/components/PromoBanner'
 import FeaturedProducts from '@/components/FeaturedProducts'
+import EditorialJournal from '@/components/EditorialJournal'
 import { getAllProducts } from '@/actions/products'
 import { getAllBrands } from '@/actions/brands'
 import { getAllCategories } from '@/actions/categories'
@@ -83,13 +85,15 @@ export default async function Home() {
       : [...labels, ...FALLBACK_SCROLL_LABELS]
 
   return (
-    <div className="bg-white">
+    <div className="bg-transparent">
       <HeroSection banners={banners || []} />
       <StorySection brandCount={brands?.length || 0} />
+      <SleepMatcherCapsule />
       <ScrollLabels labels={scrollLabels} />
       <CollectionsSection collections={collections} />
       <PromoBanner />
       <FeaturedProducts products={featured} />
+      <EditorialJournal />
     </div>
   )
 }

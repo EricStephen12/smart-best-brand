@@ -136,7 +136,7 @@ export default function ShopSection({
     searchQuery !== ''
 
   return (
-    <section className="relative min-h-screen bg-white py-16 sm:py-20 md:py-24 overflow-hidden border-t border-blue-950/5">
+    <section className="relative min-h-screen bg-transparent py-16 sm:py-20 md:py-24 overflow-hidden border-t border-blue-950/5">
       <EditorialBackdrop text="Shop" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-10 sm:mb-14">

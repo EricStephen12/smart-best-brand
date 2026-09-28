@@ -9,7 +9,7 @@ export default function ProductsHeader() {
   const shopTagline = settings.shopPageTagline || SHOP_HEADER.tagline
 
   return (
-    <div id="products-header" className="border-b border-blue-950/5 bg-white pt-10 pb-0 scroll-mt-16">
+    <div id="products-header" className="border-b border-blue-950/5 bg-transparent pt-10 pb-0 scroll-mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pb-8">
           <div>

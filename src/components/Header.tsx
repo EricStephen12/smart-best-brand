@@ -42,7 +42,7 @@ export default function Header() {
       className={`${isHome ? 'fixed' : 'sticky'} top-0 left-0 right-0 z-50 print:hidden transition-all duration-500 will-change-transform ${
         overHero
           ? 'bg-transparent border-transparent'
-          : 'bg-white/95 backdrop-blur-md border-b border-stone-200/80 shadow-sm'
+          : 'bg-[var(--brand-bg)]/90 backdrop-blur-md border-b border-stone-300/60 shadow-sm'
       }`}
     >
       {/* Announcement bar */}

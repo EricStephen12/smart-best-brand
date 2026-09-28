@@ -28,7 +28,7 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
   const storyLinkLabel = settings.storyLinkLabel || STORY_CONTENT.storyLinkLabel
 
   return (
-    <section ref={containerRef} id="story" className="relative py-16 sm:py-24 md:py-28 bg-white overflow-hidden border-y border-blue-950/5 scroll-mt-16">
+    <section ref={containerRef} id="story" className="relative py-16 sm:py-24 md:py-28 bg-transparent overflow-hidden border-y border-blue-950/5 scroll-mt-16">
       <EditorialBackdrop text={settings.storyBackdropWord || "Rest"} size="xl" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 

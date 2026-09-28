@@ -254,9 +254,11 @@ export default function AccountLayout({
     </div>
   );
 
+  const isSiteCustomizer = pathname.startsWith('/account/site');
+
   return (
-    <div className="flex h-screen bg-[#f7f6f3] text-blue-950 font-sans print:h-auto print:bg-white">
-      <aside className="w-64 hidden md:flex flex-col flex-shrink-0 shadow-sm print:hidden">
+    <div className="flex h-screen bg-[#f7f6f3] text-blue-950 font-sans print:h-auto print:bg-white overflow-hidden">
+      <aside className={`w-64 hidden md:flex flex-col flex-shrink-0 shadow-sm print:hidden ${isSiteCustomizer ? 'xl:w-60' : ''}`}>
         {sidebarContent}
       </aside>
 
@@ -284,31 +286,37 @@ export default function AccountLayout({
       </AnimatePresence>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden print:overflow-visible">
-        <header className="md:hidden bg-white border-b border-stone-200/80 px-5 py-3.5 flex items-center justify-between print:hidden">
-          <Link href="/" className="font-playfair font-black text-base text-blue-950">
-            Smart Best Brands
-          </Link>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/products"
-              className="px-3 py-1.5 text-xs font-semibold text-blue-950 bg-stone-100 rounded-lg hover:bg-stone-200 transition-colors"
-            >
-              Store
+        {!isSiteCustomizer && (
+          <header className="md:hidden bg-white border-b border-stone-200/80 px-5 py-3.5 flex items-center justify-between print:hidden">
+            <Link href="/" className="font-playfair font-black text-base text-blue-950">
+              Smart Best Brands
             </Link>
-            <button
-              className="p-2 text-slate-600 hover:text-blue-950"
-              onClick={() => setIsSidebarOpen(true)}
-              aria-label="Open menu"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-          </div>
-        </header>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/products"
+                className="px-3 py-1.5 text-xs font-semibold text-blue-950 bg-stone-100 rounded-lg hover:bg-stone-200 transition-colors"
+              >
+                Store
+              </Link>
+              <button
+                className="p-2 text-slate-600 hover:text-blue-950"
+                onClick={() => setIsSidebarOpen(true)}
+                aria-label="Open menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            </div>
+          </header>
+        )}
 
-        <main className="flex-1 overflow-auto print:overflow-visible">
-          <div className="max-w-6xl mx-auto p-4 sm:p-6 md:p-8 print:p-0 print:max-w-none">
-            {children}
-          </div>
+        <main className={`flex-1 ${isSiteCustomizer ? 'overflow-hidden flex flex-col p-0 bg-stone-100' : 'overflow-auto print:overflow-visible'}`}>
+          {isSiteCustomizer ? (
+            children
+          ) : (
+            <div className="max-w-6xl mx-auto p-4 sm:p-6 md:p-8 print:p-0 print:max-w-none">
+              {children}
+            </div>
+          )}
         </main>
       </div>
     </div>

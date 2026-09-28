@@ -131,7 +131,7 @@ export default function ProductDetailView({
   ].filter((s) => s.value)
 
   return (
-    <div className="relative pt-24 sm:pt-28 pb-20 sm:pb-24 bg-white border-t border-blue-950/5 overflow-hidden">
+    <div className="relative pt-24 sm:pt-28 pb-20 sm:pb-24 bg-transparent border-t border-blue-950/5 overflow-hidden">
       <EditorialBackdrop text={category || product.brand?.name || 'Rest'} size="xl" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
