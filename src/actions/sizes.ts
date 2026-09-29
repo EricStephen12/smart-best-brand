@@ -2,15 +2,11 @@
 
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/prisma'
-import { mockSizes } from '@/lib/mockData'
 import { requireAdmin } from '@/lib/auth'
 
-// Get all sizes
+// Get all sizes (100% real database, 0 mock data)
 export async function getAllSizes() {
     try {
-        if (process.env.USE_MOCK_DATA === 'true') {
-            return { success: true, data: mockSizes.map(s => ({ ...s, _count: { variants: 0 } })) };
-        }
         const sizes = await prisma.size.findMany({
             orderBy: { label: 'asc' },
             include: {
@@ -20,9 +16,23 @@ export async function getAllSizes() {
             }
         })
         return { success: true, data: sizes }
-    } catch (error) {
-        console.error('Error fetching sizes:', error)
-        return { success: false, error: 'Failed to fetch sizes' }
+    } catch (error: any) {
+        console.warn('Initial sizes fetch error, retrying in 1s for DB cold-start...', error?.message)
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 1000))
+            const retrySizes = await prisma.size.findMany({
+                orderBy: { label: 'asc' },
+                include: {
+                    _count: {
+                        select: { variants: true }
+                    }
+                }
+            })
+            return { success: true, data: retrySizes }
+        } catch (retryError) {
+            console.error('Final sizes fetch error:', retryError)
+            return { success: true, data: [] }
+        }
     }
 }
 

@@ -5,9 +5,7 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import EditorialBackdrop from '@/components/EditorialBackdrop'
 import { useSiteSettings } from '@/components/site-settings-context'
-
 import { HERO_BANNERS, ANIMATION } from '@/lib/constants'
 
 export type HeroBanner = {
@@ -19,16 +17,37 @@ export type HeroBanner = {
   ctaHref: string | null
 }
 
-/** Full-bleed hero with title text + real multi-image slides. */
+// Floating price tags that appear over the hero image
+const PRICE_TAGS = [
+  { label: '₦95,000', position: 'bottom-[22%] left-[8%]', delay: 0.3 },
+  { label: '₦210,000', position: 'top-[38%] right-[12%]', delay: 0.5 },
+  { label: '₦48,500', position: 'bottom-[30%] right-[28%]', delay: 0.7 },
+]
+
 export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }) {
   const settings = useSiteSettings()
+  const [liveBanners, setLiveBanners] = useState<HeroBanner[]>(banners)
 
-  // The primary hero slide is directly controlled by Site Settings.
-  // When an admin edits Headline, Subtext, Button in Site Settings,
-  // the main hero banner reflects those edits in real-time.
-  const firstBanner = banners[0]
+  // Listen for iframe live preview banner updates from site settings customizer
+  useEffect(() => {
+    const handleMsg = (e: MessageEvent) => {
+      if (e.data?.type === 'UPDATE_SITE_SETTINGS_PREVIEW' && Array.isArray(e.data.banners)) {
+        setLiveBanners(e.data.banners)
+      }
+    }
+    window.addEventListener('message', handleMsg)
+    return () => window.removeEventListener('message', handleMsg)
+  }, [])
+
+  // Sync if banners prop updates from server
+  useEffect(() => {
+    if (banners && banners.length > 0) setLiveBanners(banners)
+  }, [banners])
+
+  const activeBanners = liveBanners.filter((b: any) => b.isActive !== false)
+  const firstBanner = activeBanners[0]
   const primarySlide: HeroBanner = {
-    id: 'hero-primary',
+    id: firstBanner?.id || 'hero-primary',
     title: settings.heroTitle || firstBanner?.title || 'Quality mattresses, pillows & furniture',
     subtitle: settings.heroSubtitle ?? firstBanner?.subtitle ?? 'Authentic comfort for Nigerian homes',
     imageUrl: firstBanner?.imageUrl || '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
@@ -36,20 +55,11 @@ export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }
     ctaHref: settings.heroCtaHref || firstBanner?.ctaHref || '/products',
   }
 
-  // Combine primary slide with any remaining CMS banner slides or fallbacks
-  const additionalSlides = banners.length > 1
-    ? banners.slice(1)
-    : HERO_BANNERS.slice(1)
-
+  const additionalSlides = activeBanners.length > 1 ? activeBanners.slice(1) : HERO_BANNERS.slice(1)
   const slides = [primarySlide, ...additionalSlides]
-
   const [index, setIndex] = useState(0)
 
-  // Whenever hero settings change in customizer, immediately show slide 0
-  useEffect(() => {
-    setIndex(0)
-  }, [settings.heroTitle, settings.heroSubtitle, settings.heroCtaLabel, settings.heroCtaHref])
-
+  useEffect(() => { setIndex(0) }, [settings.heroTitle, settings.heroSubtitle, settings.heroCtaLabel, settings.heroCtaHref])
   useEffect(() => { setIndex(0) }, [slides.length])
 
   useEffect(() => {
@@ -60,17 +70,12 @@ export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }
     return () => window.clearInterval(id)
   }, [slides.length])
 
-  const go = (dir: -1 | 1) => {
-    setIndex((i) => (i + dir + slides.length) % slides.length)
-  }
-
+  const go = (dir: -1 | 1) => setIndex((i) => (i + dir + slides.length) % slides.length)
   const slide = slides[Math.min(index, slides.length - 1)]
 
-  // Eyebrow: tagline from settings, or site name
-  const eyebrow = settings.tagline || settings.siteName || 'Smart Best Brands'
-
   return (
-    <section id="hero" className="relative h-[100svh] min-h-[560px] w-full overflow-hidden bg-neutral-900 scroll-mt-16">
+    <section id="hero" className="relative h-[100svh] min-h-[600px] w-full overflow-hidden bg-neutral-100 scroll-mt-16">
+      {/* Background image */}
       <AnimatePresence mode="wait">
         <motion.div
           key={slide.id}
@@ -91,40 +96,55 @@ export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }
         </motion.div>
       </AnimatePresence>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/30 pointer-events-none" />
-      <EditorialBackdrop text={settings.heroBackdropWord || "Comfort"} light />
+      {/* Subtle gradient overlay — lighter than before */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/55 pointer-events-none" />
 
-      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center">
+      {/* Floating price tags */}
+      {PRICE_TAGS.map((tag, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: tag.delay, duration: 0.5 }}
+          className={`absolute z-20 hidden sm:flex ${tag.position}`}
+        >
+          <span className="bg-white/95 backdrop-blur-sm text-neutral-900 text-[13px] font-semibold px-4 py-2 rounded-full shadow-lg shadow-black/10">
+            {tag.label}
+          </span>
+        </motion.div>
+      ))}
+
+      {/* Main copy — left-aligned like Woodora */}
+      <div className="absolute inset-0 z-10 flex flex-col justify-end px-6 sm:px-12 lg:px-20 pb-16 sm:pb-20 max-w-4xl">
         <AnimatePresence mode="wait">
           <motion.div
             key={`copy-${slide.id}`}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-3xl"
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
-            <p className="text-[10px] sm:text-[11px] font-medium tracking-[0.35em] uppercase text-white/60 mb-5">
-              {eyebrow}
-            </p>
-            <h1 className="font-playfair text-4xl sm:text-6xl md:text-7xl font-black uppercase tracking-[-0.03em] text-white leading-[0.95]">
+            <h1
+              className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold text-white leading-[0.92] tracking-[-0.03em] mb-6 uppercase"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
               {slide.title}
             </h1>
             {slide.subtitle ? (
-              <p className="mt-5 text-sm sm:text-base text-white/80 max-w-lg mx-auto leading-relaxed font-medium">
+              <p className="text-sm sm:text-base text-white/75 max-w-md leading-relaxed mb-8">
                 {slide.subtitle}
               </p>
             ) : null}
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+            <div className="flex flex-wrap items-center gap-3">
               <Link
                 href={slide.ctaHref || '/products'}
-                className="inline-flex border border-white/90 text-white px-7 sm:px-8 py-3.5 text-[11px] font-medium tracking-[0.14em] uppercase hover:bg-white hover:text-neutral-950 transition-colors duration-300 style-button"
+                className="inline-flex items-center bg-white text-neutral-900 px-7 py-3.5 text-sm font-semibold rounded-full hover:bg-neutral-100 transition-colors duration-300"
               >
-                {slide.ctaLabel || 'Shop new'}
+                {slide.ctaLabel || 'Shop Now'}
               </Link>
               <Link
                 href="/about"
-                className="inline-flex border border-white/50 text-white/90 px-7 sm:px-8 py-3.5 text-[11px] font-medium tracking-[0.14em] uppercase hover:border-white hover:text-white transition-colors duration-300 style-button"
+                className="inline-flex items-center border border-white/60 text-white px-7 py-3.5 text-sm font-medium rounded-full hover:bg-white/10 transition-colors duration-300"
               >
                 Our story
               </Link>
@@ -133,37 +153,30 @@ export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }
         </AnimatePresence>
       </div>
 
+      {/* Slide controls */}
       {slides.length > 1 ? (
-        <div className="absolute bottom-8 right-6 sm:bottom-12 sm:right-12 z-20 flex items-center gap-4">
-          <div className="flex items-center gap-2">
+        <div className="absolute bottom-6 right-6 sm:bottom-10 sm:right-10 z-20 flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
             {slides.map((s, i) => (
               <button
                 key={s.id}
                 type="button"
-                aria-label={`Go to slide ${i + 1}: ${s.title}`}
+                aria-label={`Go to slide ${i + 1}`}
                 onClick={() => setIndex(i)}
-                className={`h-0.5 transition-all duration-300 ${
-                  i === index ? 'w-8 bg-white' : 'w-4 bg-white/40 hover:bg-white/70'
+                className={`rounded-full transition-all duration-300 ${
+                  i === index ? 'w-6 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/40 hover:bg-white/70'
                 }`}
               />
             ))}
           </div>
-          <div className="flex items-center gap-1 text-white/85">
-            <button
-              type="button"
-              aria-label="Previous slide"
-              onClick={() => go(-1)}
-              className="p-1.5 hover:text-white transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5" />
+          <div className="flex items-center gap-1 text-white/80">
+            <button type="button" aria-label="Previous slide" onClick={() => go(-1)}
+              className="p-1.5 hover:text-white transition-colors">
+              <ChevronLeft className="w-4 h-4" />
             </button>
-            <button
-              type="button"
-              aria-label="Next slide"
-              onClick={() => go(1)}
-              className="p-1.5 hover:text-white transition-colors"
-            >
-              <ChevronRight className="w-5 h-5" />
+            <button type="button" aria-label="Next slide" onClick={() => go(1)}
+              className="p-1.5 hover:text-white transition-colors">
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>

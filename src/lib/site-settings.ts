@@ -93,15 +93,43 @@ export type SiteSettingsData = {
 
     // FAQs (JSON string)
     faqsJson: string | null
+
+    // Style Meets Comfort & Curated Combos (JSON string)
+    styleComfortJson: string | null
+
+    // Editorial Journal / Articles (JSON string)
+    editorialJournalJson: string | null
+
+    // Scrolling Marquee / Ticker (JSON string)
+    tickerLabelsJson: string | null
+
+    // Newsletter Section (JSON string)
+    newsletterJson: string | null
+
+    // Trust Badges & Feature Checklist (JSON string)
+    trustBadgesJson: string | null
+
+    // Custom Navigation & Footer Links (JSON string)
+    navLinksJson: string | null
+    footerLinksJson: string | null
 }
 
 import {
     BRAND,
     COLORS,
     ANNOUNCEMENT_BAR,
+    HERO_BANNERS,
     STORY_CONTENT,
     PROMO_BANNER,
+    STYLE_COMFORT_CONTENT,
+    CURATED_COMBOS_SLIDES,
+    EDITORIAL_JOURNAL,
+    PRODUCT_NEWSLETTER,
+    PRODUCT_FEATURE_CHECKLIST,
+    TRUST_BADGES,
     CONTACT,
+    BANK_DETAILS,
+    ROUTES,
     FOOTER_CONTENT,
     SHOP_HEADER,
     FEATURED_SECTION,
@@ -140,11 +168,10 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
     announcementText: ANNOUNCEMENT_BAR.text,
     announcementLink: ANNOUNCEMENT_BAR.link,
 
-    heroTitle: BRAND.tagline,
-    heroSubtitle:
-        'Authentic comfort for Nigerian homes — shop trusted brands with clear pricing and delivery.',
-    heroCtaLabel: 'Shop products',
-    heroCtaHref: '/products',
+    heroTitle: HERO_BANNERS[0].title,
+    heroSubtitle: HERO_BANNERS[0].subtitle,
+    heroCtaLabel: HERO_BANNERS[0].ctaLabel,
+    heroCtaHref: HERO_BANNERS[0].ctaHref,
 
     storyBadge: STORY_CONTENT.badge,
     storyTitle: STORY_CONTENT.title,
@@ -158,21 +185,21 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
     promoTitle: PROMO_BANNER.title,
     promoCtaLabel: PROMO_BANNER.ctaLabel,
     promoCtaHref: PROMO_BANNER.ctaHref,
-    promoImageUrl: null,
+    promoImageUrl: PROMO_BANNER.imageUrl,
 
     storeAddress: CONTACT.address,
     contactEmail: CONTACT.email,
-    whatsappNumber: null,
-    supportPhone: null,
+    whatsappNumber: CONTACT.whatsappNumber,
+    supportPhone: CONTACT.supportPhone,
     instagramUrl: CONTACT.socials.instagram,
     facebookUrl: null,
     twitterUrl: null,
     tiktokUrl: null,
 
     footerText: FOOTER_CONTENT.text,
-    bankName: null,
-    bankAccountName: null,
-    bankAccountNumber: null,
+    bankName: BANK_DETAILS.bankName,
+    bankAccountName: BANK_DETAILS.accountName,
+    bankAccountNumber: BANK_DETAILS.accountNumber,
 
     shopPageTitle: SHOP_HEADER.title,
     shopPageTagline: SHOP_HEADER.tagline,
@@ -189,9 +216,9 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
     collectionsTitle: COLLECTIONS_SECTION.title,
     collectionsDescription: COLLECTIONS_SECTION.description,
 
-    buttonShape: 'sharp',
-    cardStyle: 'sharp',
-    badgeStyle: 'sharp',
+    buttonShape: 'pill',
+    cardStyle: 'soft',
+    badgeStyle: 'pill',
 
     heroBackdropWord: 'Comfort',
     storyBackdropWord: 'Rest',
@@ -205,6 +232,32 @@ export const DEFAULT_SITE_SETTINGS: SiteSettingsData = {
         'Have an imported bed frame or unique room dimensions? We can order custom-sized mattresses directly from the factory for you.',
 
     faqsJson: JSON.stringify(FAQS),
+
+    styleComfortJson: JSON.stringify({
+        title: STYLE_COMFORT_CONTENT.title,
+        description: STYLE_COMFORT_CONTENT.description,
+        imageUrl: STYLE_COMFORT_CONTENT.imageUrl,
+        imageAlt: STYLE_COMFORT_CONTENT.imageAlt,
+        stats: STYLE_COMFORT_CONTENT.stats,
+        slides: CURATED_COMBOS_SLIDES,
+    }),
+    editorialJournalJson: JSON.stringify(EDITORIAL_JOURNAL),
+    tickerLabelsJson: JSON.stringify({
+        mode: 'auto',
+        customItems: [
+            { id: '1', text: 'Original Mattresses & Furniture', href: '/products' },
+            { id: '2', text: 'Factory Sealed & Warranted', href: '/about' },
+            { id: '3', text: 'Fast Delivery in Abuja & Benin', href: '/delivery' },
+            { id: '4', text: 'Mouka · Vitafoam · Royal Foam', href: '/products?category=Mattresses' },
+        ],
+    }),
+    newsletterJson: JSON.stringify(PRODUCT_NEWSLETTER),
+    trustBadgesJson: JSON.stringify({
+        featureChecklist: PRODUCT_FEATURE_CHECKLIST,
+        trustBadges: TRUST_BADGES,
+    }),
+    navLinksJson: null,
+    footerLinksJson: null,
 }
 
 export const HEADING_FONTS = [

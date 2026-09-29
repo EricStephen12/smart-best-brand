@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useTransition, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -19,6 +19,7 @@ function getSafeRedirectUrl(param: string | null): string {
 }
 
 function LoginForm() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const targetUrl = getSafeRedirectUrl(searchParams.get('redirect_url'))
 
@@ -27,32 +28,46 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // If already logged in, redirect immediately
+  // If already logged in, redirect immediately without conflict
   useEffect(() => {
-    if (!authLoading && user) {
-      window.location.href = targetUrl
+    if (!authLoading && user && !isSubmitting) {
+      router.push(targetUrl)
+      router.refresh()
     }
-  }, [user, authLoading, targetUrl])
+  }, [user, authLoading, targetUrl, isSubmitting, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isSubmitting) return
     setError(null)
 
-    if (!email.trim() || !password) {
+    const cleanEmail = email.trim()
+    if (!cleanEmail || !password) {
       setError('Please enter your email and password')
       return
     }
 
-    startTransition(async () => {
-      const res = await login({ email, password })
+    setIsSubmitting(true)
+    try {
+      const res = await login({ email: cleanEmail, password })
       if (res.success) {
-        window.location.href = targetUrl
+        if (typeof window !== 'undefined') {
+          window.location.assign(targetUrl)
+        } else {
+          router.push(targetUrl)
+          router.refresh()
+        }
       } else {
         setError(res.error || 'Invalid email or password')
+        setIsSubmitting(false)
       }
-    })
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An error occurred during sign in'
+      setError(msg)
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -148,10 +163,10 @@ function LoginForm() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isPending}
+              disabled={isSubmitting}
               className="w-full mt-2 py-3.5 px-6 bg-blue-950 text-white text-sm font-semibold tracking-wide flex items-center justify-center gap-2 hover:bg-sky-700 active:scale-[0.99] transition-all disabled:opacity-70"
             >
-              {isPending ? (
+              {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Signing in…</span>

@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-primary: var(--brand-primary, #172554);
+  --color-brand-accent: var(--brand-accent, #0284c7);
+  --color-navy: #172554;
+  --color-navy-dark: #0c1633;
+  --color-navy-light: #1e3a8a;
+  --color-navy-muted: #1e293b;
+  --color-brand-cream: #f2ece2;
+  --color-brand-cream-border: #e5dcce;
+  --color-brand-canvas: #f7f6f3;
+  --color-brand-sand: #f5f3ef;
+  --color-whatsapp: #128c7e;
+  --color-whatsapp-hover: #0e7568;
+}
+
 :root {
   /* Display/heading font — Cormorant Garamond (loaded via next/font) */
   --font-display: 'Cormorant Garamond', Georgia, serif;
@@ -10,10 +25,14 @@
 
   --brand-primary: #172554;
   --brand-accent: #0284c7;
-  --brand-bg: #f8f6f0;
-  --button-radius: 0px;
-  --card-radius: 0px;
-  --badge-radius: 0px;
+  --brand-navy-dark: #0c1633;
+  --brand-navy-light: #1e3a8a;
+  --brand-bg: #ffffff;
+  --brand-light-brown: #F2ECE2;
+  --brand-light-brown-border: #E5DCCE;
+  --button-radius: 9999px;
+  --card-radius: 12px;
+  --badge-radius: 9999px;
 }
 
 @layer base {
@@ -24,29 +43,14 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scroll-behavior: smooth;
-    background-color: var(--brand-bg, #f8f6f0);
+    background-color: #ffffff;
   }
 
   body {
-    background-color: var(--brand-bg, #f8f6f0);
-    color: #172554;
+    background-color: #ffffff;
+    color: #111111;
     overflow-x: hidden;
     position: relative;
-  }
-
-  /* ── Authentic Tactile Fine-Art Paper Rough Texture Overlay ── */
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.048;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paperGrain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.12 0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paperGrain)'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-    mix-blend-mode: multiply;
   }
 
   h1,
@@ -56,45 +60,44 @@
   h5,
   h6 {
     font-family: var(--font-display);
-    font-feature-settings: 'liga' 1, 'kern' 1, 'swsh' 1;
+    font-feature-settings: 'liga' 1, 'kern' 1;
     letter-spacing: -0.02em;
   }
 }
 
 @layer components {
-  /* ── Unified button system — dynamically controlled by Settings ── */
+  /* ── Unified button system ── */
   .btn-primary {
-    @apply text-white font-black py-4 px-10 transition-all duration-300 active:scale-95 text-[10px] uppercase tracking-[0.2em] inline-flex items-center justify-center;
+    @apply text-white font-semibold py-3.5 px-8 transition-all duration-300 active:scale-95 text-sm inline-flex items-center justify-center;
     background-color: var(--brand-primary);
-    border-radius: var(--button-radius, 0px);
+    border-radius: var(--button-radius, 9999px);
   }
 
   .btn-primary:hover {
-    background-color: var(--brand-accent);
+    background-color: var(--brand-navy-light, #1e3a8a);
   }
 
   .btn-secondary {
-    @apply font-black py-4 px-10 transition-all duration-300 text-[10px] uppercase tracking-[0.2em] inline-flex items-center justify-center border;
-    border-color: var(--brand-accent);
-    color: var(--brand-accent);
+    @apply font-semibold py-3.5 px-8 transition-all duration-300 text-sm inline-flex items-center justify-center border;
+    border-color: var(--brand-primary);
+    color: var(--brand-primary);
     background-color: transparent;
-    border-radius: var(--button-radius, 0px);
+    border-radius: var(--button-radius, 9999px);
   }
 
   .btn-secondary:hover {
-    background-color: var(--brand-accent);
+    background-color: var(--brand-primary);
     color: white;
   }
 
-  /* btn-elite is the primary conversion action */
   .btn-elite {
-    @apply text-white font-black py-5 px-10 transition-all duration-300 active:scale-95 text-[10px] uppercase tracking-[0.25em] flex items-center justify-center gap-3;
+    @apply text-white font-semibold py-3.5 px-8 transition-all duration-300 active:scale-95 text-sm flex items-center justify-center gap-2;
     background-color: var(--brand-primary);
-    border-radius: var(--button-radius, 0px);
+    border-radius: var(--button-radius, 9999px);
   }
 
   .btn-elite:hover {
-    background-color: var(--brand-accent);
+    background-color: var(--brand-navy-light, #1e3a8a);
   }
 
   .text-brand-accent {
@@ -109,16 +112,36 @@
     background-color: var(--brand-bg);
   }
 
+  .bg-light-brown {
+    background-color: var(--brand-light-brown, #F2ECE2);
+  }
+
+  .border-light-brown {
+    border-color: var(--brand-light-brown-border, #E5DCCE);
+  }
+
   .bg-deep-blue {
-    @apply bg-blue-950;
+    background-color: var(--brand-primary, #172554);
+  }
+
+  .bg-navy-dark {
+    background-color: var(--brand-navy-dark, #0c1633);
+  }
+
+  .border-brand-primary {
+    border-color: var(--brand-primary, #172554);
+  }
+
+  .text-brand-primary {
+    color: var(--brand-primary, #172554);
   }
 
   .text-sky {
-    @apply text-sky-600;
+    color: var(--brand-accent);
   }
 
   .glass {
-    @apply bg-white/80 backdrop-blur-xl border border-white/20;
+    @apply bg-white/90 backdrop-blur-xl border border-black/5;
   }
 
   /* Custom Font Utilities for Tailwind 4 */
@@ -132,18 +155,18 @@
 
   /* Dynamic Theme Shapes for No-Code Visual Control */
   .style-button {
-    border-radius: var(--button-radius, 0px);
+    border-radius: var(--button-radius, 9999px);
   }
 
   .style-card {
-    border-radius: var(--card-radius, 0px);
+    border-radius: var(--card-radius, 12px);
   }
 
   .style-badge {
-    border-radius: var(--badge-radius, 0px);
+    border-radius: var(--badge-radius, 9999px);
   }
 
-  /* Legacy aliases — keep for any components still referencing these */
+  /* Legacy aliases */
   .font-playfair {
     font-family: var(--font-display);
   }
@@ -151,28 +174,55 @@
   .font-inter {
     font-family: var(--font-body);
   }
+
+  /* ── Woodora-style section label (e.g. "NEW ARRIVALS") ── */
+  .section-label {
+    @apply text-[11px] font-semibold tracking-[0.25em] uppercase text-neutral-400;
+  }
+
+  /* ── Woodora-style large serif heading ── */
+  .section-title {
+    font-family: var(--font-display);
+    @apply text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-neutral-900 leading-[1.1];
+  }
+
+  /* ── Floating price pill (overlaid on product images) ── */
+  .price-pill {
+    @apply absolute bg-white text-neutral-900 text-xs font-semibold px-3 py-1.5 shadow-md;
+    border-radius: 9999px;
+  }
+
+  /* ── Minimal add-to-cart round button ── */
+  .add-btn {
+    @apply absolute bottom-3 right-3 w-9 h-9 text-white flex items-center justify-center text-xl font-light transition-all duration-200 active:scale-90 shadow-md;
+    background-color: var(--brand-primary, #172554);
+    border-radius: 9999px;
+  }
+
+  .add-btn:hover {
+    background-color: var(--brand-navy-light, #1e3a8a);
+  }
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: white;
+  background: #f5f5f5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  /* Slate-800 */
+  background: #d4d4d4;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #1e293b;
+  background: #a3a3a3;
 }
 
-/* Hardware Acceleration for scroll-triggered elements */
+/* Hardware Acceleration */
 .will-change-transform {
   will-change: transform;
 }
@@ -182,12 +232,8 @@
 }
 
 @keyframes scroll-labels {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-33.333%);
-  }
+  from { transform: translateX(0); }
+  to { transform: translateX(-33.333%); }
 }
 
 .animate-scroll-labels {

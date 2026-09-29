@@ -1,8 +1,8 @@
 export const BRAND = {
   name: 'Smart Best Brands',
   legalName: 'Smart Best Brands Nigeria',
-  tagline: 'Quality mattresses, pillows & furniture',
-  shortDescription: "Nigeria's home for original Mouka, Vitafoam, and Royal Foam mattresses — plus luxury furniture, pillows, and bedding.",
+  tagline: 'Original mattresses, pillows & furniture',
+  shortDescription: 'Original Mouka, Vitafoam and Royal Foam mattresses. Delivered in Abuja and Benin City.',
   currency: '₦',
   currencyCode: 'NGN',
   country: 'Nigeria',
@@ -17,7 +17,7 @@ export const CONTACT = {
   whatsappNumber: '2348064619479',
   address: 'Abuja · Benin City',
   businessHours: '8AM – 8PM WAT (Mon – Sat)',
-  responseNotice: 'We typically reply within a few hours, 8AM – 8PM.',
+  responseNotice: 'We reply within a few hours.',
   socials: {
     instagram: 'https://instagram.com/smartbestbrands',
     facebook: '',
@@ -92,86 +92,253 @@ export const FOOTER_LEGAL_LINKS = [
 ] as const
 
 export const PAYMENT_METHODS = [
-  { id: 'paystack', label: 'Paystack', description: 'Debit / Credit Card, Bank, USSD' },
-  { id: 'bank_transfer', label: 'Bank Transfer', description: 'Direct transfer to our official business account' },
-  { id: 'whatsapp', label: 'WhatsApp Order', description: 'Confirm and coordinate payment directly with our team' },
+  { id: 'paystack', label: 'Paystack', description: 'Card, bank or USSD' },
+  { id: 'bank_transfer', label: 'Bank Transfer', description: 'Pay into our account' },
+  { id: 'whatsapp', label: 'WhatsApp Order', description: 'Order and pay through WhatsApp' },
 ] as const
 
 export const ANNOUNCEMENT_BAR = {
   enabled: false,
-  text: 'Original Nigerian mattresses & furniture — fast delivery to your door.',
+  text: 'Original Mouka, Vitafoam & Royal Foam. Delivery in 24–48 hours.',
   link: ROUTES.products,
 } as const
 
 export const HERO_BANNERS = [
   {
     id: 'hero-1',
-    title: 'Sleep Like It Matters',
-    subtitle: "Original mattresses from Nigeria's most trusted brands — delivered to your door.",
+    title: 'Original Mattresses. Delivered.',
+    subtitle: 'Mouka, Vitafoam and Royal Foam at your door in 24–48 hours.',
     imageUrl: '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
-    ctaLabel: 'Shop the Collection',
+    ctaLabel: 'Shop mattresses',
     ctaHref: ROUTES.products,
   },
   {
     id: 'hero-2',
-    title: 'No Fakes. Ever.',
-    subtitle: "Every piece is factory-direct, sealed, and covered by a real manufacturer's warranty.",
+    title: 'No fake foam.',
+    subtitle: 'Sealed at the factory. Warranty card in the box.',
     imageUrl: '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg',
     ctaLabel: "See what's in stock",
     ctaHref: ROUTES.products,
   },
   {
     id: 'hero-3',
-    title: 'A Home Worth Coming Back To',
-    subtitle: 'From the bedroom to the living room — furniture that earns its place.',
+    title: 'Furniture for every room.',
+    subtitle: 'Beds, sofas and more.',
     imageUrl: '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg',
-    ctaLabel: 'Explore furniture',
+    ctaLabel: 'Shop furniture',
     ctaHref: ROUTES.products,
   },
 ] as const
 
 export const STORY_CONTENT = {
-  badge: 'Who We Are',
-  title: 'Original Mattresses, Directly to Your Home.',
-  text: 'We started Smart Best Brands to make buying genuine mattresses simple in Nigeria. No fake foam, no hidden fees—just original brands like Mouka, Vitafoam, and Royal Foam delivered directly to your doorstep.',
-  secondaryBadge: 'Our Promise',
-  secondaryTitle: '100% Authentic, Direct From the Factory.',
-  secondaryText: 'We source directly from authorized factory distributors so you never have to worry about counterfeits. Every mattress comes in its original factory packaging with a real manufacturer warranty.',
+  badge: 'About us',
+  title: 'We sell original mattresses.',
+  text: 'Fake foam is a real problem. We buy only from authorized distributors, so you get exactly what the factory made.',
+  secondaryBadge: 'Our promise',
+  secondaryTitle: 'Sealed. Original. Warranted.',
+  secondaryText: "Every mattress comes in factory packaging with the manufacturer's warranty card.",
   stats: {
     statOneBadge: 'Partner Brands',
     statOneValue: '07',
     statTwoBadge: 'Original Stock',
     statTwoValue: '100%',
   },
-  storyLinkLabel: 'Our full story →',
+  storyLinkLabel: 'Our story →',
 } as const
 
 export const PROMO_BANNER = {
-  badge: 'Crafted for Nigerian homes',
-  title: 'Spaces worth living in.',
-  ctaLabel: 'Shop the collection',
+  badge: 'Furniture',
+  title: 'Furnish your home.',
+  ctaLabel: 'Shop furniture',
   ctaHref: ROUTES.products,
   imageUrl: '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg',
 } as const
 
+export const STYLE_COMFORT_CONTENT = {
+  title: 'BUILT\nTO LAST',
+  description:
+    'Solid frames and good foam, in styles from modern to classic.',
+  imageUrl: '/images/style-meets-comfort.jpg',
+  imageAlt: 'Yellow armchair and modern credenza',
+  stats: [
+    {
+      value: '1,200+',
+      label: 'Furniture pieces',
+    },
+    {
+      value: '98%',
+      label: 'Happy customers',
+    },
+  ],
+} as const
+
+export const CURATED_COMBOS_SLIDES = [
+  {
+    id: 1,
+    title: 'MODERN RETRO SUITE',
+    price: '$849 ONLY',
+    image: '/images/curated-combos.jpg',
+    href: `${ROUTES.products}?category=Furniture`,
+    ctaLabel: 'Shop Now',
+  },
+  {
+    id: 2,
+    title: 'CURATED COMBOS',
+    price: '$999 ONLY',
+    image: '/images/curated-combos.jpg',
+    href: `${ROUTES.products}?category=Furniture`,
+    ctaLabel: 'Shop Now',
+  },
+  {
+    id: 3,
+    title: 'SCANDI LIVING SET',
+    price: '$1,199 ONLY',
+    image: '/images/curated-combos.jpg',
+    href: `${ROUTES.products}?category=Furniture`,
+    ctaLabel: 'Shop Now',
+  },
+  {
+    id: 4,
+    title: 'MINIMALIST LOUNGE',
+    price: '$799 ONLY',
+    image: '/images/curated-combos.jpg',
+    href: `${ROUTES.products}?category=Furniture`,
+    ctaLabel: 'Shop Now',
+  },
+  {
+    id: 5,
+    title: 'MASTER BEDROOM BUNDLE',
+    price: '$1,499 ONLY',
+    image: '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg',
+    href: `${ROUTES.products}?category=Mattresses`,
+    ctaLabel: 'Shop Now',
+  },
+  {
+    id: 6,
+    title: 'EXECUTIVE SUITE',
+    price: '$1,299 ONLY',
+    image: '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg',
+    href: ROUTES.products,
+    ctaLabel: 'Shop Now',
+  },
+  {
+    id: 7,
+    title: 'NORDIC RETREAT',
+    price: '$899 ONLY',
+    image: '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
+    href: ROUTES.products,
+    ctaLabel: 'Shop Now',
+  },
+  {
+    id: 8,
+    title: 'URBAN ESSENTIALS',
+    price: '$699 ONLY',
+    image: '/images/curated-combos.jpg',
+    href: ROUTES.products,
+    ctaLabel: 'Shop Now',
+  },
+] as const
+
 export const SHOP_HEADER = {
-  title: 'The Collection',
-  tagline: 'Original mattresses, luxury furniture, and bedding — every piece factory-sealed and warranted.',
+  title: 'Shop',
+  tagline: 'Original mattresses, pillows and furniture.',
 } as const
 
 export const COLLECTIONS_SECTION = {
   title: 'Shop by category',
-  description: 'Mattresses, pillows, furniture — find exactly what your space is missing.',
+  description: 'Mattresses, pillows, furniture and bedding.',
 } as const
 
 export const FEATURED_SECTION = {
-  title: 'What people keep coming back for.',
-  description: 'Our most-loved pieces — or browse everything we carry.',
+  title: 'Popular right now',
+  description: 'What customers are buying.',
+} as const
+
+export const EDITORIAL_JOURNAL = {
+  eyebrow: 'Guides',
+  title: 'Buying guides',
+  viewAllLabel: 'View all',
+  viewAllHref: ROUTES.faqs,
+  articles: [
+    {
+      id: '1',
+      title: 'Orthopedic or semi-orthopedic: which is better for back pain?',
+      category: 'Back pain',
+      readTime: '4 min read',
+      excerpt: 'What each one feels like, and who should choose which.',
+      image: '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg',
+      href: ROUTES.faqs,
+    },
+    {
+      id: '2',
+      title: 'How long should a mattress last?',
+      category: 'Foam quality',
+      readTime: '5 min read',
+      excerpt: 'Why original foam outlasts cheap foam.',
+      image: '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
+      href: ROUTES.about,
+    },
+    {
+      id: '3',
+      title: 'King or Queen: which size fits your room?',
+      category: 'Sizing',
+      readTime: '3 min read',
+      excerpt: 'Measure your room before you buy.',
+      image: '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg',
+      href: ROUTES.delivery,
+    },
+  ],
 } as const
 
 export const FOOTER_CONTENT = {
-  text: 'Authentic comfort for Nigerian homes. Quality mattresses, pillows, and furniture from trusted brands.',
+  text: 'Original mattresses, pillows and furniture.',
   acceptBadgeTitle: 'We accept',
+} as const
+
+export const PRODUCT_COLOR_SWATCHES = [
+  { name: 'Oatmeal Bouclé', hex: '#EBE7DF', bg: 'bg-[#EBE7DF]' },
+  { name: 'Warm Camel', hex: '#9B7C5F', bg: 'bg-[#9B7C5F]' },
+  { name: 'Charcoal Black', hex: '#1C1917', bg: 'bg-[#1C1917]' },
+  { name: 'Chalk White', hex: '#F5F5F0', bg: 'bg-[#F5F5F0]' },
+] as const
+
+export const PRODUCT_FEATURE_CHECKLIST = [
+  '100% original',
+  'Factory-sealed, with warranty card',
+  'Delivered to your door',
+  '7-day replacement for defects',
+] as const
+
+export const PRODUCT_TABS_DEFAULT = {
+  descriptionParagraphs: [
+    'Hardwood frame and high-density foam. Built to last.',
+    'Sourced directly from the factory.',
+  ],
+  dimensionsParagraphs: [
+    'Sizes: 3x6, 4x6, 5x6 and 6x6. Custom sizes on request.',
+    'Leave 60cm of space around the bed.',
+  ],
+  materialsParagraphs: [
+    'High-density foam with a quilted, dust-mite-resistant cover.',
+    'Rotate your mattress every 3–6 months.',
+  ],
+  shippingParagraphs: [
+    'We deliver in Abuja, Benin City, Lagos and other states.',
+    'Delivered factory-sealed.',
+  ],
+  defaultSpecs: {
+    materials: 'Rebonded foam, hardwood frame',
+    firmness: 'Orthopedic',
+    finishing: 'Jacquard / bouclé',
+    warranty: '10-year factory warranty',
+  },
+} as const
+
+export const PRODUCT_NEWSLETTER = {
+  title: 'Get restock alerts',
+  subtitle: 'New arrivals. Once a month.',
+  placeholder: 'Enter your email',
+  buttonLabel: 'Subscribe',
 } as const
 
 export const PARTNER_BRANDS = [
@@ -190,49 +357,49 @@ export const FALLBACK_SCROLL_LABELS = [
 export const VALUES = [
   {
     id: 'authentic',
-    title: '100% Authentic',
-    description: "We source every product directly from authorised brand distributors. If it's not original, it doesn't make it onto our shelves.",
+    title: 'Original',
+    description: 'We buy only from authorized distributors.',
   },
   {
     id: 'delivery',
-    title: 'Reliable Delivery',
-    description: 'We handle delivery ourselves across Abuja and Benin City so your order arrives exactly as it left the factory.',
+    title: 'Our own delivery',
+    description: 'Our team delivers in Abuja and Benin City.',
   },
   {
     id: 'warranties',
-    title: 'Real Warranties',
-    description: "Every mattress and piece of furniture comes with the manufacturer's original warranty — not a store promise, the actual card.",
+    title: 'Real warranty',
+    description: "The manufacturer's warranty card, not a shop promise.",
   },
   {
     id: 'people_first',
-    title: 'People First',
-    description: "We take the time to understand what you actually need. The right mattress isn't the most expensive one — it's the right fit for you.",
+    title: 'Honest advice',
+    description: 'We tell you what fits you, not what costs the most.',
   },
 ] as const
 
 export const DELIVERY_STEPS = [
   {
     number: '01',
-    title: 'Carefully Inspected',
-    description: 'Every order is inspected and properly packaged before leaving our store or factory partner.',
+    title: 'Checked',
+    description: 'We inspect and pack your order.',
   },
   {
     number: '02',
-    title: 'Handled With Care',
-    description: 'Our delivery team transports mattresses and furniture safely so they arrive in perfect, brand-new condition.',
+    title: 'Delivered',
+    description: 'Our team brings it to your door.',
   },
   {
     number: '03',
-    title: 'Coordinated Delivery',
-    description: 'We agree on a delivery day and time that works for you, with WhatsApp updates when your driver is on the way.',
+    title: 'Confirmed',
+    description: 'We agree a time and update you on WhatsApp.',
   },
 ] as const
 
 export const DELIVERY_ZONES = [
-  { city: 'Abuja', price: '₦5,000 - ₦15,000', time: '24-48 Hours', note: 'Direct doorstep delivery.' },
-  { city: 'Benin City', price: '₦5,000 - ₦12,000', time: '24-48 Hours', note: 'Local hub fulfillment.' },
-  { city: 'Lagos', price: '₦15,000 - ₦35,000', time: '3-5 Business Days', note: 'Inter-state delivery.' },
-  { city: 'Other Locations', price: 'Calculated at Checkout', time: '5-7 Business Days', note: 'Nationwide partner delivery.' },
+  { city: 'Abuja', price: '₦5,000 - ₦15,000', time: '24-48 Hours', note: 'Doorstep delivery.' },
+  { city: 'Benin City', price: '₦5,000 - ₦12,000', time: '24-48 Hours', note: 'Doorstep delivery.' },
+  { city: 'Lagos', price: '₦15,000 - ₦35,000', time: '3-5 Business Days', note: 'Inter-state.' },
+  { city: 'Other Locations', price: 'Calculated at Checkout', time: '5-7 Business Days', note: 'Partner courier.' },
 ] as const
 
 export const TRUST_BADGES = [
@@ -243,27 +410,27 @@ export const TRUST_BADGES = [
 
 export const POLICIES = {
   delivery: {
-    title: 'Delivery & Transit Timelines',
+    title: 'Delivery',
     points: [
-      'Abuja & Lagos: 24–48 hours (same-day dispatch available on morning orders).',
-      'Other States: 3–5 business days via insured haulage.',
-      'Inspection: You are encouraged to inspect item packaging upon delivery before courier team departs.',
+      'Abuja & Lagos: 24–48 hours. Same-day dispatch on morning orders.',
+      'Other states: 3–5 business days.',
+      'Check the packaging before the driver leaves.',
     ],
   },
   returns: {
-    title: '7-Day Return & Exchange Policy',
+    title: 'Returns',
     points: [
-      'Return Window: Returns or exchanges accepted within 7 days of delivery.',
-      'Hygiene Standard: For mattresses, the original factory clear polythene seal must remain intact and unopened.',
-      'Factory Flaws: Immediate 100% free replacement if manufacturing defect or transit damage is detected.',
+      'Return or exchange within 7 days of delivery.',
+      'Mattress seal must be unopened.',
+      'Defective or damaged in transit? Free replacement.',
     ],
   },
   warranty: {
-    title: '100% Factory Warranty & Authenticity',
+    title: 'Warranty',
     points: [
-      'Direct Sourcing: Factory-sealed products sourced directly from certified brand manufacturing plants.',
-      'Manufacturer Certificate: Includes official manufacturer warranty card and documentation.',
-      'Dedicated Support: Our team coordinates directly with the factory service center if assistance is ever required.',
+      'Sourced directly from certified factories.',
+      'Official warranty card included.',
+      'We handle warranty claims with the factory for you.',
     ],
   },
 } as const
@@ -271,42 +438,42 @@ export const POLICIES = {
 export const CUSTOM_REQUEST_STEPS = [
   {
     title: 'Measure',
-    desc: 'Provide your exact length, width, and height.',
+    desc: 'Send your length, width and height.',
   },
   {
     title: 'Confirm',
-    desc: 'We verify dimensions and get an exact quote from the factory.',
+    desc: 'We get a quote from the factory.',
   },
   {
     title: 'Deliver',
-    desc: 'The factory produces your size and we deliver in 5–10 days.',
+    desc: 'Made and delivered in 5–10 days.',
   },
 ] as const
 
 export const FAQS = [
   {
-    question: 'Do you sell original mattresses?',
-    answer: 'Yes. We are authorized distributors for all the brands listed on our site, including Vitafoam, Mouka Foam, and Royal Foam. Every mattress comes in its original factory packaging with a valid manufacturer warranty.',
+    question: 'Are your mattresses original?',
+    answer: 'Yes. We are authorized distributors of Vitafoam, Mouka Foam and Royal Foam. Each one comes factory-sealed with a warranty card.',
   },
   {
     question: 'How long does delivery take?',
-    answer: 'For locations within Abuja and Benin, delivery typically takes 24–48 hours. For other locations, it may take 3–5 business days depending on the size of the order.',
+    answer: 'Abuja and Benin City: 24–48 hours. Other locations: 3–5 business days.',
   },
   {
-    question: 'How do I pay for my order?',
-    answer: 'You can pay securely online via Paystack (debit card), direct bank transfer, or order via WhatsApp. Pay on delivery is not available for large furniture items.',
+    question: 'How do I pay?',
+    answer: 'Paystack, bank transfer or WhatsApp. No pay on delivery for large furniture.',
   },
   {
     question: 'Can I return a mattress?',
-    answer: 'Due to hygiene reasons, mattresses cannot be returned once the factory seal has been opened. If there is a factory defect, we will facilitate a free replacement through the manufacturer warranty process.',
+    answer: 'Not after the factory seal is opened. If it has a factory defect, we replace it free.',
   },
   {
-    question: 'Do you offer bulk discounts?',
-    answer: 'Yes, we offer special pricing for hotels, hospitals, and large corporate orders. Contact us via our contact page for a custom quote.',
+    question: 'Do you give bulk discounts?',
+    answer: 'Yes, for hotels, hospitals and companies. Contact us for a quote.',
   },
   {
-    question: 'Can I order a custom size mattress?',
-    answer: 'Yes, we arrange custom mattress sizes. If you have a custom bed frame or special dimensions, we can place a custom order directly with Vitafoam, Mouka, or Royal Foam. Message us on WhatsApp with your measurements.',
+    question: 'Can I order a custom size?',
+    answer: 'Yes. Send your measurements on WhatsApp.',
   },
 ] as const
 
@@ -371,22 +538,22 @@ export const STORAGE_KEYS = {
   previewSettings: 'sbb_preview_site_settings',
 } as const
 
-export const COLORS = {
-  brandPrimary: '#172554',
-  brandAccent: '#0284c7',
-  brandBg: '#f7f6f3',
-  deepBlue: '#0f172a',
-  scrollbarThumb: '#1e293b',
-  badgeBg: '#0284c7',
-  glass: 'rgba(255,255,255,0.8)',
-} as const
+import { BRAND_COLORS, COLORS } from './colors'
+export { BRAND_COLORS, COLORS }
+export * from './colors'
 
 export const THEME_PRESETS = [
   {
     name: 'Classic Navy & Sky (Default)',
-    primaryColor: '#172554',
-    accentColor: '#0284c7',
-    backgroundColor: '#f7f6f3',
+    primaryColor: BRAND_COLORS.navy,
+    accentColor: BRAND_COLORS.sky,
+    backgroundColor: '#ffffff',
+  },
+  {
+    name: 'Clean White & Warm',
+    primaryColor: '#111111',
+    accentColor: '#9b7c5f',
+    backgroundColor: '#ffffff',
   },
   {
     name: 'Emerald & Gold',
@@ -466,19 +633,19 @@ export const EXTERNAL = {
 
 // ── Admin Settings Tabs & UI Presets ──
 export const SETTINGS_TABS = [
-  { id: 'brand', label: 'Brand & Colors', iconName: 'Palette', description: 'Store identity, brand colors, and logo' },
-  { id: 'design', label: 'Buttons & UI Design', iconName: 'Layers', description: 'Button shapes, card corners, badges, typography, and backdrop watermarks' },
-  { id: 'home', label: 'Homepage Writeups', iconName: 'Home', description: 'Hero banner, story, stats, and promo banner copy' },
-  { id: 'shop', label: 'Shop & Catalog', iconName: 'ShoppingBag', description: 'Catalog headers, featured products, and categories' },
-  { id: 'policies', label: 'Policies & FAQs', iconName: 'ShieldCheck', description: 'Delivery, returns, factory warranty, custom size request, and dynamic FAQs' },
-  { id: 'contact', label: 'Contact & Socials', iconName: 'Phone', description: 'Phone, WhatsApp, address, and social links' },
-  { id: 'bank', label: 'Bank & Footer', iconName: 'CreditCard', description: 'Bank transfer account details and footer copy' },
+  { id: 'brand', label: 'Brand & Colors', iconName: 'Palette', description: 'Store name, colors and logo' },
+  { id: 'design', label: 'Buttons & UI Design', iconName: 'Layers', description: 'Buttons, cards, badges and fonts' },
+  { id: 'home', label: 'Homepage Text', iconName: 'Home', description: 'Hero, story, stats and promo text' },
+  { id: 'shop', label: 'Shop & Catalog', iconName: 'ShoppingBag', description: 'Shop headers, featured products and categories' },
+  { id: 'policies', label: 'Policies & FAQs', iconName: 'ShieldCheck', description: 'Delivery, returns, warranty, custom sizes and FAQs' },
+  { id: 'contact', label: 'Contact & Socials', iconName: 'Phone', description: 'Phone, WhatsApp, address and social links' },
+  { id: 'bank', label: 'Bank & Footer', iconName: 'CreditCard', description: 'Bank account details and footer text' },
 ] as const
 
 export type SettingsTabId = (typeof SETTINGS_TABS)[number]['id']
 
 export const COLOR_PRESETS = [
-  { name: 'Navy & Sky (Default)', primary: '#172554', accent: '#0284c7', bg: '#f7f6f3' },
+  { name: 'Navy & Sky (Default)', primary: BRAND_COLORS.navy, accent: BRAND_COLORS.sky, bg: '#f7f6f3' },
   { name: 'Midnight & Gold', primary: '#0f172a', accent: '#d97706', bg: '#fafaf9' },
   { name: 'Emerald Luxe', primary: '#064e3b', accent: '#10b981', bg: '#f4fbf7' },
   { name: 'Monochrome Noir', primary: '#18181b', accent: '#475569', bg: '#ffffff' },
@@ -486,18 +653,18 @@ export const COLOR_PRESETS = [
 ] as const
 
 export const BUTTON_SHAPE_OPTIONS = [
-  { value: 'sharp', label: 'Architectural Sharp', desc: 'Square 90° corners, bold editorial presence', radius: '0px' },
-  { value: 'rounded', label: 'Modern Soft', desc: 'Subtle 8px rounded corners, contemporary balance', radius: '8px' },
-  { value: 'pill', label: 'Full Capsule / Pill', desc: 'Fully curved 9999px edges, approachable luxury', radius: '9999px' },
+  { value: 'sharp', label: 'Sharp', desc: 'Square corners', radius: '0px' },
+  { value: 'rounded', label: 'Soft', desc: 'Slightly rounded', radius: '8px' },
+  { value: 'pill', label: 'Pill', desc: 'Fully rounded', radius: '9999px' },
 ] as const
 
 export const CARD_STYLE_OPTIONS = [
-  { value: 'sharp', label: 'Square Editorial', desc: '0px crisp edges for architectural clarity', radius: '0px' },
-  { value: 'soft', label: 'Modern Rounded', desc: '12px balanced curve for smooth readability', radius: '12px' },
-  { value: 'curved', label: 'Luxury Deep Curved', desc: '24px deep organic radius for rich modern feel', radius: '24px' },
+  { value: 'sharp', label: 'Square', desc: 'Sharp edges', radius: '0px' },
+  { value: 'soft', label: 'Rounded', desc: 'Light curve', radius: '12px' },
+  { value: 'curved', label: 'Deep Curve', desc: 'Very rounded', radius: '24px' },
 ] as const
 
 export const BADGE_STYLE_OPTIONS = [
-  { value: 'sharp', label: 'Sharp Corner Tags', desc: '0px square minimalist tags' },
-  { value: 'pill', label: 'Rounded Capsule', desc: 'Fully rounded pill badges' },
+  { value: 'sharp', label: 'Square Tags', desc: 'Sharp corners' },
+  { value: 'pill', label: 'Rounded Tags', desc: 'Fully rounded' },
 ] as const

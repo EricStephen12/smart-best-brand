@@ -4,6 +4,13 @@ import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { getSiteSettings, updateSiteSettings, resetSiteSettings } from '@/actions/site-settings'
 import {
+  getAllBanners,
+  createBanner,
+  updateBanner,
+  deleteBanner,
+  toggleBannerActive,
+} from '@/actions/banners'
+import {
   HEADING_FONTS,
   BODY_FONTS,
   type SiteSettingsData,
@@ -45,6 +52,8 @@ import {
   ChevronRight,
   Sliders,
   Eye,
+  EyeOff,
+  Image as ImageIcon,
   SlidersHorizontal,
   X,
 } from 'lucide-react'
@@ -53,37 +62,85 @@ import {
 const PREVIEW_PAGES = [
   { label: 'Home Page', path: '/' },
   { label: 'Catalog (/products)', path: '/products' },
-  { label: 'Our Story (/about)', path: '/about' },
+  { label: 'Our Story (/our-story)', path: '/our-story' },
   { label: 'Delivery (/delivery)', path: '/delivery' },
   { label: 'FAQs (/faqs)', path: '/faqs' },
   { label: 'Contact Us (/contact)', path: '/contact' },
+  { label: 'Privacy Policy (/privacy)', path: '/privacy' },
+  { label: 'Refund Policy (/refund)', path: '/refund' },
+  { label: 'Terms & Conditions (/terms)', path: '/terms' },
 ]
 
-// Sections list for Shopify-style section editor
+// Maps each section to the preview page it lives on
+const SECTION_PAGE_MAP: Record<string, string> = {
+  announcement: '/',
+  hero: '/',
+  story: '/',
+  styleComfort: '/',
+  ticker: '/',
+  collections: '/',
+  promo: '/',
+  featured: '/',
+  editorial: '/',
+  newsletter: '/',
+  policies: '/delivery',
+  footer: '/',
+}
+
+// Maps each section to a friendly label the owner will recognise
+const SECTION_CONTEXT: Record<string, { page: string; where: string }> = {
+  announcement: { page: 'Every Page', where: 'The coloured banner at the very top of your site' },
+  hero: { page: 'Homepage (Top)', where: 'The first big section with your main headline, photo, and button' },
+  story: { page: 'Homepage (Section 2)', where: 'The \'Who We Are\' story writeup and guarantee section' },
+  styleComfort: { page: 'Homepage (Section 3)', where: 'The \'Style Meets Comfort\' headline and photo section' },
+  ticker: { page: 'Homepage (Section 4)', where: 'The sliding text banner moving across the page' },
+  collections: { page: 'Homepage (Section 5)', where: 'The \'Shop by Room / Collections\' section title & description' },
+  promo: { page: 'Homepage (Section 6)', where: 'The full-width callout banner with photo, headline & button' },
+  featured: { page: 'Homepage (Section 7)', where: 'The \'Featured / Best Sellers\' section title & subtitle' },
+  editorial: { page: 'Homepage (Section 8)', where: 'The \'Buying Guides & Articles\' section with photos' },
+  newsletter: { page: 'Homepage (Section 9)', where: 'The email sign-up box near the bottom of the homepage' },
+  policies: { page: 'Delivery & Refund Pages', where: 'Your delivery, return/refund, and warranty policy writeups' },
+  footer: { page: 'Every Page (Bottom)', where: 'The brand description text at the bottom of every page' },
+}
+
+// Sections list in exact home screen top-to-bottom order
 const SECTIONS_LIST = [
-  { id: 'announcement', label: 'Announcement Bar', icon: Megaphone, desc: 'Top promotional ribbon', targetId: 'announcement' },
-  { id: 'hero', label: 'Hero Banner & Slides', icon: Home, desc: 'Headline, CTA buttons & backdrop word', targetId: 'hero' },
-  { id: 'story', label: 'Our Story & Brand Promise', icon: Sparkles, desc: 'Mission writeup, stats & photos', targetId: 'story' },
-  { id: 'shop', label: 'Catalog & Best Sellers', icon: ShoppingBag, desc: 'Shop headers, featured pieces & categories', targetId: 'featured' },
-  { id: 'promo', label: 'Mid-Page Promo Banner', icon: Layers, desc: 'Full-width spotlight callout banner', targetId: 'promo' },
-  { id: 'policies', label: 'Guarantees & Policies', icon: ShieldCheck, desc: 'Delivery, returns & warranty points', targetId: null },
-  { id: 'footer', label: 'Footer & Copyright', icon: CreditCard, desc: 'Footer brand statement and details', targetId: null },
+  { id: 'announcement', number: 'Top Ribbon', label: 'Announcement Ribbon', icon: Megaphone, desc: 'Top message above the header', targetId: 'announcement' },
+  { id: 'hero', number: 'Section 1', label: 'Hero Banner (Home Screen Top)', icon: ImageIcon, desc: 'Main headline, photo, description & button', targetId: 'hero' },
+  { id: 'story', number: 'Section 2', label: 'Our Story (Who We Are)', icon: Sparkles, desc: 'Story writeup, promise & photos', targetId: 'story' },
+  { id: 'styleComfort', number: 'Section 3', label: 'Style Meets Comfort', icon: Sparkles, desc: 'Headline, description & lifestyle photo', targetId: null },
+  { id: 'ticker', number: 'Section 4', label: 'Promo Text Ticker', icon: Megaphone, desc: 'Sliding text messages moving across screen', targetId: null },
+  { id: 'collections', number: 'Section 5', label: 'Shop by Room / Collections', icon: ShoppingBag, desc: 'Category grid title & description', targetId: 'collections' },
+  { id: 'promo', number: 'Section 6', label: 'Mid-Page Promo Banner', icon: Layers, desc: 'Full-width banner with photo, headline & button', targetId: 'promo' },
+  { id: 'featured', number: 'Section 7', label: 'Featured Best Sellers', icon: ShoppingBag, desc: 'Best selling products section title & subtitle', targetId: 'featured' },
+  { id: 'editorial', number: 'Section 8', label: 'Editorial Journal & Articles', icon: Sparkles, desc: 'Blog/articles title, photos & summaries', targetId: null },
+  { id: 'newsletter', number: 'Section 9', label: 'Newsletter Sign-up', icon: Megaphone, desc: 'Email sign-up box headline & button', targetId: null },
+  { id: 'policies', number: 'Section 10', label: 'Guarantees & Policies', icon: ShieldCheck, desc: 'Delivery, returns & warranty writeups', targetId: null },
+  { id: 'footer', number: 'Section 11', label: 'Footer & Store Details', icon: CreditCard, desc: 'Store writeup, address, phone & copyright', targetId: null },
 ]
 
 // Theme settings list for global visual styling
 const THEME_SETTINGS_LIST = [
-  { id: 'identity', label: 'Store Identity & Logo', icon: Home, desc: 'Store name, tagline, and official logo' },
-  { id: 'colors', label: 'Brand Colors & Palettes', icon: Palette, desc: 'Curated color themes & hex pickers' },
-  { id: 'buttons', label: 'Buttons & Shape Style', icon: Layers, desc: 'Sharp (0px), Soft (8px), or Pill (9999px)' },
-  { id: 'cards', label: 'Card Corners & Containers', icon: Layers, desc: 'Square (0px), Rounded (12px), Curved (24px)' },
-  { id: 'badges', label: 'Tags & Badges Style', icon: ShieldCheck, desc: 'Sale badges and category chips' },
-  { id: 'typography', label: 'Typography Pairings', icon: Type, desc: 'Serif/Display titles & clean body fonts' },
-  { id: 'watermarks', label: 'Section Watermarks', icon: Sparkles, desc: 'Large background editorial words' },
-  { id: 'faqs', label: 'Dynamic FAQs Manager', icon: HelpCircle, desc: 'Add, edit, reorder & delete FAQ items' },
-  { id: 'customSize', label: 'Custom Size Order Modal', icon: Sliders, desc: 'Popup copy for custom mattress requests' },
-  { id: 'contact', label: 'Contact & Social Channels', icon: Phone, desc: 'Phone, WhatsApp, address & socials' },
-  { id: 'bank', label: 'Bank Transfer Payment', icon: CreditCard, desc: 'Checkout bank account details' },
+  { id: 'identity', label: 'Store Identity & Logo', icon: Home, desc: 'Store name, tagline and official logo' },
+  { id: 'colors', label: 'Brand Colors', icon: Palette, desc: 'Pick from curated palettes or set your own hex colors' },
+  { id: 'buttons', label: 'Button Style', icon: Layers, desc: 'Sharp, Soft or Pill — choose corner radius' },
+  { id: 'typography', label: 'Typography & Fonts', icon: Type, desc: 'Heading display font & body reading font' },
+  { id: 'faqs', label: 'FAQs Manager', icon: HelpCircle, desc: 'Add, edit, reorder and delete FAQ items' },
+  { id: 'customSize', label: 'Custom Size Modal', icon: Sliders, desc: 'Popup copy for custom mattress size requests' },
+  { id: 'contact', label: 'Contact & Social Links', icon: Phone, desc: 'Phone, WhatsApp, address & social media URLs' },
+  { id: 'bank', label: 'Bank Transfer Details', icon: CreditCard, desc: 'Checkout bank account name & number' },
 ]
+
+type BannerItem = {
+  id: string
+  title: string
+  subtitle: string | null
+  imageUrl: string
+  ctaLabel: string | null
+  ctaHref: string | null
+  isActive: boolean
+  sortOrder: number
+}
 
 export default function SiteSettingsPage() {
   const [form, setForm] = useState<SiteSettingsData | null>(null)
@@ -91,6 +148,20 @@ export default function SiteSettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [resetting, setResetting] = useState(false)
+
+  // Carousel banners state
+  const [banners, setBanners] = useState<BannerItem[]>([])
+  const [bannersLoading, setBannersLoading] = useState(true)
+  const [savingBannerId, setSavingBannerId] = useState<string | null>(null)
+  const [showAddBanner, setShowAddBanner] = useState(false)
+  const [newBanner, setNewBanner] = useState({
+    title: '',
+    subtitle: '',
+    imageUrl: '',
+    ctaLabel: 'Shop products',
+    ctaHref: '/products',
+  })
+  const [addingBanner, setAddingBanner] = useState(false)
 
   // Shopify-style customizer state
   const [category, setCategory] = useState<'sections' | 'theme'>('sections')
@@ -103,24 +174,190 @@ export default function SiteSettingsPage() {
 
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  useEffect(() => {
-    void getSiteSettings().then((d) => {
-      setForm(d)
-      setInitialForm(d)
-      setLoading(false)
-    })
+  const loadBanners = useCallback(async () => {
+    setBannersLoading(true)
+    try {
+      const res = await getAllBanners()
+      if (res.success && res.data) {
+        setBanners(res.data)
+      }
+    } catch (e) {
+      console.error('Failed to load banners:', e)
+    } finally {
+      setBannersLoading(false)
+    }
   }, [])
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const sec = params.get('section')
+      if (sec === 'hero' || sec === 'banners') {
+        setCategory('sections')
+        setExpandedSection('hero')
+      } else if (sec) {
+        setCategory('sections')
+        setExpandedSection(sec)
+      }
+    }
+
+    void Promise.all([
+      getSiteSettings().then((d) => {
+        setForm(d)
+        setInitialForm(d)
+        setLoading(false)
+      }),
+      loadBanners(),
+    ])
+  }, [loadBanners])
+
   // Live real-time sync with preview iframe
-  const syncIframe = useCallback((data: SiteSettingsData) => {
-    if (!iframeRef.current || !iframeRef.current.contentWindow) return
-    try {
-      iframeRef.current.contentWindow.postMessage(
-        { type: 'UPDATE_SITE_SETTINGS_PREVIEW', settings: data },
-        '*'
-      )
-    } catch {}
-  }, [])
+  const syncIframe = useCallback(
+    (data: SiteSettingsData, currentBanners?: BannerItem[]) => {
+      if (!iframeRef.current || !iframeRef.current.contentWindow) return
+      try {
+        iframeRef.current.contentWindow.postMessage(
+          {
+            type: 'UPDATE_SITE_SETTINGS_PREVIEW',
+            settings: data,
+            banners: currentBanners || banners,
+          },
+          '*'
+        )
+      } catch {}
+    },
+    [banners]
+  )
+
+  const handleBannerFieldChange = (id: string, field: keyof BannerItem, val: any) => {
+    const updated = banners.map((b) => (b.id === id ? { ...b, [field]: val } : b))
+    setBanners(updated)
+    if (form) syncIframe(form, updated)
+
+    // Sync first banner to hero fields
+    if (id === banners[0]?.id && form) {
+      if (field === 'title') set('heroTitle', val)
+      if (field === 'subtitle') set('heroSubtitle', val)
+      if (field === 'ctaLabel') set('heroCtaLabel', val)
+      if (field === 'ctaHref') set('heroCtaHref', val)
+    }
+  }
+
+  const handleSaveSlide = async (slide: BannerItem) => {
+    setSavingBannerId(slide.id)
+    const res = await updateBanner(slide.id, {
+      title: slide.title,
+      subtitle: slide.subtitle,
+      imageUrl: slide.imageUrl,
+      ctaLabel: slide.ctaLabel,
+      ctaHref: slide.ctaHref,
+      isActive: slide.isActive,
+      sortOrder: slide.sortOrder,
+    })
+    setSavingBannerId(null)
+    if (res.success) {
+      toast.success('Slide saved!')
+      if (form) syncIframe(form, banners)
+    } else {
+      toast.error(res.error || 'Failed to save slide')
+    }
+  }
+
+  const handleToggleBannerActive = async (banner: BannerItem) => {
+    const nextActive = !banner.isActive
+    const updated = banners.map((b) => (b.id === banner.id ? { ...b, isActive: nextActive } : b))
+    setBanners(updated)
+    if (form) syncIframe(form, updated)
+
+    const res = await toggleBannerActive(banner.id, nextActive)
+    if (res.success) {
+      toast.success(nextActive ? 'Slide is now visible in carousel' : 'Slide hidden from carousel')
+    } else {
+      toast.error(res.error || 'Failed to toggle slide')
+      void loadBanners()
+    }
+  }
+
+  const handleMoveBanner = async (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= banners.length) return
+
+    const newBanners = [...banners]
+    const temp = newBanners[index]
+    newBanners[index] = newBanners[targetIndex]
+    newBanners[targetIndex] = temp
+
+    newBanners.forEach((b, i) => {
+      b.sortOrder = i
+    })
+    setBanners(newBanners)
+    if (form) syncIframe(form, newBanners)
+
+    await Promise.all([
+      updateBanner(newBanners[index].id, { sortOrder: index }),
+      updateBanner(newBanners[targetIndex].id, { sortOrder: targetIndex }),
+    ])
+    toast.success('Slides reordered')
+  }
+
+  const handleDeleteBanner = async (id: string) => {
+    if (banners.length <= 1) {
+      toast.error('You must keep at least 1 hero slide in the carousel')
+      return
+    }
+    if (!confirm('Are you sure you want to remove this slide from the carousel?')) return
+
+    const updated = banners.filter((b) => b.id !== id)
+    setBanners(updated)
+    if (form) syncIframe(form, updated)
+
+    const res = await deleteBanner(id)
+    if (res.success) {
+      toast.success('Slide deleted')
+    } else {
+      toast.error(res.error || 'Failed to delete slide')
+      void loadBanners()
+    }
+  }
+
+  const handleCreateBanner = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newBanner.title.trim()) {
+      toast.error('Please enter a headline for the slide')
+      return
+    }
+    if (!newBanner.imageUrl.trim()) {
+      toast.error('Please upload or paste an image URL for the slide')
+      return
+    }
+
+    setAddingBanner(true)
+    const res = await createBanner({
+      title: newBanner.title.trim(),
+      subtitle: newBanner.subtitle.trim() || undefined,
+      imageUrl: newBanner.imageUrl.trim(),
+      ctaLabel: newBanner.ctaLabel.trim() || undefined,
+      ctaHref: newBanner.ctaHref.trim() || undefined,
+      sortOrder: banners.length,
+      isActive: true,
+    })
+    setAddingBanner(false)
+
+    if (res.success && res.data) {
+      toast.success('New carousel slide added!')
+      setNewBanner({
+        title: '',
+        subtitle: '',
+        imageUrl: '',
+        ctaLabel: 'Shop products',
+        ctaHref: '/products',
+      })
+      setShowAddBanner(false)
+      await loadBanners()
+    } else {
+      toast.error(res.error || 'Failed to create slide')
+    }
+  }
 
   const highlightSection = useCallback((targetId: string | null) => {
     if (!targetId || !iframeRef.current || !iframeRef.current.contentWindow) return
@@ -165,12 +402,39 @@ export default function SiteSettingsPage() {
         toast.error(res.error || 'Failed to save settings')
         return
       }
+
+      // Also ensure hero banner in banners table is synced and saved
+      if (banners && banners.length > 0) {
+        const first = banners[0]
+        await updateBanner(first.id, {
+          title: form.heroTitle || first.title,
+          subtitle: form.heroSubtitle ?? first.subtitle,
+          imageUrl: first.imageUrl || '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
+          ctaLabel: form.heroCtaLabel || first.ctaLabel,
+          ctaHref: form.heroCtaHref || first.ctaHref,
+          isActive: first.isActive,
+          sortOrder: 0,
+        })
+      } else {
+        await createBanner({
+          title: form.heroTitle || 'Quality mattresses, pillows & furniture',
+          subtitle: form.heroSubtitle || undefined,
+          imageUrl: '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
+          ctaLabel: form.heroCtaLabel || 'Shop products',
+          ctaHref: form.heroCtaHref || '/products',
+          sortOrder: 0,
+          isActive: true,
+        })
+      }
+
+      await loadBanners()
+
       if (res.data) {
         setForm(res.data)
         setInitialForm(res.data)
         syncIframe(res.data)
       }
-      toast.success('Site settings published successfully!')
+      toast.success('All changes saved and published successfully!')
     } catch {
       toast.error('An unexpected error occurred.')
     } finally {
@@ -245,6 +509,90 @@ export default function SiteSettingsPage() {
     current[target] = temp
     set('faqsJson', JSON.stringify(current))
   }
+
+  // ── Style Meets Comfort helpers ──
+  type StyleComfortData = {
+    title: string
+    description: string
+    imageUrl: string
+    imageAlt: string
+    stats: Array<{ value: string; label: string }>
+    slides: Array<{ id: string; label: string; imageUrl: string; href: string }>
+  }
+  const getStyleComfort = (): StyleComfortData => {
+    try {
+      if (form?.styleComfortJson) return JSON.parse(form.styleComfortJson) as StyleComfortData
+    } catch {}
+    return { title: '', description: '', imageUrl: '', imageAlt: '', stats: [], slides: [] }
+  }
+  const setStyleComfort = (data: StyleComfortData) => set('styleComfortJson', JSON.stringify(data))
+
+  // ── Editorial Journal helpers ──
+  type EditorialArticle = { id: string; tag: string; title: string; description: string; imageUrl: string; href: string }
+  const getEditorial = (): EditorialArticle[] => {
+    try {
+      if (form?.editorialJournalJson) {
+        const parsed = JSON.parse(form.editorialJournalJson)
+        return Array.isArray(parsed) ? parsed : (parsed?.articles ?? [])
+      }
+    } catch {}
+    return []
+  }
+  const setEditorial = (arr: EditorialArticle[]) => set('editorialJournalJson', JSON.stringify(arr))
+
+  // ── Ticker helpers ──
+  type TickerItem = { id: string; text: string; href: string }
+  const getTickerItems = (): TickerItem[] => {
+    try {
+      if (form?.tickerLabelsJson) {
+        const parsed = JSON.parse(form.tickerLabelsJson)
+        return Array.isArray(parsed) ? parsed : (parsed?.customItems ?? [])
+      }
+    } catch {}
+    return []
+  }
+  const setTickerItems = (items: TickerItem[]) =>
+    set('tickerLabelsJson', JSON.stringify({ mode: 'auto', customItems: items }))
+
+  // ── Newsletter helpers ──
+  type NewsletterData = { title: string; subtitle: string; placeholder: string; ctaLabel: string }
+  const getNewsletter = (): NewsletterData => {
+    try {
+      if (form?.newsletterJson) return JSON.parse(form.newsletterJson) as NewsletterData
+    } catch {}
+    return { title: '', subtitle: '', placeholder: '', ctaLabel: '' }
+  }
+  const setNewsletter = (data: NewsletterData) => set('newsletterJson', JSON.stringify(data))
+
+  // ── Trust Badges helpers ──
+  type TrustData = { featureChecklist: Array<{ id: string; text: string }>; trustBadges: Array<{ id: string; label: string; icon: string }> }
+  const getTrustData = (): TrustData => {
+    try {
+      if (form?.trustBadgesJson) return JSON.parse(form.trustBadgesJson) as TrustData
+    } catch {}
+    return { featureChecklist: [], trustBadges: [] }
+  }
+  const setTrustData = (data: TrustData) => set('trustBadgesJson', JSON.stringify(data))
+
+  // ── Nav Links helpers ──
+  type NavLinkItem = { id: string; label: string; href: string }
+  const getNavLinks = (): NavLinkItem[] => {
+    try {
+      if (form?.navLinksJson) return JSON.parse(form.navLinksJson) as NavLinkItem[]
+    } catch {}
+    return []
+  }
+  const setNavLinks = (items: NavLinkItem[]) => set('navLinksJson', JSON.stringify(items))
+
+  // ── Footer Links helpers ──
+  type FooterLinkItem = { id: string; label: string; href: string }
+  const getFooterLinks = (): FooterLinkItem[] => {
+    try {
+      if (form?.footerLinksJson) return JSON.parse(form.footerLinksJson) as FooterLinkItem[]
+    } catch {}
+    return []
+  }
+  const setFooterLinks = (items: FooterLinkItem[]) => set('footerLinksJson', JSON.stringify(items))
 
   // Filter items based on search query
   const filteredSections = useMemo(() => {
@@ -532,8 +880,12 @@ export default function SiteSettingsPage() {
                         onClick={() => {
                           const next = isOpen ? null : sec.id
                           setExpandedSection(next)
+                          // Auto-navigate preview to the page where this section lives
+                          if (next && SECTION_PAGE_MAP[next]) {
+                            setPreviewUrl(SECTION_PAGE_MAP[next])
+                          }
                           if (sec.targetId) {
-                            highlightSection(sec.targetId)
+                            setTimeout(() => highlightSection(sec.targetId), 1200)
                           }
                         }}
                         className="w-full flex items-center justify-between p-3.5 text-left group"
@@ -547,6 +899,11 @@ export default function SiteSettingsPage() {
                             <Icon className="w-4 h-4" />
                           </div>
                           <div className="min-w-0">
+                            {(sec as any).number && (
+                              <span className="text-[10px] font-black uppercase tracking-wider text-sky-700 block leading-tight">
+                                {(sec as any).number}
+                              </span>
+                            )}
                             <span className="text-xs font-bold text-blue-950 block truncate">{sec.label}</span>
                             <span className="text-[11px] text-stone-400 block truncate">{sec.desc}</span>
                           </div>
@@ -559,7 +916,18 @@ export default function SiteSettingsPage() {
                       </button>
 
                       {isOpen && (
-                        <div className="p-4 pt-1 border-t border-stone-200/60 bg-white space-y-4">
+                        <div className="p-4 pt-3 border-t border-stone-200/60 bg-white space-y-4">
+                          {/* Context banner — always shown at top of any open section */}
+                          {SECTION_CONTEXT[sec.id] && (
+                            <div className="flex items-start gap-2.5 p-3 bg-sky-950/5 border border-sky-950/10 rounded-xl">
+                              <span className="text-base shrink-0 mt-0.5">📍</span>
+                              <div>
+                                <p className="text-[11px] font-bold text-blue-950">{SECTION_CONTEXT[sec.id].page}</p>
+                                <p className="text-[11px] text-stone-500 mt-0.5 leading-relaxed">{SECTION_CONTEXT[sec.id].where}</p>
+                              </div>
+                            </div>
+                          )}
+
                           {/* 1. Announcement Bar Form */}
                           {sec.id === 'announcement' && (
                             <div className="space-y-3 pt-2">
@@ -601,35 +969,74 @@ export default function SiteSettingsPage() {
                             </div>
                           )}
 
-                          {/* 2. Hero Section Form */}
+                          {/* Section 1: Hero Banner (Home Screen Top) */}
                           {sec.id === 'hero' && (
-                            <div className="space-y-3 pt-2">
-                              <Field label="Hero Headline" hint="Bold large statement visitors see first">
+                            <div className="space-y-4 pt-2">
+                              {/* Main Banner Photo */}
+                              <Field label="Banner Photo (Image)" hint="Full-screen photo for the top section of your homepage">
+                                <CloudinaryUpload
+                                  value={banners[0]?.imageUrl ? [banners[0].imageUrl] : ['/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg']}
+                                  onChange={(urls) => {
+                                    if (urls[0]) {
+                                      if (banners.length > 0) {
+                                        handleBannerFieldChange(banners[0].id, 'imageUrl', urls[0])
+                                      } else {
+                                        setBanners([{
+                                          id: 'hero-primary',
+                                          title: form.heroTitle,
+                                          subtitle: form.heroSubtitle,
+                                          imageUrl: urls[0],
+                                          ctaLabel: form.heroCtaLabel,
+                                          ctaHref: form.heroCtaHref,
+                                          isActive: true,
+                                          sortOrder: 0,
+                                        }])
+                                      }
+                                    }
+                                  }}
+                                  maxFiles={1}
+                                  label="Upload or change hero photo"
+                                />
+                              </Field>
+
+                              {/* Main Headline */}
+                              <Field label="Main Headline" hint="Large bold title on your hero banner">
                                 <input
                                   type="text"
                                   value={form.heroTitle}
-                                  onChange={(e) => set('heroTitle', e.target.value)}
-                                  placeholder="Sleep Like It Matters"
+                                  onChange={(e) => {
+                                    set('heroTitle', e.target.value)
+                                    if (banners[0]) handleBannerFieldChange(banners[0].id, 'title', e.target.value)
+                                  }}
+                                  placeholder="Quality mattresses, pillows & furniture"
                                   className={inputClass}
                                 />
                               </Field>
 
-                              <Field label="Hero Subtitle" hint="Supporting paragraph below headline">
+                              {/* Subtitle / Paragraph */}
+                              <Field label="Subtitle / Paragraph" hint="Descriptive text below the headline">
                                 <textarea
-                                  rows={3}
+                                  rows={2}
                                   value={form.heroSubtitle}
-                                  onChange={(e) => set('heroSubtitle', e.target.value)}
-                                  placeholder="Authentic comfort for Nigerian homes..."
+                                  onChange={(e) => {
+                                    set('heroSubtitle', e.target.value)
+                                    if (banners[0]) handleBannerFieldChange(banners[0].id, 'subtitle', e.target.value)
+                                  }}
+                                  placeholder="Authentic comfort for Nigerian homes — shop trusted brands with clear pricing and delivery."
                                   className={textareaClass}
                                 />
                               </Field>
 
+                              {/* Button Text & Link */}
                               <div className="grid grid-cols-2 gap-2">
-                                <Field label="Button Label">
+                                <Field label="Button Text">
                                   <input
                                     type="text"
                                     value={form.heroCtaLabel}
-                                    onChange={(e) => set('heroCtaLabel', e.target.value)}
+                                    onChange={(e) => {
+                                      set('heroCtaLabel', e.target.value)
+                                      if (banners[0]) handleBannerFieldChange(banners[0].id, 'ctaLabel', e.target.value)
+                                    }}
                                     placeholder="Shop products"
                                     className={inputClass}
                                   />
@@ -638,22 +1045,87 @@ export default function SiteSettingsPage() {
                                   <input
                                     type="text"
                                     value={form.heroCtaHref}
-                                    onChange={(e) => set('heroCtaHref', e.target.value)}
+                                    onChange={(e) => {
+                                      set('heroCtaHref', e.target.value)
+                                      if (banners[0]) handleBannerFieldChange(banners[0].id, 'ctaHref', e.target.value)
+                                    }}
                                     placeholder="/products"
                                     className={inputClass}
                                   />
                                 </Field>
                               </div>
 
-                              <Field label="Hero Watermark Word" hint="Large faint background typography (default: Comfort)">
-                                <input
-                                  type="text"
-                                  value={form.heroBackdropWord}
-                                  onChange={(e) => set('heroBackdropWord', e.target.value)}
-                                  placeholder="Comfort"
-                                  className={inputClass}
-                                />
-                              </Field>
+                              {/* Optional: Extra rotating slides disclosure */}
+                              <div className="pt-2 border-t border-stone-200/80">
+                                <button
+                                  type="button"
+                                  onClick={() => setShowAddBanner(!showAddBanner)}
+                                  className="w-full flex items-center justify-between p-2.5 bg-stone-50 hover:bg-stone-100 rounded-xl text-left text-xs font-semibold text-stone-700 transition-colors"
+                                >
+                                  <span>Need more rotating slides in your banner carousel? (Optional)</span>
+                                  <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showAddBanner ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {showAddBanner && (
+                                  <div className="mt-3 p-3 bg-stone-50 rounded-xl border border-stone-200/80 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-[11px] font-bold text-stone-700 uppercase">
+                                        Total Slides: {banners.length}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={async () => {
+                                          const res = await createBanner({
+                                            title: 'Comfort for Every Home',
+                                            subtitle: 'Original brands delivered directly to your door.',
+                                            imageUrl: '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg',
+                                            ctaLabel: 'Explore Collection',
+                                            ctaHref: '/products',
+                                            sortOrder: banners.length,
+                                            isActive: true,
+                                          })
+                                          if (res.success) {
+                                            toast.success('Slide added')
+                                            void loadBanners()
+                                          }
+                                        }}
+                                        className="px-2 py-1 bg-blue-950 text-white rounded-lg text-xs font-semibold hover:bg-sky-800"
+                                      >
+                                        + Add Extra Slide
+                                      </button>
+                                    </div>
+                                    {banners.slice(1).map((slide, idx) => (
+                                      <div key={slide.id} className="p-3 bg-white rounded-lg border border-stone-200 space-y-2">
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-[11px] font-bold text-blue-950">Slide {idx + 2}</span>
+                                          <button
+                                            type="button"
+                                            onClick={() => handleDeleteBanner(slide.id)}
+                                            className="text-red-500 hover:text-red-700 text-xs flex items-center gap-0.5"
+                                          >
+                                            <Trash2 className="w-3 h-3" /> Remove
+                                          </button>
+                                        </div>
+                                        <CloudinaryUpload
+                                          value={slide.imageUrl ? [slide.imageUrl] : []}
+                                          onChange={(urls) => {
+                                            if (urls[0]) handleBannerFieldChange(slide.id, 'imageUrl', urls[0])
+                                          }}
+                                          maxFiles={1}
+                                          label={`Slide ${idx + 2} Image`}
+                                        />
+                                        <input
+                                          type="text"
+                                          value={slide.title}
+                                          onChange={(e) => handleBannerFieldChange(slide.id, 'title', e.target.value)}
+                                          placeholder="Slide title"
+                                          className={inputClass}
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           )}
 
@@ -693,7 +1165,7 @@ export default function SiteSettingsPage() {
                                 <Field label="Story Image" hint="Featured lifestyle photo">
                                   <CloudinaryUpload
                                     value={form.storyImageUrl ? [form.storyImageUrl] : []}
-                                    onChange={(urls) => set('storyImageUrl', urls[urls.length - 1] || null)}
+                                    onChange={(urls) => set('storyImageUrl', urls[0] || null)}
                                     maxFiles={1}
                                     label="Upload story image"
                                   />
@@ -728,6 +1200,17 @@ export default function SiteSettingsPage() {
                                     value={form.storySecondaryText}
                                     onChange={(e) => set('storySecondaryText', e.target.value)}
                                     className={textareaClass}
+                                  />
+                                </Field>
+                                <Field label="Promise Photo" hint="Lifestyle photo shown in Our Promise block">
+                                  <CloudinaryUpload
+                                    value={((getStyleComfort() as any).storySecondaryImage) ? [(getStyleComfort() as any).storySecondaryImage] : ['/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg']}
+                                    onChange={(urls) => {
+                                      const sc = getStyleComfort()
+                                      setStyleComfort({ ...sc, storySecondaryImage: urls[0] || '' } as any)
+                                    }}
+                                    maxFiles={1}
+                                    label="Upload promise image"
                                   />
                                 </Field>
                               </div>
@@ -766,59 +1249,13 @@ export default function SiteSettingsPage() {
                                   />
                                 </Field>
                               </div>
-
-                              <Field label="Story Watermark Word" hint="Default: Rest">
-                                <input
-                                  type="text"
-                                  value={form.storyBackdropWord}
-                                  onChange={(e) => set('storyBackdropWord', e.target.value)}
-                                  placeholder="Rest"
-                                  className={inputClass}
-                                />
-                              </Field>
                             </div>
                           )}
 
-                          {/* 4. Shop Headers Form */}
-                          {sec.id === 'shop' && (
+                          {/* Section 5: Shop by Room / Collections */}
+                          {sec.id === 'collections' && (
                             <div className="space-y-3 pt-2">
-                              <Field label="Shop Page (/products) Title">
-                                <input
-                                  type="text"
-                                  value={form.shopPageTitle}
-                                  onChange={(e) => set('shopPageTitle', e.target.value)}
-                                  placeholder="The Collection"
-                                  className={inputClass}
-                                />
-                              </Field>
-                              <Field label="Shop Page Tagline">
-                                <input
-                                  type="text"
-                                  value={form.shopPageTagline}
-                                  onChange={(e) => set('shopPageTagline', e.target.value)}
-                                  placeholder="Original mattresses, luxury furniture, and bedding..."
-                                  className={inputClass}
-                                />
-                              </Field>
-                              <Field label="Homepage Best Sellers Title">
-                                <input
-                                  type="text"
-                                  value={form.featuredTitle}
-                                  onChange={(e) => set('featuredTitle', e.target.value)}
-                                  placeholder="What people keep coming back for."
-                                  className={inputClass}
-                                />
-                              </Field>
-                              <Field label="Homepage Best Sellers Subtitle">
-                                <input
-                                  type="text"
-                                  value={form.featuredDescription}
-                                  onChange={(e) => set('featuredDescription', e.target.value)}
-                                  placeholder="Our most-loved pieces — or browse everything we carry."
-                                  className={inputClass}
-                                />
-                              </Field>
-                              <Field label="Categories Grid Title">
+                              <Field label="Section Title" hint="e.g. Shop by category">
                                 <input
                                   type="text"
                                   value={form.collectionsTitle}
@@ -827,12 +1264,59 @@ export default function SiteSettingsPage() {
                                   className={inputClass}
                                 />
                               </Field>
-                              <Field label="Categories Grid Subtitle">
+                              <Field label="Section Subtitle / Description" hint="Descriptive text above category tiles">
                                 <input
                                   type="text"
                                   value={form.collectionsDescription}
                                   onChange={(e) => set('collectionsDescription', e.target.value)}
                                   placeholder="Mattresses, pillows, furniture — find exactly what your space is missing."
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <div className="pt-2 border-t border-stone-200/80">
+                                <span className="text-[11px] font-bold text-stone-500 uppercase tracking-wider block mb-2">
+                                  Products Catalog Page (/products)
+                                </span>
+                                <Field label="Shop Page Title">
+                                  <input
+                                    type="text"
+                                    value={form.shopPageTitle}
+                                    onChange={(e) => set('shopPageTitle', e.target.value)}
+                                    placeholder="The Collection"
+                                    className={inputClass}
+                                  />
+                                </Field>
+                                <Field label="Shop Page Tagline">
+                                  <input
+                                    type="text"
+                                    value={form.shopPageTagline}
+                                    onChange={(e) => set('shopPageTagline', e.target.value)}
+                                    placeholder="Original mattresses, luxury furniture, and bedding..."
+                                    className={inputClass}
+                                  />
+                                </Field>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Section 7: Featured Best Sellers */}
+                          {sec.id === 'featured' && (
+                            <div className="space-y-3 pt-2">
+                              <Field label="Section Title" hint="Headline above your featured products">
+                                <input
+                                  type="text"
+                                  value={form.featuredTitle}
+                                  onChange={(e) => set('featuredTitle', e.target.value)}
+                                  placeholder="What people keep coming back for."
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Section Subtitle / Tagline" hint="Small label or tagline above featured products">
+                                <input
+                                  type="text"
+                                  value={form.featuredDescription}
+                                  onChange={(e) => set('featuredDescription', e.target.value)}
+                                  placeholder="Our most-loved pieces — or browse everything we carry."
                                   className={inputClass}
                                 />
                               </Field>
@@ -883,7 +1367,7 @@ export default function SiteSettingsPage() {
                               <Field label="Banner Photo">
                                 <CloudinaryUpload
                                   value={form.promoImageUrl ? [form.promoImageUrl] : []}
-                                  onChange={(urls) => set('promoImageUrl', urls[urls.length - 1] || null)}
+                                  onChange={(urls) => set('promoImageUrl', urls[0] || null)}
                                   maxFiles={1}
                                   label="Upload banner image"
                                 />
@@ -938,6 +1422,129 @@ export default function SiteSettingsPage() {
                               </Field>
                             </div>
                           )}
+
+                          {/* 8. Style Meets Comfort - simplified */}
+                          {sec.id === 'styleComfort' && (() => {
+                            const sc = getStyleComfort()
+                            return (
+                              <div className="space-y-4 pt-2">
+                                <div className="p-3 bg-amber-50 border border-amber-200/70 rounded-xl">
+                                  <p className="text-[11px] text-amber-800 leading-relaxed">✏️ Edit the headline, description and photo for the <strong>Style Meets Comfort</strong> section on your homepage.</p>
+                                </div>
+                                <Field label="Section Headline">
+                                  <input type="text" value={sc.title} onChange={(e) => setStyleComfort({ ...sc, title: e.target.value })} placeholder="Style Meets Comfort" className={inputClass} />
+                                </Field>
+                                <Field label="Section Description" hint="1-2 sentences describing this section">
+                                  <textarea rows={3} value={sc.description} onChange={(e) => setStyleComfort({ ...sc, description: e.target.value })} className={textareaClass} placeholder="Where great design meets genuine comfort." />
+                                </Field>
+                                <Field label="Feature Photo" hint="Large lifestyle photo shown in this section">
+                                  <CloudinaryUpload
+                                    value={sc.imageUrl ? [sc.imageUrl] : []}
+                                    onChange={(urls) => setStyleComfort({ ...sc, imageUrl: urls[0] || '', imageAlt: sc.imageAlt })}
+                                    maxFiles={1}
+                                    label="Upload feature photo"
+                                  />
+                                  <input type="url" value={sc.imageUrl} onChange={(e) => setStyleComfort({ ...sc, imageUrl: e.target.value })} placeholder="Or paste a photo URL here" className={`${inputClass} mt-1.5`} />
+                                </Field>
+                              </div>
+                            )
+                          })()}
+
+                          {/* 10. Editorial Journal - hidden (too technical for owner) */}
+                          {/* 11. Newsletter */}
+                          {sec.id === 'ticker' && (() => {
+                            const items = getTickerItems()
+                            return (
+                              <div className="space-y-3 pt-2">
+                                <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                                  <span className="text-xs font-semibold text-stone-600">{items.length} ticker items</span>
+                                  <button type="button" onClick={() => setTickerItems([...items, { id: Date.now().toString(), text: 'New announcement', href: '/products' }])} className="flex items-center gap-1 text-xs font-bold text-white bg-blue-950 hover:bg-blue-900 px-2.5 py-1 rounded-lg">
+                                    <Plus className="w-3 h-3" /> Add Item
+                                  </button>
+                                </div>
+                                <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                                  {items.map((item, idx) => (
+                                    <div key={item.id} className="p-3 bg-stone-50 rounded-xl border border-stone-200 space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-[10px] font-mono font-bold text-sky-700">#{idx + 1}</span>
+                                        <div className="flex items-center gap-1">
+                                          <button type="button" disabled={idx === 0} onClick={() => { const a = [...items]; [a[idx], a[idx-1]] = [a[idx-1], a[idx]]; setTickerItems(a) }} className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30"><ArrowUp className="w-3 h-3" /></button>
+                                          <button type="button" disabled={idx === items.length - 1} onClick={() => { const a = [...items]; [a[idx], a[idx+1]] = [a[idx+1], a[idx]]; setTickerItems(a) }} className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30"><ArrowDown className="w-3 h-3" /></button>
+                                          <button type="button" onClick={() => setTickerItems(items.filter((_, i) => i !== idx))} className="p-1 text-rose-500 hover:text-rose-700"><Trash2 className="w-3 h-3" /></button>
+                                        </div>
+                                      </div>
+                                      <input type="text" value={item.text} onChange={(e) => { const a = [...items]; a[idx] = { ...a[idx], text: e.target.value }; setTickerItems(a) }} placeholder="Ticker text…" className={inputClass} />
+                                      <input type="text" value={item.href} onChange={(e) => { const a = [...items]; a[idx] = { ...a[idx], href: e.target.value }; setTickerItems(a) }} placeholder="/products" className={inputClass} />
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )
+                          })()}
+
+                          {/* 12. Trust Badges - hidden (too technical) */}
+                          {/* 13. Navigation Links - hidden (could break site) */}
+                          {/* 14. Footer Navigation Links - hidden (could break site) */}
+                          {sec.id === 'editorial' && (() => {
+                            const articles = getEditorial()
+                            return (
+                              <div className="space-y-3 pt-2">
+                                <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                                  <span className="text-xs font-semibold text-stone-600">{articles.length} articles</span>
+                                  <button type="button" onClick={() => setEditorial([...articles, { id: Date.now().toString(), tag: 'New', title: '', description: '', imageUrl: '', href: '#' }])} className="flex items-center gap-1 text-xs font-bold text-white bg-blue-950 hover:bg-blue-900 px-2.5 py-1 rounded-lg">
+                                    <Plus className="w-3 h-3" /> Add Article
+                                  </button>
+                                </div>
+                                <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+                                  {articles.map((art, idx) => (
+                                    <div key={art.id} className="p-3 bg-stone-50 rounded-xl border border-stone-200 space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-[10px] font-bold text-blue-950">Article {idx + 1}</span>
+                                        <button type="button" onClick={() => setEditorial(articles.filter((_, i) => i !== idx))} className="p-1 text-rose-500"><Trash2 className="w-3 h-3" /></button>
+                                      </div>
+                                      <Field label="Tag / Category">
+                                        <input type="text" value={art.tag} onChange={(e) => { const a = [...articles]; a[idx] = { ...a[idx], tag: e.target.value }; setEditorial(a) }} placeholder="Guide" className={inputClass} />
+                                      </Field>
+                                      <Field label="Article Title">
+                                        <input type="text" value={art.title} onChange={(e) => { const a = [...articles]; a[idx] = { ...a[idx], title: e.target.value }; setEditorial(a) }} placeholder="How to choose the right mattress" className={inputClass} />
+                                      </Field>
+                                      <Field label="Description">
+                                        <textarea rows={2} value={art.description} onChange={(e) => { const a = [...articles]; a[idx] = { ...a[idx], description: e.target.value }; setEditorial(a) }} placeholder="Short summary…" className={textareaClass} />
+                                      </Field>
+                                      <Field label="Cover Image">
+                                        <CloudinaryUpload value={art.imageUrl ? [art.imageUrl] : []} onChange={(urls) => { const a = [...articles]; a[idx] = { ...a[idx], imageUrl: urls[0] || '' }; setEditorial(a) }} maxFiles={1} label="Article image" />
+                                      </Field>
+                                      <Field label="Link / Href">
+                                        <input type="text" value={art.href} onChange={(e) => { const a = [...articles]; a[idx] = { ...a[idx], href: e.target.value }; setEditorial(a) }} placeholder="#" className={inputClass} />
+                                      </Field>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )
+                          })()}
+
+                          {/* 11. Newsletter */}
+                          {sec.id === 'newsletter' && (() => {
+                            const nl = getNewsletter()
+                            return (
+                              <div className="space-y-3 pt-2">
+                                <Field label="Headline">
+                                  <input type="text" value={nl.title} onChange={(e) => setNewsletter({ ...nl, title: e.target.value })} placeholder="Get exclusive deals & interior tips" className={inputClass} />
+                                </Field>
+                                <Field label="Subtitle / Body">
+                                  <textarea rows={2} value={nl.subtitle} onChange={(e) => setNewsletter({ ...nl, subtitle: e.target.value })} placeholder="Join 2,000+ Nigerians who shop smarter." className={textareaClass} />
+                                </Field>
+                                <Field label="Email Input Placeholder">
+                                  <input type="text" value={nl.placeholder} onChange={(e) => setNewsletter({ ...nl, placeholder: e.target.value })} placeholder="Enter your email…" className={inputClass} />
+                                </Field>
+                                <Field label="Subscribe Button Label">
+                                  <input type="text" value={nl.ctaLabel} onChange={(e) => setNewsletter({ ...nl, ctaLabel: e.target.value })} placeholder="Subscribe" className={inputClass} />
+                                </Field>
+                              </div>
+                            )
+                          })()}
+
                         </div>
                       )}
                     </div>
@@ -1013,7 +1620,7 @@ export default function SiteSettingsPage() {
                               <Field label="Store Logo" hint="Upload transparent PNG/SVG or paste URL">
                                 <CloudinaryUpload
                                   value={form.logoUrl ? [form.logoUrl] : []}
-                                  onChange={(urls) => set('logoUrl', urls[urls.length - 1] || null)}
+                                  onChange={(urls) => set('logoUrl', urls[0] || null)}
                                   maxFiles={1}
                                   label="Upload store logo"
                                 />

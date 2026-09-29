@@ -55,11 +55,11 @@ export default function ContactClient() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
           <div className="space-y-10">
             <div>
-              <p className="text-sky-700 text-xs font-semibold mb-3">Contact</p>
-              <h1 className="text-4xl sm:text-5xl font-semibold text-blue-950 tracking-tight mb-4">
-                Talk to Smart Best Brands
+              <p className="text-[var(--brand-accent)] text-xs font-semibold mb-3">Contact</p>
+              <h1 className="text-4xl sm:text-5xl font-semibold text-neutral-900 tracking-tight mb-4 font-display">
+                Talk to {settings.siteName || 'Smart Best Brands'}
               </h1>
-              <p className="text-stone-500 text-base leading-relaxed max-w-lg">
+              <p className="text-neutral-500 text-base leading-relaxed max-w-lg">
                 Questions about mattresses, pillows, furniture, delivery, or bulk orders? Send a message and we’ll reply during business hours.
               </p>
             </div>
@@ -164,7 +164,7 @@ export default function ContactClient() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full inline-flex items-center justify-center gap-2 bg-blue-950 hover:bg-sky-700 disabled:opacity-50 text-white font-black text-[11px] tracking-[0.2em] uppercase py-4 transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 bg-brand-primary hover:bg-blue-900 disabled:opacity-50 text-white font-bold text-xs tracking-[0.15em] uppercase py-4 rounded-full transition-colors shadow-sm"
               >
                 <Send className="w-3.5 h-3.5" />
                 {isSubmitting ? 'Sending…' : 'Send message'}

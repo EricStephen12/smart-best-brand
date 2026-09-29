@@ -24,75 +24,76 @@ export default function Footer() {
   const telHref = getTelHref(contact)
 
   return (
-    <footer id="footer" className="bg-blue-950 text-white pt-16 sm:pt-20 pb-10 print:hidden scroll-mt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer id="footer" className="bg-navy-dark text-white pt-16 sm:pt-20 pb-10 print:hidden scroll-mt-16">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-14">
+          {/* Brand */}
           <div>
             <Link
               href="/"
-              className="text-lg font-black tracking-[0.18em] uppercase"
+              className="text-base font-bold tracking-widest uppercase text-white"
               style={{ fontFamily: 'var(--font-montserrat)' }}
             >
               {brand.lead}
-              <span className="text-sky-500">{brand.accent}</span>
+              <span className="text-neutral-400">{brand.accent}</span>
             </Link>
-            <p className="mt-4 text-sm text-white/55 leading-relaxed max-w-xs">
+            <p className="mt-4 text-sm text-white/45 leading-relaxed max-w-xs">
               {settings.footerText ||
                 'Original mattresses, luxury furniture, and bedding — factory-direct, delivered to your door.'}
             </p>
           </div>
 
           <FooterSection title="Shop" links={FOOTER_SHOP_LINKS} />
-
           <FooterSection title="Company" links={FOOTER_COMPANY_LINKS} />
 
+          {/* Contact */}
           <div>
-            <h4 className="text-[10px] font-black tracking-[0.35em] uppercase text-sky-400 mb-5">
+            <h4 className="text-[11px] font-semibold tracking-[0.3em] uppercase text-white/40 mb-5">
               Contact
             </h4>
-            <div className="space-y-3 text-sm text-white/60">
-              <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 mt-0.5 text-sky-500 shrink-0" />
+            <div className="space-y-3 text-sm text-white/50">
+              <div className="flex items-start gap-2.5">
+                <MapPin className="w-4 h-4 mt-0.5 text-white/30 shrink-0" />
                 <p>{settings.storeAddress || 'Abuja · Benin City'}</p>
               </div>
               <a
                 href={`mailto:${settings.contactEmail}`}
-                className="flex items-center gap-2 hover:text-white transition-colors break-all"
+                className="flex items-center gap-2.5 hover:text-white transition-colors break-all"
               >
-                <Mail className="w-4 h-4 text-sky-500 shrink-0" />
+                <Mail className="w-4 h-4 text-white/30 shrink-0" />
                 {settings.contactEmail}
               </a>
               {telHref ? (
-                <a href={telHref} className="flex items-center gap-2 hover:text-white transition-colors">
-                  <Phone className="w-4 h-4 text-sky-500 shrink-0" />
+                <a href={telHref} className="flex items-center gap-2.5 hover:text-white transition-colors">
+                  <Phone className="w-4 h-4 text-white/30 shrink-0" />
                   {settings.supportPhone || 'Call us'}
                 </a>
               ) : null}
             </div>
 
-            {/* Social icons — square */}
+            {/* Social icons */}
             <div className="flex flex-wrap gap-2 mt-5">
               {settings.instagramUrl && (
                 <a href={settings.instagramUrl} target="_blank" rel="noopener noreferrer" aria-label="Instagram"
-                  className="w-9 h-9 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors">
+                  className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white/30 transition-colors">
                   <Instagram className="w-4 h-4" />
                 </a>
               )}
               {settings.facebookUrl && (
                 <a href={settings.facebookUrl} target="_blank" rel="noopener noreferrer" aria-label="Facebook"
-                  className="w-9 h-9 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors">
+                  className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white/30 transition-colors">
                   <Facebook className="w-4 h-4" />
                 </a>
               )}
               {settings.twitterUrl && (
-                <a href={settings.twitterUrl} target="_blank" rel="noopener noreferrer" aria-label="Twitter / X"
-                  className="w-9 h-9 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors">
+                <a href={settings.twitterUrl} target="_blank" rel="noopener noreferrer" aria-label="Twitter"
+                  className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white/30 transition-colors">
                   <Twitter className="w-4 h-4" />
                 </a>
               )}
               {whatsappUrl && (
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"
-                  className="w-9 h-9 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:border-white/40 transition-colors">
+                  className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white/30 transition-colors">
                   <MessageCircle className="w-4 h-4" />
                 </a>
               )}
@@ -100,30 +101,17 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Payment badges + copyright */}
-        <div className="pt-8 border-t border-white/10 space-y-4">
-          {/* Payment method badges */}
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-white/30 mr-1">
-              We accept
-            </span>
-            {PAYMENT_METHODS.map((m) => (
-              <span
-                key={m.label}
-                className="inline-flex items-center px-2.5 py-1 bg-white/10 border border-white/15 text-[10px] font-black tracking-wider text-white/60 uppercase"
-              >
-                {m.label}
-              </span>
+        {/* Bottom bar */}
+        <div className="pt-8 border-t border-white/[0.07] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <p className="text-[11px] text-white/25 tracking-wide">
+            © {currentYear} {settings.siteName}. All rights reserved.
+          </p>
+          <div className="flex flex-wrap items-center gap-6">
+            {FOOTER_LEGAL_LINKS.map((l) => (
+              <Link key={l.href} href={l.href} className="text-[11px] text-white/30 hover:text-white/60 transition-colors tracking-wide">
+                {l.label}
+              </Link>
             ))}
-          </div>
-
-          <div className="flex flex-col sm:flex-row justify-between gap-4 text-[10px] tracking-[0.2em] uppercase text-white/35">
-            <p>© {currentYear} {settings.siteName}</p>
-            <div className="flex flex-wrap gap-6">
-              {FOOTER_LEGAL_LINKS.map((l) => (
-                <Link key={l.href} href={l.href} className="hover:text-white/70">{l.label}</Link>
-              ))}
-            </div>
           </div>
         </div>
       </div>
@@ -140,7 +128,7 @@ function FooterSection({
 }) {
   return (
     <div>
-      <h4 className="text-[10px] font-black tracking-[0.35em] uppercase text-sky-400 mb-5">
+      <h4 className="text-[11px] font-semibold tracking-[0.3em] uppercase text-white/40 mb-5">
         {title}
       </h4>
       <ul className="space-y-3">
@@ -148,7 +136,7 @@ function FooterSection({
           <li key={link.href + link.label}>
             <Link
               href={link.href}
-              className="text-sm text-white/60 hover:text-white transition-colors"
+              className="text-sm text-white/45 hover:text-white transition-colors"
             >
               {link.label}
             </Link>

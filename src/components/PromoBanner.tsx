@@ -15,7 +15,7 @@ export default function PromoBanner() {
   const imageUrl = settings.promoImageUrl || PROMO_BANNER.imageUrl
 
   return (
-    <section id="promo" className="relative min-h-[42vh] sm:min-h-[50vh] flex items-center justify-center overflow-hidden scroll-mt-16">
+    <section id="promo" className="relative overflow-hidden scroll-mt-16 mx-5 sm:mx-8 lg:mx-12 my-8 rounded-3xl min-h-[420px] sm:min-h-[520px] flex items-center">
       <Image
         src={imageUrl}
         alt={title}
@@ -23,26 +23,20 @@ export default function PromoBanner() {
         className="object-cover"
         sizes="100vw"
       />
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'linear-gradient(to top, color-mix(in srgb, var(--brand-primary) 88%, transparent), color-mix(in srgb, var(--brand-primary) 45%, transparent))',
-        }}
-      />
-      <div className="relative z-10 text-center px-6 max-w-2xl">
-        <div className="flex items-center justify-center gap-3 mb-5">
-          <span className="w-1 h-5 rounded-full bg-sky-400" />
-          <p className="text-[10px] font-black tracking-[0.4em] uppercase text-sky-300">
-            {badge}
-          </p>
-        </div>
-        <h2 className="font-playfair text-3xl sm:text-5xl font-semibold text-white tracking-tight mb-8">
+      {/* Warm dark overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/55 to-black/20 rounded-3xl" />
+
+      <div className="relative z-10 px-10 sm:px-16 max-w-xl">
+        <p className="section-label text-white/60 mb-4">{badge}</p>
+        <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-semibold text-white tracking-tight leading-[1.05] mb-6">
           {title}
         </h2>
+        <p className="text-sm text-white/65 mb-8 leading-relaxed max-w-sm">
+          Premium mattresses, luxury furniture, and quality bedding — crafted for Nigerian homes.
+        </p>
         <Link
           href={ctaHref}
-          className="inline-flex border border-white/90 text-white px-8 py-3.5 text-[11px] font-medium tracking-[0.14em] uppercase hover:bg-white hover:text-[var(--brand-primary)] transition-colors style-button"
+          className="inline-flex items-center bg-white text-neutral-900 px-7 py-3.5 text-sm font-semibold rounded-full hover:bg-neutral-100 transition-colors"
         >
           {ctaLabel}
         </Link>

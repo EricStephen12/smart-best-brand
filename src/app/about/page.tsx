@@ -27,12 +27,12 @@ export default async function AboutPage() {
     <div className="pt-20 font-sans">
 
       {/* Hero */}
-      <div className="bg-blue-950 py-20 sm:py-32 text-center relative overflow-hidden">
+      <div className="bg-navy-dark py-20 sm:py-32 text-center relative overflow-hidden">
         <div className="max-w-4xl mx-auto px-6 relative z-10">
           <h1 className="text-6xl md:text-[8rem] font-black text-white mb-8 tracking-tighter leading-[0.85] uppercase">
-            The Standard<br /><span className="text-sky-600">for Rest.</span>
+            The Standard<br /><span className="text-[var(--brand-accent)]">for Rest.</span>
           </h1>
-          <p className="text-slate-400 text-lg md:text-xl font-medium leading-relaxed max-w-2xl mx-auto">
+          <p className="text-white/60 text-lg md:text-xl font-medium leading-relaxed max-w-2xl mx-auto">
             Nigeria's home for original mattresses, pillows, and luxury furniture.
             We sell only what we can stand behind — factory-sealed, warranted, and delivered with care.
           </p>
@@ -70,12 +70,12 @@ export default async function AboutPage() {
       {brands && brands.length > 0 && (
         <section className="py-24 bg-stone-50">
           <div className="max-w-7xl mx-auto px-6 text-center">
-            <p className="text-blue-950 font-black tracking-[0.4em] text-[10px] uppercase mb-16 text-stone-400">Our Partner Brands</p>
+            <p className="text-neutral-400 font-bold tracking-[0.3em] text-[10px] uppercase mb-16">Our Partner Brands</p>
             <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20">
               {brands.map((brand: any) => (
                 <span
                   key={brand.id}
-                  className="text-2xl md:text-3xl font-black text-blue-950/30 hover:text-blue-950/60 transition-colors duration-500 cursor-default uppercase tracking-tighter"
+                  className="text-2xl md:text-3xl font-black text-neutral-900/30 hover:text-neutral-900/70 transition-colors duration-500 cursor-default uppercase tracking-tighter"
                 >
                   {brand.name}
                 </span>
@@ -86,17 +86,17 @@ export default async function AboutPage() {
       )}
 
       {/* CTA strip */}
-      <section className="py-20 bg-blue-950 text-white text-center">
+      <section className="py-20 bg-navy-dark text-white text-center">
         <div className="max-w-2xl mx-auto px-6">
           <h2 className="font-display text-3xl sm:text-4xl font-semibold mb-4 tracking-tight">
             Ready to rest better?
           </h2>
-          <p className="text-sky-200/80 text-base mb-8 leading-relaxed">
+          <p className="text-white/60 text-base mb-8 leading-relaxed">
             Browse our full catalogue — mattresses, pillows, and furniture, all factory-direct.
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center gap-3 bg-white text-blue-950 px-8 py-4 text-[11px] font-black tracking-[0.2em] uppercase hover:bg-sky-50 transition-colors"
+            className="inline-flex items-center gap-3 bg-white text-navy-dark px-8 py-4 text-[11px] font-bold tracking-[0.2em] uppercase rounded-full hover:bg-neutral-100 transition-colors shadow-sm"
           >
             Shop the collection <ArrowRight className="w-4 h-4" />
           </Link>

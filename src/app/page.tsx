@@ -1,11 +1,12 @@
 import HeroSection from '@/components/HeroSection'
 import StorySection from '@/components/StorySection'
-import SleepMatcherCapsule from '@/components/SleepMatcherCapsule'
+import StyleComfortSection from '@/components/StyleComfortSection'
 import ScrollLabels from '@/components/ScrollLabels'
 import CollectionsSection from '@/components/CollectionsSection'
 import PromoBanner from '@/components/PromoBanner'
 import FeaturedProducts from '@/components/FeaturedProducts'
 import EditorialJournal from '@/components/EditorialJournal'
+import NewsletterSection from '@/components/NewsletterSection'
 import { getAllProducts } from '@/actions/products'
 import { getAllBrands } from '@/actions/brands'
 import { getAllCategories } from '@/actions/categories'
@@ -57,7 +58,6 @@ export default async function Home() {
     getActiveBanners(),
   ])
 
-  // Prisma vs mock return a union of product shapes — normalize to one array type.
   const initialProducts = [...((productsResult.success ? productsResult.data : []) || [])]
   const brands = brandsResult.success ? brandsResult.data : []
   const categories = categoriesResult.success ? categoriesResult.data : []
@@ -88,12 +88,13 @@ export default async function Home() {
     <div className="bg-transparent">
       <HeroSection banners={banners || []} />
       <StorySection brandCount={brands?.length || 0} />
-      <SleepMatcherCapsule />
+      <StyleComfortSection />
       <ScrollLabels labels={scrollLabels} />
       <CollectionsSection collections={collections} />
       <PromoBanner />
       <FeaturedProducts products={featured} />
       <EditorialJournal />
+      <NewsletterSection />
     </div>
   )
 }

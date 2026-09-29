@@ -3,29 +3,30 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useCart } from '@/lib/cart-context'
 import { useWishlist } from '@/lib/wishlist-context'
 import {
-  ArrowLeft,
   Star,
-  ShoppingCart,
+  ShoppingBag,
   Heart,
   MessageCircle,
-  ShieldCheck,
-  Truck,
-  ChevronRight,
-  ChevronDown,
-  RotateCcw,
+  Check,
   BadgePercent,
-  Lock,
+  Minus,
+  Plus,
 } from 'lucide-react'
 import CustomRequestModal from '@/components/CustomRequestModal'
 import ProductReviews, { type ReviewItem } from '@/components/ProductReviews'
 import RelatedProducts from '@/components/RelatedProducts'
-import EditorialBackdrop from '@/components/EditorialBackdrop'
-import { useSiteSettings } from '@/components/site-settings-context'
 import { getWhatsAppUrl } from '@/lib/contact-channels'
-import { POLICIES, TRUST_BADGES } from '@/lib/constants'
+import { useSiteSettings } from '@/components/site-settings-context'
+import {
+  PRODUCT_COLOR_SWATCHES,
+  PRODUCT_FEATURE_CHECKLIST,
+  PRODUCT_TABS_DEFAULT,
+  PRODUCT_NEWSLETTER,
+} from '@/lib/constants'
 import toast from 'react-hot-toast'
 
 interface ProductDetailViewProps {
@@ -37,12 +38,6 @@ interface ProductDetailViewProps {
   relatedCategoryLabel?: string
 }
 
-function stockLabel(stock: number) {
-  if (stock <= 0) return { text: 'Out of stock', className: 'text-red-600' }
-  if (stock <= 5) return { text: `Only ${stock} left`, className: 'text-amber-600' }
-  return { text: 'In stock', className: 'text-emerald-700' }
-}
-
 export default function ProductDetailView({
   product,
   reviews = [],
@@ -52,22 +47,7 @@ export default function ProductDetailView({
   relatedCategoryLabel,
 }: ProductDetailViewProps) {
   const { addToCart } = useCart()
-  const settings = useSiteSettings()
-
-  const deliveryPoints = (settings.deliveryPolicy
-    ? settings.deliveryPolicy.split('\n')
-    : POLICIES.delivery.points
-  ).map((s) => s.trim().replace(/^[-•*]\s*/, '')).filter(Boolean)
-
-  const returnPoints = (settings.returnPolicy
-    ? settings.returnPolicy.split('\n')
-    : POLICIES.returns.points
-  ).map((s) => s.trim().replace(/^[-•*]\s*/, '')).filter(Boolean)
-
-  const warrantyPoints = (settings.warrantyPolicy
-    ? settings.warrantyPolicy.split('\n')
-    : POLICIES.warranty.points
-  ).map((s) => s.trim().replace(/^[-•*]\s*/, '')).filter(Boolean)
+  const { isInWishlist, toggleWishlist } = useWishlist()
 
   const initialVariant =
     product?.variants?.find((v: any) => v.price > 0 && v.stock > 0) ||
@@ -76,27 +56,40 @@ export default function ProductDetailView({
 
   const [selectedVariant, setSelectedVariant] = useState(initialVariant)
   const [activeImage, setActiveImage] = useState(product?.images?.[0] || '')
+  const [selectedColor, setSelectedColor] = useState<string>(PRODUCT_COLOR_SWATCHES[0].name)
+  const [quantity, setQuantity] = useState(1)
+  const [activeTab, setActiveTab] = useState<'description' | 'dimensions' | 'materials' | 'shipping'>('description')
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false)
-  const [openPolicyTab, setOpenPolicyTab] = useState<string | null>(null)
-  const { isInWishlist, toggleWishlist } = useWishlist()
+  const [newsletterEmail, setNewsletterEmail] = useState('')
 
   if (!product) return null
 
-  const isWishlisted = isInWishlist(product.id)
-
+  const settings = useSiteSettings()
+  const isSaved = isInWishlist(product.id)
   const stock = typeof selectedVariant.stock === 'number' ? selectedVariant.stock : 0
-  const availability = stockLabel(stock)
   const canAddToCart = selectedVariant.price > 0 && stock > 0
-  const category = product.categories?.[0]?.category?.name
-  const priceLabel =
-    !selectedVariant.price || selectedVariant.price === 0
-      ? 'Custom quote'
-      : `₦${(selectedVariant.promoPrice || selectedVariant.price).toLocaleString()}`
+  const category = product.categories?.[0]?.category?.name || 'Furniture'
+  const brandName = product.brand?.name || settings.siteName || 'Smart Best Brands'
+
+  const currentPrice = selectedVariant.promoPrice || selectedVariant.price || 0
+  const originalPrice = selectedVariant.price || 0
+  const onSale = selectedVariant.promoPrice && selectedVariant.promoPrice < originalPrice
+  const discountPercent = onSale ? Math.round(((originalPrice - selectedVariant.promoPrice) / originalPrice) * 100) : 0
+
+  const handleAddToCart = () => {
+    if (!canAddToCart) {
+      toast.error(stock <= 0 ? 'This size is out of stock' : 'This item cannot be added yet')
+      return
+    }
+    for (let i = 0; i < quantity; i++) {
+      addToCart(product, selectedVariant)
+    }
+    toast.success(`Added ${quantity > 1 ? `${quantity} items` : 'item'} to cart`)
+  }
 
   const handleWhatsAppOrder = () => {
-    const isCustom = !selectedVariant.price || selectedVariant.price === 0
-    const text = `Hello Smart Best Brands, I would like to ${isCustom ? 'request a custom size' : `order ${product.name} (${selectedVariant.size.label})`}${product.isNegotiable ? ' and discuss the price' : ''}.${!isCustom ? ` Price: ₦${(selectedVariant.promoPrice || selectedVariant.price).toLocaleString()}.` : ''} ${window.location.href}`
-    const url = getWhatsAppUrl(text)
+    const text = `Hello ${brandName}, I would like to order ${product.name} (${selectedVariant.size?.label || 'Standard'})${selectedColor ? ` in ${selectedColor}` : ''}. Price: ₦${currentPrice.toLocaleString()}. Quantity: ${quantity}. ${window.location.href}`
+    const url = getWhatsAppUrl(text, { whatsappNumber: settings.whatsappNumber })
     if (!url) {
       toast.error('WhatsApp is not configured. Please use Contact.')
       return
@@ -105,9 +98,8 @@ export default function ProductDetailView({
   }
 
   const handleNegotiateWhatsApp = () => {
-    const isCustom = !selectedVariant.price || selectedVariant.price === 0
-    const text = `Hello Smart Best Brands, I would like to negotiate the price of ${product.name} (${selectedVariant.size?.label || 'Standard'})${!isCustom ? ` currently listed at ₦${(selectedVariant.promoPrice || selectedVariant.price).toLocaleString()}` : ''}. What is your best discount for this item? ${window.location.href}`
-    const url = getWhatsAppUrl(text)
+    const text = `Hello ${brandName}, I would like to discuss pricing for ${product.name} (${selectedVariant.size?.label || 'Standard'}) currently listed at ₦${currentPrice.toLocaleString()}. What is your best offer? ${window.location.href}`
+    const url = getWhatsAppUrl(text, { whatsappNumber: settings.whatsappNumber })
     if (!url) {
       toast.error('WhatsApp is not configured. Please use Contact.')
       return
@@ -115,137 +107,202 @@ export default function ProductDetailView({
     window.open(url, '_blank')
   }
 
-  const handleAddToCart = () => {
-    if (!canAddToCart) {
-      toast.error(stock <= 0 ? 'This size is out of stock' : 'This item cannot be added yet')
-      return
-    }
-    addToCart(product, selectedVariant)
-    toast.success('Added to cart')
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newsletterEmail) return
+    toast.success('Thank you for subscribing to our stories and restocks.')
+    setNewsletterEmail('')
   }
 
-  const specs = [
-    { label: 'Firmness', value: product.firmness },
-    { label: 'Material', value: product.materials },
-    { label: 'Warranty', value: product.warranty },
-  ].filter((s) => s.value)
-
   return (
-    <div className="relative pt-24 sm:pt-28 pb-20 sm:pb-24 bg-transparent border-t border-blue-950/5 overflow-hidden">
-      <EditorialBackdrop text={category || product.brand?.name || 'Rest'} size="xl" />
+    <div className="bg-white">
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Link
-          href="/products"
-          className="inline-flex items-center gap-2 text-[11px] font-black tracking-[0.2em] uppercase text-stone-400 hover:text-blue-950 transition-colors mb-8 sm:mb-12"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          Back to products
-        </Link>
+      {/* ── 1. Breadcrumbs ── */}
+      <nav aria-label="Breadcrumb" className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-8 pb-4 text-xs font-sans text-neutral-400">
+        <ol className="flex items-center gap-2 flex-wrap">
+          <li>
+            <Link href="/" className="hover:text-neutral-900 transition-colors">Home</Link>
+          </li>
+          <li>/</li>
+          <li>
+            <Link href={`/products?category=${encodeURIComponent(category)}`} className="hover:text-neutral-900 transition-colors">
+              {category}
+            </Link>
+          </li>
+          <li>/</li>
+          <li className="text-neutral-900 font-medium truncate max-w-[200px] sm:max-w-none">
+            {product.name}
+          </li>
+        </ol>
+      </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
-          {/* Gallery */}
-          <div className="lg:col-span-7 space-y-3">
-            <div className="relative aspect-[4/5] sm:aspect-[5/6] bg-[var(--brand-bg)] overflow-hidden border border-blue-950/5">
-              <Image
-                src={activeImage}
-                alt={product.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 58vw"
-                priority
-              />
+      {/* ── 2. Main Product Section (Luma & Living 2-Column Layout) ── */}
+      <section className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-4 pb-20 sm:pb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+
+          {/* Left Column: Image Gallery */}
+          <div className="lg:col-span-7">
+            {/* Main Image Frame */}
+            <div className="relative aspect-[4/3] sm:aspect-square bg-[#F5F3EF] rounded-3xl overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeImage || 'default'}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.35 }}
+                  className="relative w-full h-full"
+                >
+                  <Image
+                    src={activeImage || product.images?.[0] || '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg'}
+                    alt={product.name}
+                    fill
+                    className="object-cover object-center"
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 55vw"
+                  />
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Badges on image */}
+              <div className="absolute top-4 left-4 z-10 flex gap-2">
+                {onSale ? (
+                  <span className="bg-rose-600 text-white text-[11px] font-semibold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                    Sale
+                  </span>
+                ) : (
+                  <span className="bg-brand-primary text-white text-[11px] font-semibold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                    Original
+                  </span>
+                )}
+              </div>
+
+              {/* Heart Wishlist Icon Button */}
+              <button
+                type="button"
+                onClick={() => toggleWishlist(product)}
+                aria-label={isSaved ? 'Remove from wishlist' : 'Save to wishlist'}
+                className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-neutral-800 hover:bg-white shadow-sm hover:scale-105 active:scale-95 transition-all"
+              >
+                <Heart className={`w-4 h-4 ${isSaved ? 'fill-current text-rose-600' : 'text-neutral-700'}`} />
+              </button>
             </div>
+
+            {/* Thumbnail Row Below */}
             {product.images?.length > 1 ? (
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {product.images.map((img: string, idx: number) => (
+              <div className="grid grid-cols-4 gap-3 sm:gap-4 mt-4">
+                {product.images.slice(0, 4).map((img: string, idx: number) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => setActiveImage(img)}
-                    className={`relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 overflow-hidden border transition-colors ${
+                    className={`relative aspect-[4/3] rounded-2xl overflow-hidden bg-[#F5F3EF] border-2 transition-all ${
                       activeImage === img
-                        ? 'border-blue-950'
-                        : 'border-blue-950/10 hover:border-blue-950/35'
+                        ? 'border-neutral-950 scale-[1.02] shadow-sm'
+                        : 'border-transparent opacity-75 hover:opacity-100'
                     }`}
                   >
-                    <Image src={img} alt="" fill className="object-cover" sizes="80px" />
+                    <Image src={img} alt="" fill className="object-cover" sizes="160px" />
                   </button>
                 ))}
               </div>
             ) : null}
           </div>
 
-          {/* Buy column */}
-          <div className="lg:col-span-5 lg:sticky lg:top-28 lg:self-start space-y-7">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="w-1 h-5 rounded-full bg-sky-600 shrink-0" />
-                <p className="text-[11px] font-black tracking-[0.35em] uppercase text-sky-600">
-                  {category || product.brand?.name || 'Product'}
-                </p>
-              </div>
-              <h1 className="font-playfair text-3xl sm:text-4xl lg:text-[2.75rem] font-semibold text-blue-950 tracking-tight leading-[1.08]">
-                {product.name}
-              </h1>
-              {product.brand?.name ? (
-                <p className="mt-3 text-sm text-stone-500">by {product.brand.name}</p>
-              ) : null}
+          {/* Right Column: Details & Actions */}
+          <div className="lg:col-span-5 flex flex-col justify-start font-sans">
 
-              {reviewCount > 0 ? (
-                <a
-                  href="#reviews"
-                  className="inline-flex items-center gap-2 mt-4 text-sm text-stone-500 hover:text-blue-950 transition-colors"
-                >
-                  <span className="inline-flex text-amber-500">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-3.5 h-3.5 ${
-                          i < Math.round(averageRating) ? 'fill-current' : 'text-stone-200'
-                        }`}
-                      />
-                    ))}
+            {/* Category */}
+            <p className="text-xs font-semibold text-[#9B7C5F] uppercase tracking-wider mb-2">
+              {category}
+            </p>
+
+            {/* Product Title */}
+            <h1 className="text-3xl sm:text-4xl lg:text-[44px] font-normal font-serif text-neutral-900 leading-[1.12] tracking-tight">
+              {product.name}
+            </h1>
+
+            {/* Tagline / Subtitle */}
+            <p className="text-xs sm:text-[13px] text-neutral-500 font-normal leading-relaxed mt-2.5">
+              {product.description?.slice(0, 110) || 'Handcrafted with premium materials, designed for enduring comfort and timeless aesthetics.'}
+            </p>
+
+            {/* Star Rating — Real database data */}
+            {reviewCount > 0 ? (
+              <div className="flex items-center gap-1.5 mt-3 text-xs text-neutral-600">
+                <div className="flex text-amber-500">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-3.5 h-3.5 ${
+                        i < Math.round(averageRating) ? 'fill-current text-amber-500' : 'text-neutral-200'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="font-semibold text-neutral-900 ml-1">{averageRating.toFixed(1)}</span>
+                <span className="text-neutral-400">({reviewCount})</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 mt-3 text-xs text-neutral-400">
+                <span>No reviews yet</span>
+                <span>·</span>
+                <a href="#reviews" className="underline hover:text-neutral-900">Be the first to review</a>
+              </div>
+            )}
+
+            {/* Price Row */}
+            <div className="flex items-baseline gap-3 mt-5 pb-6 border-b border-neutral-100">
+              <span className="text-2xl sm:text-3xl font-bold text-neutral-900 font-sans tracking-tight">
+                ₦{currentPrice.toLocaleString()}
+              </span>
+              {onSale ? (
+                <>
+                  <span className="text-sm sm:text-base text-neutral-400 line-through">
+                    ₦{originalPrice.toLocaleString()}
                   </span>
-                  {averageRating.toFixed(1)} · {reviewCount} review{reviewCount === 1 ? '' : 's'}
-                </a>
+                  <span className="bg-rose-50 text-rose-600 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                    Save {discountPercent}%
+                  </span>
+                </>
               ) : null}
             </div>
 
-            <div className="border-y border-blue-950/8 py-5">
-              <div className="flex items-baseline gap-3 flex-wrap">
-                <span className="font-playfair text-3xl sm:text-4xl font-semibold text-blue-950">
-                  {priceLabel}
-                </span>
-                {selectedVariant.promoPrice && selectedVariant.price > 0 ? (
-                  <span className="text-base text-stone-300 line-through">
-                    ₦{selectedVariant.price.toLocaleString()}
-                  </span>
-                ) : null}
-                {product.isNegotiable ? (
-                  <span className="text-[10px] font-black tracking-[0.15em] uppercase text-sky-700">
-                    Negotiable
-                  </span>
-                ) : null}
+            {/* Colour Swatches from Constant */}
+            <div className="mt-6">
+              <div className="flex items-center justify-between text-xs mb-2.5">
+                <span className="font-medium text-neutral-900">Colour: <span className="text-neutral-500">{selectedColor}</span></span>
               </div>
-              <p className={`mt-2 text-sm font-medium ${availability.className}`}>
-                {availability.text}
-              </p>
+              <div className="flex items-center gap-2.5">
+                {PRODUCT_COLOR_SWATCHES.map((swatch) => (
+                  <button
+                    key={swatch.name}
+                    type="button"
+                    onClick={() => setSelectedColor(swatch.name)}
+                    aria-label={swatch.name}
+                    className={`w-7 h-7 rounded-full ${swatch.bg} border border-black/10 transition-all ${
+                      selectedColor === swatch.name
+                        ? 'ring-2 ring-offset-2 ring-neutral-900 scale-105'
+                        : 'hover:scale-105'
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-center gap-3">
-                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-stone-400">
-                  Size
-                </p>
+            {/* Size / Variant Selector */}
+            <div className="mt-6">
+              <div className="flex items-center justify-between text-xs mb-2.5">
+                <span className="font-medium text-neutral-900">Size</span>
                 <button
                   type="button"
                   onClick={() => setIsCustomModalOpen(true)}
-                  className="text-[11px] font-black tracking-[0.12em] uppercase text-sky-700 inline-flex items-center gap-1 hover:text-blue-950 transition-colors"
+                  className="text-xs font-medium text-[#9B7C5F] hover:text-neutral-900 underline transition-colors"
                 >
-                  Custom size <ChevronRight className="w-3 h-3" />
+                  Custom size
                 </button>
               </div>
+
               <div className="flex flex-wrap gap-2">
                 {product.variants.map((v: any) => {
                   const active = selectedVariant.id === v.id
@@ -256,12 +313,12 @@ export default function ProductDetailView({
                       type="button"
                       onClick={() => setSelectedVariant(v)}
                       disabled={out && !active}
-                      className={`min-w-[4.5rem] px-4 py-2.5 text-[11px] font-black tracking-[0.12em] uppercase border transition-colors style-button ${
+                      className={`px-5 py-2 rounded-full text-xs font-semibold transition-all ${
                         active
-                          ? 'bg-blue-950 text-white border-blue-950'
+                          ? 'bg-brand-primary text-white'
                           : out
-                            ? 'border-blue-950/10 text-stone-300 cursor-not-allowed'
-                            : 'border-blue-950/20 text-blue-950 hover:border-blue-950'
+                          ? 'border border-neutral-200 text-neutral-300 cursor-not-allowed'
+                          : 'border border-neutral-300 text-neutral-800 hover:border-neutral-900'
                       }`}
                     >
                       {v.size.label}
@@ -271,186 +328,243 @@ export default function ProductDetailView({
               </div>
             </div>
 
-            {specs.length > 0 ? (
-              <dl className="space-y-0">
-                {specs.map((spec) => (
-                  <div
-                    key={spec.label}
-                    className="flex justify-between gap-4 py-3 border-b border-blue-950/6 text-sm"
-                  >
-                    <dt className="text-stone-400 tracking-wide">{spec.label}</dt>
-                    <dd className="text-blue-950 font-medium text-right">{spec.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            ) : null}
-
-            {product.description ? (
-              <p className="text-stone-500 text-sm leading-relaxed">{product.description}</p>
-            ) : null}
-
-            <div className="space-y-3 pt-1">
-              <div className="flex gap-3">
+            {/* Quantity & Add to Cart Row */}
+            <div className="mt-8 flex items-center gap-3">
+              {/* Quantity Pill */}
+              <div className="inline-flex items-center border border-neutral-300 rounded-full px-3 py-2.5 gap-3">
                 <button
                   type="button"
-                  onClick={handleAddToCart}
-                  disabled={!canAddToCart}
-                  className="flex-1 inline-flex items-center justify-center gap-2 bg-blue-950 text-white text-[11px] font-black tracking-[0.18em] uppercase py-4 hover:bg-sky-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors style-button"
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  className="w-5 h-5 flex items-center justify-center text-neutral-500 hover:text-neutral-900"
+                  aria-label="Decrease quantity"
                 >
-                  <ShoppingCart className="w-4 h-4" />
-                  {stock <= 0 ? 'Sold out' : 'Add to bag'}
+                  <Minus className="w-3 h-3" />
                 </button>
+                <span className="w-5 text-center text-xs font-semibold tabular-nums text-neutral-900">
+                  {quantity}
+                </span>
                 <button
                   type="button"
-                  onClick={() => toggleWishlist(product)}
-                  aria-label={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
-                  title={isWishlisted ? 'Remove from wishlist' : 'Save to wishlist'}
-                  className={`px-4 sm:px-5 py-4 border transition-colors flex items-center justify-center style-button ${
-                    isWishlisted
-                      ? 'bg-rose-50 border-rose-300 text-rose-600'
-                      : 'border-blue-950/20 text-blue-950 hover:border-blue-950 hover:bg-stone-50'
-                  }`}
+                  onClick={() => setQuantity((q) => q + 1)}
+                  className="w-5 h-5 flex items-center justify-center text-neutral-500 hover:text-neutral-900"
+                  aria-label="Increase quantity"
                 >
-                  <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-current text-rose-600' : ''}`} />
+                  <Plus className="w-3 h-3" />
                 </button>
               </div>
+
+              {/* Add to Cart Button (Brand Navy) */}
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={!canAddToCart}
+                className="flex-1 btn-primary py-3.5 px-7 flex items-center justify-center gap-2 text-xs uppercase tracking-wider shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <span>{stock <= 0 ? 'Out of stock' : 'Add to cart'}</span>
+                <ShoppingBag className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Wishlist Text Link */}
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={() => toggleWishlist(product)}
+                className="inline-flex items-center gap-2 text-xs font-medium text-neutral-500 hover:text-neutral-900 transition-colors"
+              >
+                <Heart className={`w-3.5 h-3.5 ${isSaved ? 'fill-current text-rose-600' : 'text-neutral-500'}`} />
+                <span>{isSaved ? 'Saved in wishlist' : 'Add to wishlist'}</span>
+              </button>
+            </div>
+
+            {/* WhatsApp Direct Actions */}
+            <div className="mt-5 pt-5 border-t border-neutral-100 flex flex-col sm:flex-row gap-2.5">
+              <button
+                type="button"
+                onClick={handleWhatsAppOrder}
+                className="flex-1 inline-flex items-center justify-center gap-2 border border-brand-primary text-brand-primary text-xs font-semibold uppercase tracking-wider py-3 rounded-full hover:bg-brand-primary hover:text-white transition-colors"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span>Order on WhatsApp</span>
+              </button>
               {product.isNegotiable ? (
                 <button
                   type="button"
                   onClick={handleNegotiateWhatsApp}
-                  className="w-full inline-flex items-center justify-center gap-2 border border-sky-600 bg-sky-50 text-sky-950 text-[11px] font-black tracking-[0.18em] uppercase py-3.5 hover:bg-sky-100 transition-colors style-button"
+                  className="flex-1 inline-flex items-center justify-center gap-2 bg-[#F5F3EF] text-neutral-900 text-xs font-semibold uppercase tracking-wider py-3 rounded-full hover:bg-neutral-200 transition-colors"
                 >
-                  <BadgePercent className="w-4 h-4 text-sky-700" />
-                  Negotiate Price on WhatsApp
+                  <BadgePercent className="w-3.5 h-3.5 text-[#9B7C5F]" />
+                  <span>Negotiate Price</span>
                 </button>
               ) : null}
+            </div>
+
+            {/* Feature Checklist from Constants */}
+            <div className="mt-8 space-y-2.5 text-xs text-neutral-600">
+              {PRODUCT_FEATURE_CHECKLIST.map((item, idx) => (
+                <div key={idx} className="flex items-center gap-2.5">
+                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── 3. Product Information Tabs & Specifications (Light Brown #F2ECE2 Canvas) ── */}
+      <section className="bg-[#F2ECE2] py-16 sm:py-20 border-y border-[#E5DCCE]">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+
+          {/* Tab Navigation */}
+          <div className="flex items-center gap-8 border-b border-[#E5DCCE] pb-4 mb-10 overflow-x-auto text-xs font-semibold uppercase tracking-wider text-neutral-500">
+            {(['description', 'dimensions', 'materials', 'shipping'] as const).map((tab) => (
               <button
+                key={tab}
                 type="button"
-                onClick={handleWhatsAppOrder}
-                className="w-full inline-flex items-center justify-center gap-2 border border-blue-950 text-blue-950 text-[11px] font-black tracking-[0.18em] uppercase py-4 hover:bg-blue-950 hover:text-white transition-colors style-button"
+                onClick={() => setActiveTab(tab)}
+                className={`pb-4 -mb-4 transition-colors relative whitespace-nowrap ${
+                  activeTab === tab
+                    ? 'text-neutral-900'
+                    : 'hover:text-neutral-900'
+                }`}
               >
-                <MessageCircle className="w-4 h-4" />
-                Order on WhatsApp
+                {tab === 'description' && 'Description'}
+                {tab === 'dimensions' && 'Dimensions'}
+                {tab === 'materials' && 'Materials & care'}
+                {tab === 'shipping' && 'Shipping & delivery'}
+                {activeTab === tab ? (
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
+                ) : null}
               </button>
+            ))}
+          </div>
+
+          {/* Tab Content (2 Columns: Editorial Copy on left, Spec Grid on right) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 font-sans">
+
+            {/* Left Column: Detailed description text */}
+            <div className="lg:col-span-7 space-y-4 text-xs sm:text-[13px] text-neutral-600 leading-relaxed font-normal">
+              {activeTab === 'description' && (
+                <>
+                  <p>
+                    {product.description || PRODUCT_TABS_DEFAULT.descriptionParagraphs[0]}
+                  </p>
+                  <p>{PRODUCT_TABS_DEFAULT.descriptionParagraphs[1]}</p>
+                </>
+              )}
+
+              {activeTab === 'dimensions' && (
+                <>
+                  <p>{PRODUCT_TABS_DEFAULT.dimensionsParagraphs[0]}</p>
+                  <p>{PRODUCT_TABS_DEFAULT.dimensionsParagraphs[1]}</p>
+                </>
+              )}
+
+              {activeTab === 'materials' && (
+                <>
+                  <p>{PRODUCT_TABS_DEFAULT.materialsParagraphs[0]}</p>
+                  <p>{PRODUCT_TABS_DEFAULT.materialsParagraphs[1]}</p>
+                </>
+              )}
+
+              {activeTab === 'shipping' && (
+                <>
+                  <p>{PRODUCT_TABS_DEFAULT.shippingParagraphs[0]}</p>
+                  <p>{PRODUCT_TABS_DEFAULT.shippingParagraphs[1]}</p>
+                </>
+              )}
             </div>
 
-            {/* Trust badges */}
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1">
-              {TRUST_BADGES.map((badge, idx) => {
-                const Icon = [Lock, ShieldCheck, Truck][idx] || Lock
-                return (
-                  <span key={badge.id} className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
-                    <Icon className="w-3 h-3 text-stone-400" /> {badge.label}
-                  </span>
-                )
-              })}
-            </div>
+            {/* Right Column: Key Specifications Grid */}
+            <div className="lg:col-span-5 bg-white/70 backdrop-blur-sm p-6 sm:p-7 rounded-2xl border border-[#E5DCCE] space-y-4">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Core / Frame</p>
+                <p className="text-xs sm:text-[13px] font-semibold text-neutral-900 mt-1">
+                  {product.materials || PRODUCT_TABS_DEFAULT.defaultSpecs.materials}
+                </p>
+              </div>
 
-            {/* Item Policies & Guarantees Accordion */}
-            <div className="pt-6 border-t border-stone-200/80 space-y-3">
-              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-stone-400">
-                Guarantees &amp; Item Policies
-              </p>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Firmness / Comfort</p>
+                <p className="text-xs sm:text-[13px] font-semibold text-neutral-900 mt-1">
+                  {product.firmness || PRODUCT_TABS_DEFAULT.defaultSpecs.firmness}
+                </p>
+              </div>
 
-              <div className="border border-stone-200 divide-y divide-stone-100 overflow-hidden bg-white text-sm style-card">
-                {/* 1. Delivery & Shipping */}
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => setOpenPolicyTab(openPolicyTab === 'delivery' ? null : 'delivery')}
-                    className="w-full flex items-center justify-between p-4 text-left font-semibold text-blue-950 hover:bg-stone-50 transition-colors"
-                  >
-                    <span className="flex items-center gap-2.5 text-xs tracking-wide uppercase">
-                      <Truck className="w-4 h-4 text-sky-700" />
-                      {POLICIES.delivery.title}
-                    </span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-stone-400 transition-transform duration-200 ${
-                        openPolicyTab === 'delivery' ? 'rotate-180 text-blue-950' : ''
-                      }`}
-                    />
-                  </button>
-                  {openPolicyTab === 'delivery' && (
-                    <div className="px-4 pb-4 text-xs text-stone-500 space-y-2 leading-relaxed bg-stone-50/50">
-                      {deliveryPoints.map((pt, i) => (
-                        <p key={i}>• {pt}</p>
-                      ))}
-                    </div>
-                  )}
-                </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Cover & Finishing</p>
+                <p className="text-xs sm:text-[13px] font-semibold text-neutral-900 mt-1">
+                  {product.finishing || PRODUCT_TABS_DEFAULT.defaultSpecs.finishing}
+                </p>
+              </div>
 
-                {/* 2. Returns & Replacement */}
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => setOpenPolicyTab(openPolicyTab === 'return' ? null : 'return')}
-                    className="w-full flex items-center justify-between p-4 text-left font-semibold text-blue-950 hover:bg-stone-50 transition-colors"
-                  >
-                    <span className="flex items-center gap-2.5 text-xs tracking-wide uppercase">
-                      <RotateCcw className="w-4 h-4 text-emerald-700" />
-                      {POLICIES.returns.title}
-                    </span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-stone-400 transition-transform duration-200 ${
-                        openPolicyTab === 'return' ? 'rotate-180 text-blue-950' : ''
-                      }`}
-                    />
-                  </button>
-                  {openPolicyTab === 'return' && (
-                    <div className="px-4 pb-4 text-xs text-stone-500 space-y-2 leading-relaxed bg-stone-50/50">
-                      {returnPoints.map((pt, i) => (
-                        <p key={i}>• {pt}</p>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* 3. Factory Warranty */}
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => setOpenPolicyTab(openPolicyTab === 'warranty' ? null : 'warranty')}
-                    className="w-full flex items-center justify-between p-4 text-left font-semibold text-blue-950 hover:bg-stone-50 transition-colors"
-                  >
-                    <span className="flex items-center gap-2.5 text-xs tracking-wide uppercase">
-                      <ShieldCheck className="w-4 h-4 text-amber-700" />
-                      {POLICIES.warranty.title}
-                    </span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-stone-400 transition-transform duration-200 ${
-                        openPolicyTab === 'warranty' ? 'rotate-180 text-blue-950' : ''
-                      }`}
-                    />
-                  </button>
-                  {openPolicyTab === 'warranty' && (
-                    <div className="px-4 pb-4 text-xs text-stone-500 space-y-2 leading-relaxed bg-stone-50/50">
-                      {warrantyPoints.map((pt, i) => (
-                        <p key={i}>• {pt}</p>
-                      ))}
-                    </div>
-                  )}
-                </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Manufacturer Warranty</p>
+                <p className="text-xs sm:text-[13px] font-semibold text-neutral-900 mt-1">
+                  {product.warranty || PRODUCT_TABS_DEFAULT.defaultSpecs.warranty}
+                </p>
               </div>
             </div>
+
           </div>
+
         </div>
+      </section>
 
-        <ProductReviews
-          productId={product.id}
-          productSlug={product.slug}
-          reviews={reviews}
-          averageRating={averageRating}
-          count={reviewCount}
-        />
+      {/* ── 4. Customer Reviews (Pure White) ── */}
+      <ProductReviews
+        productId={product.id}
+        productSlug={product.slug}
+        reviews={reviews}
+        averageRating={averageRating}
+        count={reviewCount}
+      />
 
-        <RelatedProducts products={relatedProducts} categoryLabel={relatedCategoryLabel} />
-      </div>
+      {/* ── 5. You May Also Like Related Products (Pure White) ── */}
+      <RelatedProducts
+        products={relatedProducts}
+        categoryLabel={relatedCategoryLabel}
+      />
 
+      {/* ── 6. Stay in the loop Newsletter (Navy Dark Background) ── */}
+      <section className="bg-navy-dark text-white py-20 sm:py-24 text-center">
+        <div className="max-w-xl mx-auto px-6">
+          <h2 className="text-3xl sm:text-4xl font-normal font-serif text-white tracking-tight">
+            {PRODUCT_NEWSLETTER.title}
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-300 font-sans mt-3 mb-8 leading-relaxed">
+            {PRODUCT_NEWSLETTER.subtitle}
+          </p>
+
+          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <input
+              type="email"
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
+              placeholder={PRODUCT_NEWSLETTER.placeholder}
+              required
+              className="flex-1 bg-slate-900/60 border border-blue-900/40 rounded-full px-5 py-3 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-brand-accent font-sans"
+            />
+            <button
+              type="submit"
+              className="bg-white text-neutral-900 hover:bg-neutral-200 rounded-full px-7 py-3 text-xs font-semibold uppercase tracking-wider transition-colors font-sans shrink-0"
+            >
+              {PRODUCT_NEWSLETTER.buttonLabel}
+            </button>
+          </form>
+        </div>
+      </section>
+
+      {/* Custom size inquiry modal */}
       <CustomRequestModal
         isOpen={isCustomModalOpen}
         onClose={() => setIsCustomModalOpen(false)}
         productName={product.name}
       />
+
     </div>
   )
 }

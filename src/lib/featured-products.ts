@@ -1,4 +1,4 @@
-/** Minimal shape needed to choose featured items from Prisma or mock products. */
+/** Minimal shape needed to choose featured items from database products. */
 export type FeaturedPickable = {
   id: string
   images?: string[] | null

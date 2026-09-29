@@ -28,7 +28,7 @@ export default function FAQsClient() {
           <motion.span
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-sky-600 font-black tracking-[0.3em] text-xs uppercase mb-4 block"
+            className="text-[var(--brand-accent)] font-bold tracking-[0.3em] text-xs uppercase mb-4 block"
           >
             Help &amp; FAQs
           </motion.span>
@@ -36,7 +36,7 @@ export default function FAQsClient() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 }}
-            className="font-display text-4xl sm:text-6xl font-semibold text-blue-950 tracking-tight leading-[1.05]"
+            className="font-display text-4xl sm:text-6xl font-semibold text-neutral-900 tracking-tight leading-[1.05]"
           >
             Frequently asked
           </motion.h1>
@@ -53,8 +53,8 @@ export default function FAQsClient() {
               transition={{ delay: idx * 0.07 }}
               className={`border transition-colors duration-300 overflow-hidden style-card ${
                 openIndex === idx
-                  ? 'border-blue-950/20 bg-white'
-                  : 'border-stone-100 bg-stone-50/50 hover:border-blue-950/15'
+                  ? 'border-neutral-900/20 bg-white'
+                  : 'border-stone-100 bg-stone-50/50 hover:border-neutral-900/15'
               }`}
             >
               <button
@@ -63,13 +63,13 @@ export default function FAQsClient() {
                 aria-expanded={openIndex === idx}
               >
                 <span className={`text-base sm:text-lg font-semibold transition-colors duration-200 pr-6 leading-snug ${
-                  openIndex === idx ? 'text-blue-950' : 'text-stone-600'
+                  openIndex === idx ? 'text-neutral-900' : 'text-stone-600'
                 }`}>
                   {faq.question}
                 </span>
                 <span className={`shrink-0 p-2 border transition-all duration-200 style-button ${
                   openIndex === idx
-                    ? 'bg-blue-950 text-white border-blue-950'
+                    ? 'bg-brand-primary text-white border-brand-primary'
                     : 'bg-white text-stone-400 border-stone-200'
                 }`}>
                   {openIndex === idx
@@ -88,7 +88,7 @@ export default function FAQsClient() {
                     transition={{ duration: 0.3, ease: 'easeOut' }}
                   >
                     <div className="px-6 pb-6 pt-0">
-                      <div className="h-px w-10 bg-sky-600 mb-4" />
+                      <div className="h-px w-10 bg-[var(--brand-accent)] mb-4" />
                       <p className="text-sm sm:text-base text-stone-500 leading-relaxed">
                         {faq.answer}
                       </p>
@@ -100,26 +100,26 @@ export default function FAQsClient() {
           ))}
         </div>
 
-        {/* Bottom CTA — no blur circle */}
+        {/* Bottom CTA */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-20 p-10 sm:p-14 bg-blue-950 text-white style-card"
+          className="mt-20 p-10 sm:p-14 bg-navy-dark text-white rounded-3xl"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
               <h2 className="font-display text-2xl sm:text-3xl font-semibold mb-3">
                 Still have questions?
               </h2>
-              <p className="text-sky-200/80 text-sm leading-relaxed">
+              <p className="text-white/60 text-sm leading-relaxed">
                 Our team is on WhatsApp and phone during business hours (8AM – 8PM WAT).
               </p>
             </div>
             <div className="flex md:justify-end">
               <a
                 href="/contact"
-                className="inline-flex items-center gap-3 bg-white text-blue-950 px-8 py-4 text-[11px] font-black tracking-[0.2em] uppercase hover:bg-sky-50 transition-colors style-button"
+                className="inline-flex items-center gap-3 bg-white text-neutral-950 px-8 py-4 text-[11px] font-bold tracking-[0.2em] uppercase rounded-full hover:bg-neutral-100 transition-colors shadow-sm"
               >
                 <MessageCircle className="w-4 h-4" />
                 Get in touch

@@ -12,14 +12,29 @@ import {
   HeadphonesIcon
 } from 'lucide-react';
 import { DELIVERY_STEPS, DELIVERY_ZONES } from '@/lib/constants';
+import { useSiteSettings } from '@/components/site-settings-context';
 
 const STEP_ICONS = [Package, ShieldCheck, Truck];
 
 export default function DeliveryPage() {
+  const settings = useSiteSettings()
+
+  // Parse policy text — each line is a bullet point
+  const deliveryBullets = settings.deliveryPolicy
+    ? settings.deliveryPolicy.split('\n').map(l => l.trim()).filter(Boolean)
+    : []
+  const returnBullets = settings.returnPolicy
+    ? settings.returnPolicy.split('\n').map(l => l.trim()).filter(Boolean)
+    : []
+  const warrantyBullets = settings.warrantyPolicy
+    ? settings.warrantyPolicy.split('\n').map(l => l.trim()).filter(Boolean)
+    : []
+
+  const hasPolicies = deliveryBullets.length > 0 || returnBullets.length > 0 || warrantyBullets.length > 0
   return (
     <div className="bg-white min-h-screen">
       {/* Header Section */}
-      <div className="pt-32 pb-20 sm:pt-48 sm:pb-32 bg-blue-950 relative overflow-hidden">
+      <div className="pt-32 pb-20 sm:pt-48 sm:pb-32 bg-navy-dark relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -27,18 +42,76 @@ export default function DeliveryPage() {
             className="max-w-3xl"
           >
             <h1 className="text-5xl sm:text-7xl font-black text-white tracking-tight mb-8 leading-none">
-              DELIVERY & <span className="text-sky-400">SHIPPING.</span>
+              DELIVERY & <span className="text-[var(--brand-accent)]">SHIPPING.</span>
             </h1>
-            <p className="text-xl text-sky-100/80 font-medium leading-relaxed max-w-2xl">
+            <p className="text-xl text-white/70 font-medium leading-relaxed max-w-2xl">
               We deliver genuine mattresses and furniture safely to your doorstep across Abuja, Benin City, Lagos, and nationwide.
             </p>
           </motion.div>
         </div>
-
-        {/* Decorative Elements */}
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-sky-600/20 to-transparent"></div>
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl"></div>
       </div>
+
+      {/* Dynamic Policy Text from Site Appearance (live preview) */}
+      {hasPolicies && (
+        <div id="policies" className="py-16 sm:py-20 max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {deliveryBullets.length > 0 && (
+              <div className="p-8 bg-stone-50 rounded-3xl border border-stone-100">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-xl bg-blue-950 flex items-center justify-center shrink-0">
+                    <Truck className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-base font-black text-blue-950 uppercase tracking-tight">Delivery</h3>
+                </div>
+                <ul className="space-y-2.5">
+                  {deliveryBullets.map((b, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-stone-600 leading-relaxed">
+                      <span className="text-[var(--brand-accent)] font-black mt-0.5 shrink-0">✓</span>
+                      <span>{b.replace(/^[-•*]\s*/, '')}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {returnBullets.length > 0 && (
+              <div className="p-8 bg-stone-50 rounded-3xl border border-stone-100">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-xl bg-blue-950 flex items-center justify-center shrink-0">
+                    <Package className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-base font-black text-blue-950 uppercase tracking-tight">Returns</h3>
+                </div>
+                <ul className="space-y-2.5">
+                  {returnBullets.map((b, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-stone-600 leading-relaxed">
+                      <span className="text-[var(--brand-accent)] font-black mt-0.5 shrink-0">✓</span>
+                      <span>{b.replace(/^[-•*]\s*/, '')}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {warrantyBullets.length > 0 && (
+              <div className="p-8 bg-stone-50 rounded-3xl border border-stone-100">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-10 h-10 rounded-xl bg-blue-950 flex items-center justify-center shrink-0">
+                    <ShieldCheck className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-base font-black text-blue-950 uppercase tracking-tight">Warranty</h3>
+                </div>
+                <ul className="space-y-2.5">
+                  {warrantyBullets.map((b, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-stone-600 leading-relaxed">
+                      <span className="text-[var(--brand-accent)] font-black mt-0.5 shrink-0">✓</span>
+                      <span>{b.replace(/^[-•*]\s*/, '')}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Delivery Process (Editorial Style) */}
       <div className="py-24 sm:py-32 max-w-7xl mx-auto px-4 font-sans">
@@ -52,12 +125,12 @@ export default function DeliveryPage() {
               transition={{ delay: idx * 0.1 }}
               className="group"
             >
-              <div className="text-8xl font-black text-slate-50 mb-6 group-hover:text-sky-50 transition-colors duration-500 font-display">
+              <div className="text-8xl font-black text-slate-50 mb-6 group-hover:text-stone-100 transition-colors duration-500 font-display">
                 {step.number}
               </div>
-              <div className="relative -mt-16 sm:-mt-20 pl-4 sm:pl-6 border-l-4 border-sky-600">
-                <h3 className="text-2xl font-black text-blue-950 mb-4 tracking-tight uppercase">{step.title}</h3>
-                <p className="text-slate-500 leading-relaxed font-medium font-inter">
+              <div className="relative -mt-16 sm:-mt-20 pl-4 sm:pl-6 border-l-4 border-[var(--brand-accent)]">
+                <h3 className="text-2xl font-black text-neutral-900 mb-4 tracking-tight uppercase">{step.title}</h3>
+                <p className="text-neutral-500 leading-relaxed font-medium font-inter">
                   {step.description}
                 </p>
               </div>
@@ -70,15 +143,15 @@ export default function DeliveryPage() {
       <div className="bg-slate-50 py-24 sm:py-32 font-sans">
         <div className="max-w-7xl mx-auto px-4">
           <div className="mb-16">
-            <h2 className="text-4xl font-black text-blue-950 mb-4 uppercase tracking-tighter font-display">Delivery Locations & Rates</h2>
-            <div className="w-20 h-2 bg-sky-600"></div>
+            <h2 className="text-4xl font-black text-neutral-900 mb-4 uppercase tracking-tighter font-display">Delivery Locations & Rates</h2>
+            <div className="w-20 h-2 bg-[var(--brand-accent)]"></div>
           </div>
 
-          <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-blue-950/5 overflow-hidden border border-slate-100">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-black/5 overflow-hidden border border-slate-100">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-blue-950 text-white">
+                  <tr className="bg-navy-dark text-white">
                     <th className="p-8 font-black uppercase tracking-[0.2em] text-[10px]">Location</th>
                     <th className="p-8 font-black uppercase tracking-[0.2em] text-[10px]">Delivery Fee</th>
                     <th className="p-8 font-black uppercase tracking-[0.2em] text-[10px]">Estimated Time</th>
@@ -90,10 +163,10 @@ export default function DeliveryPage() {
                     <tr key={idx} className="group hover:bg-slate-50 transition-colors">
                       <td className="p-8">
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-sky-600 group-hover:bg-white transition-colors">
+                          <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-[var(--brand-accent)] group-hover:bg-white transition-colors">
                             <MapPin className="w-5 h-5" />
                           </div>
-                          <span className="font-black text-blue-950 text-xl tracking-tight">{zone.city}</span>
+                          <span className="font-black text-neutral-900 text-xl tracking-tight">{zone.city}</span>
                         </div>
                       </td>
                       <td className="p-8 text-slate-500 font-black tabular-nums">{zone.price}</td>

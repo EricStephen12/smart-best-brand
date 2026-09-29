@@ -212,7 +212,6 @@ export default function AccountLayout({
         <NavItem href="/account/customers" icon={Users} active={pathname.startsWith('/account/customers')} onClick={closeSidebar}>Users &amp; Roles</NavItem>
         <NavItem href="/account/delivery-locations" icon={MapPin} active={pathname.startsWith('/account/delivery-locations')} onClick={closeSidebar}>Delivery Regions</NavItem>
         <NavItem href="/account/promotions" icon={Percent} active={pathname.startsWith('/account/promotions')} onClick={closeSidebar}>Promotions</NavItem>
-        <NavItem href="/account/banners" icon={ImageIcon} active={pathname.startsWith('/account/banners')} onClick={closeSidebar}>Banners</NavItem>
         <NavItem href="/account/reviews" icon={Star} active={pathname.startsWith('/account/reviews')} onClick={closeSidebar}>Reviews</NavItem>
         <NavItem href="/account/contact-inquiries" icon={MessageSquare} active={pathname.startsWith('/account/contact-inquiries')} onClick={closeSidebar}>Contact Inquiries</NavItem>
         <NavItem href="/account/site" icon={Palette} active={pathname.startsWith('/account/site')} onClick={closeSidebar}>Site Appearance</NavItem>

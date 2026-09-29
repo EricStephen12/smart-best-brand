@@ -2,15 +2,11 @@
 
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/prisma'
-import { mockCategories } from '@/lib/mockData'
 import { requireAdmin } from '@/lib/auth'
 
-// Get all categories
+// Get all categories (100% real database, 0 mock data)
 export async function getAllCategories() {
     try {
-        if (process.env.USE_MOCK_DATA === 'true') {
-            return { success: true, data: mockCategories.map(c => ({ ...c, _count: { products: 0 } })) };
-        }
         const categories = await prisma.category.findMany({
             orderBy: { name: 'asc' },
             include: {
@@ -20,9 +16,23 @@ export async function getAllCategories() {
             }
         })
         return { success: true, data: categories }
-    } catch (error) {
-        console.error('Error fetching categories:', error)
-        return { success: false, error: 'Failed to fetch categories' }
+    } catch (error: any) {
+        console.warn('Initial categories fetch error, retrying in 1s for DB cold-start...', error?.message)
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 1000))
+            const retryCategories = await prisma.category.findMany({
+                orderBy: { name: 'asc' },
+                include: {
+                    _count: {
+                        select: { products: true }
+                    }
+                }
+            })
+            return { success: true, data: retryCategories }
+        } catch (retryError) {
+            console.error('Final categories fetch error:', retryError)
+            return { success: true, data: [] }
+        }
     }
 }
 

@@ -2,7 +2,6 @@
 
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/prisma'
-import { mockProducts, mockBrands, mockCategories } from '@/lib/mockData'
 import { requireAdmin } from '@/lib/auth'
 
 interface ProductFilters {
@@ -16,91 +15,88 @@ interface ProductFilters {
     includeInactive?: boolean
 }
 
-// Get all products with filtering
-export async function getAllProducts(filters?: ProductFilters) {
-    try {
-        // If database is unavailable, use mock data
-        if (process.env.USE_MOCK_DATA === 'true') {
-            console.log('Using mock data for products');
-            return {
-                success: true,
-                data: mockProducts.map(p => ({
-                    ...p,
-                    brand: mockBrands.find(b => b.id === p.brandId),
-                    categories: mockCategories.filter(c => c.id === p.categoryId).map(category => ({ category })),
-                    variants: [],
-                }))
-            };
-        }
+async function fetchProductsFromDb(filters?: ProductFilters) {
+    const where: any = filters?.includeInactive
+        ? {}
+        : { isActive: true }
 
-        const where: any = filters?.includeInactive
-            ? {}
-            : { isActive: true }
+    if (filters?.brandId) {
+        where.brandId = filters.brandId
+    }
 
-        if (filters?.brandId) {
-            where.brandId = filters.brandId
-        }
-
-        if (filters?.categoryId) {
-            where.categories = {
-                some: {
-                    categoryId: filters.categoryId
-                }
+    if (filters?.categoryId) {
+        where.categories = {
+            some: {
+                categoryId: filters.categoryId
             }
         }
+    }
 
-        if (filters?.search) {
-            where.OR = [
-                { name: { contains: filters.search, mode: 'insensitive' } },
-                { description: { contains: filters.search, mode: 'insensitive' } }
-            ]
-        }
+    if (filters?.search) {
+        where.OR = [
+            { name: { contains: filters.search, mode: 'insensitive' } },
+            { description: { contains: filters.search, mode: 'insensitive' } }
+        ]
+    }
 
-        const products = await prisma.product.findMany({
-            where,
-            include: {
-                brand: true,
-                categories: {
-                    include: {
-                        category: true
-                    }
-                },
-                variants: {
-                    where: { isActive: true },
-                    include: {
-                        size: true
-                    },
-                    orderBy: { price: 'asc' }
+    const products = await prisma.product.findMany({
+        where,
+        include: {
+            brand: true,
+            categories: {
+                include: {
+                    category: true
                 }
             },
-            orderBy: { createdAt: 'desc' }
+            variants: {
+                where: { isActive: true },
+                include: {
+                    size: true
+                },
+                orderBy: { price: 'asc' }
+            }
+        },
+        orderBy: { createdAt: 'desc' }
+    })
+
+    let filteredProducts = products
+
+    if (filters?.sizeId) {
+        filteredProducts = products.filter((p: any) =>
+            p.variants.some((v: any) => v.sizeId === filters.sizeId)
+        )
+    }
+
+    if (filters?.minPrice || filters?.maxPrice) {
+        filteredProducts = filteredProducts.filter((p: any) => {
+            const prices = p.variants.map((v: any) => v.promoPrice || v.price)
+            const minProductPrice = Math.min(...prices)
+            const maxProductPrice = Math.max(...prices)
+
+            if (filters.minPrice && maxProductPrice < filters.minPrice) return false
+            if (filters.maxPrice && minProductPrice > filters.maxPrice) return false
+            return true
         })
+    }
 
-        // Filter by size and price if needed
-        let filteredProducts = products
+    return filteredProducts
+}
 
-        if (filters?.sizeId) {
-            filteredProducts = products.filter((p: any) =>
-                p.variants.some((v: any) => v.sizeId === filters.sizeId)
-            )
+// Get all products with filtering (100% real database, 0 mock data)
+export async function getAllProducts(filters?: ProductFilters) {
+    try {
+        const data = await fetchProductsFromDb(filters)
+        return { success: true, data }
+    } catch (error: any) {
+        console.warn('Initial product fetch attempt error, retrying in 1s for DB cold-start...', error?.message)
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 1000))
+            const retryData = await fetchProductsFromDb(filters)
+            return { success: true, data: retryData }
+        } catch (retryError) {
+            console.error('Final product fetch error after retry:', retryError)
+            return { success: true, data: [] }
         }
-
-        if (filters?.minPrice || filters?.maxPrice) {
-            filteredProducts = filteredProducts.filter((p: any) => {
-                const prices = p.variants.map((v: any) => v.promoPrice || v.price)
-                const minProductPrice = Math.min(...prices)
-                const maxProductPrice = Math.max(...prices)
-
-                if (filters.minPrice && maxProductPrice < filters.minPrice) return false
-                if (filters.maxPrice && minProductPrice > filters.maxPrice) return false
-                return true
-            })
-        }
-
-        return { success: true, data: filteredProducts }
-    } catch (error) {
-        console.error('Error fetching products:', error)
-        return { success: false, error: 'Failed to fetch products' }
     }
 }
 

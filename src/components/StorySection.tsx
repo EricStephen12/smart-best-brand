@@ -4,7 +4,6 @@ import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import EditorialBackdrop from '@/components/EditorialBackdrop'
 import { useSiteSettings } from '@/components/site-settings-context'
 import { STORY_CONTENT } from '@/lib/constants'
 
@@ -20,118 +19,102 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
   const secondaryText = settings.storySecondaryText || STORY_CONTENT.secondaryText
   const mainImage = settings.storyImageUrl || '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg'
 
-  // Stats
   const statOneBadge = settings.statOneBadge || STORY_CONTENT.stats.statOneBadge
   const statOneValue = settings.statOneValue || (brandCount ? brandCount.toString().padStart(2, '0') : STORY_CONTENT.stats.statOneValue)
   const statTwoBadge = settings.statTwoBadge || STORY_CONTENT.stats.statTwoBadge
+  let customStyleComfort: any = null
+  try {
+    if (settings.styleComfortJson) {
+      customStyleComfort = JSON.parse(settings.styleComfortJson)
+    }
+  } catch {}
+
+  const secondaryImage = customStyleComfort?.storySecondaryImage || '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg'
   const statTwoValue = settings.statTwoValue || STORY_CONTENT.stats.statTwoValue
   const storyLinkLabel = settings.storyLinkLabel || STORY_CONTENT.storyLinkLabel
 
   return (
-    <section ref={containerRef} id="story" className="relative py-16 sm:py-24 md:py-28 bg-transparent overflow-hidden border-y border-blue-950/5 scroll-mt-16">
-      <EditorialBackdrop text={settings.storyBackdropWord || "Rest"} size="xl" />
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section ref={containerRef} id="story" className="bg-[#F2ECE2] py-20 sm:py-24 md:py-28 scroll-mt-16">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
 
-        {/* Editorial Layout 1 */}
-        <div id="story-1" className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center mb-16 sm:mb-24 md:mb-28 scroll-mt-24">
-
-          {/* Main Large Image */}
-          <div className="lg:col-span-7">
+        {/* Layout 1 — Image + overlapping text */}
+        <div id="story-1" className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center mb-20 sm:mb-28">
+          {/* Image */}
+          <div className="lg:order-1">
             <RevealImage
               src={mainImage}
               alt={storyTitle}
-              className="aspect-[4/5] md:aspect-[16/10] style-card"
+              className="aspect-[4/5] md:aspect-[5/4] rounded-3xl"
             />
           </div>
 
-          {/* Overlapping Text Content */}
-          <div className="lg:col-span-5 lg:-ml-24 z-10 relative">
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-              viewport={{ once: true }}
-              className="bg-white/95 backdrop-blur-md border border-blue-950/5 p-8 sm:p-12 md:p-16 space-y-6 sm:space-y-8 shadow-xl shadow-blue-950/5 style-card"
-            >
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-1 h-8 bg-sky-600 rounded-full" />
-                <span className="text-sm sm:text-xl md:text-2xl font-black tracking-[0.5em] text-sky-600 uppercase">{storyBadge}</span>
+          {/* Text */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            viewport={{ once: true }}
+            className="lg:order-2 space-y-6"
+          >
+            <p className="section-label">{storyBadge}</p>
+            <h2 className="section-title">{storyTitle}</h2>
+            <p className="text-base text-neutral-500 leading-relaxed">
+              {storyText}
+            </p>
+            <div className="w-10 h-px bg-neutral-300" />
+
+            {/* Stats */}
+            <div className="flex gap-10 pt-2">
+              <div>
+                <p className="text-4xl font-semibold text-neutral-900 font-display tracking-tight">{statOneValue}</p>
+                <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-widest mt-1">{statOneBadge}</p>
               </div>
-              <h3 className="text-4xl md:text-6xl font-black text-blue-950 tracking-[-0.04em] leading-[0.9]">
-                {storyTitle}
-              </h3>
-              <p className="text-lg text-stone-500 font-medium leading-[1.6]">
-                {storyText}
-              </p>
-              <div className="pt-4">
-                <div className="w-12 h-[1px] bg-blue-950"></div>
+              <div>
+                <p className="text-4xl font-semibold text-neutral-900 font-display tracking-tight">{statTwoValue}</p>
+                <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-widest mt-1">{statTwoBadge}</p>
               </div>
-            </motion.div>
-          </div>
+            </div>
+
+            <Link href="/about" className="inline-flex items-center gap-2 text-sm font-medium text-neutral-900 hover:text-neutral-500 transition-colors">
+              {storyLinkLabel || 'Learn more'} <span>→</span>
+            </Link>
+          </motion.div>
         </div>
 
-        {/* Editorial Layout 2 */}
-        <div id="story-2" className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center scroll-mt-24">
+        {/* Layout 2 — "Style Meets Comfort" row */}
+        <div id="story-2" className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          {/* Text left */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.15 }}
+            viewport={{ once: true }}
+            className="space-y-6 order-2 lg:order-1"
+          >
+            <p className="section-label">{secondaryBadge}</p>
+            <h2 className="section-title">{secondaryTitle}</h2>
+            <p className="text-base text-neutral-500 leading-relaxed">{secondaryText}</p>
 
-          {/* Content Left */}
-          <div className="lg:col-span-5 order-2 lg:order-1">
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1, delay: 0.2 }}
-              viewport={{ once: true }}
-              className="space-y-10"
-            >
-              <div>
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-1 h-8 bg-sky-600 rounded-full" />
-                  <span className="text-sm sm:text-xl md:text-2xl font-black tracking-[0.5em] text-sky-600 uppercase">{secondaryBadge}</span>
-                </div>
-                <h3 className="text-4xl md:text-6xl font-black text-blue-950 tracking-[-0.04em] leading-[0.9]">
-                  {secondaryTitle}
-                </h3>
-              </div>
+            <Link href="/about" className="inline-flex items-center gap-2 text-sm font-medium text-neutral-900 hover:text-neutral-500 transition-colors">
+              {storyLinkLabel || 'Learn more'} <span>→</span>
+            </Link>
+          </motion.div>
 
-              <p className="text-lg text-stone-500 font-medium leading-[1.6]">
-                {secondaryText}
-              </p>
-
-              <div id="story-stats" className="flex gap-12 scroll-mt-24">
-                <div>
-                  <h4 className="font-black text-4xl text-blue-950 leading-none mb-2">{statOneValue}</h4>
-                  <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">{statOneBadge}</p>
-                </div>
-                <div>
-                  <h4 className="font-black text-4xl text-blue-950 leading-none mb-2">{statTwoValue}</h4>
-                  <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">{statTwoBadge}</p>
-                </div>
-              </div>
-
-              <div className="pt-6">
-                <Link href="/about" className="text-[10px] font-black tracking-[0.3em] text-blue-950 uppercase border-b-2 border-sky-600 pb-2 hover:text-sky-600 transition-colors inline-block">
-                  {storyLinkLabel}
-                </Link>
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Images Right */}
-          <div className="lg:col-span-7 order-1 lg:order-2 relative">
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-8">
-                <RevealImage
-                  src="/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg"
-                  alt="A bedroom styled with quality furniture and bedding"
-                  className="aspect-square rounded-xl"
-                />
-              </div>
-              <div className="col-span-4 self-end">
-                <RevealImage
-                  src="/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg"
-                  alt="Premium bedding and mattress texture"
-                  className="aspect-[3/4] rounded-lg"
-                />
-              </div>
+          {/* Images right */}
+          <div className="order-1 lg:order-2 grid grid-cols-12 gap-4">
+            <div className="col-span-7">
+              <RevealImage
+                src={secondaryImage}
+                alt="Premium bedroom furniture"
+                className="aspect-square rounded-3xl"
+              />
+            </div>
+            <div className="col-span-5 self-end">
+              <RevealImage
+                src="/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg"
+                alt="Premium mattress"
+                className="aspect-[3/4] rounded-2xl"
+              />
             </div>
           </div>
         </div>
@@ -141,16 +124,16 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
   )
 }
 
-function RevealImage({ src, alt, className }: { src: string, alt: string, className: string }) {
+function RevealImage({ src, alt, className }: { src: string; alt: string; className: string }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
     <div ref={ref} className={`relative overflow-hidden group ${className}`}>
       <motion.div
-        initial={{ scale: 1.2 }}
+        initial={{ scale: 1.12 }}
         animate={isInView ? { scale: 1 } : {}}
-        transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
         className="w-full h-full"
       >
         <Image
@@ -161,10 +144,10 @@ function RevealImage({ src, alt, className }: { src: string, alt: string, classN
         />
       </motion.div>
       <motion.div
-        initial={{ translateZ: 0, scaleY: 1 }}
+        initial={{ scaleY: 1 }}
         animate={isInView ? { scaleY: 0 } : {}}
-        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-        className="absolute inset-0 bg-blue-950 origin-top z-10"
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+        className="absolute inset-0 bg-[#E5DCCE] origin-top z-10"
       />
     </div>
   )

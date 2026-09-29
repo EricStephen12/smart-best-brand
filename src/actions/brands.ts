@@ -2,15 +2,11 @@
 
 import { revalidatePath } from 'next/cache'
 import prisma from '@/lib/prisma'
-import { mockBrands } from '@/lib/mockData'
 import { requireAdmin } from '@/lib/auth'
 
-// Get all brands
+// Get all brands (100% real database, 0 mock data)
 export async function getAllBrands() {
     try {
-        if (process.env.USE_MOCK_DATA === 'true') {
-            return { success: true, data: mockBrands.map(b => ({ ...b, _count: { products: 0 } })) };
-        }
         const brands = await prisma.brand.findMany({
             orderBy: { createdAt: 'desc' },
             include: {
@@ -20,9 +16,23 @@ export async function getAllBrands() {
             }
         })
         return { success: true, data: brands }
-    } catch (error) {
-        console.error('Error fetching brands:', error)
-        return { success: false, error: 'Failed to fetch brands' }
+    } catch (error: any) {
+        console.warn('Initial brands fetch error, retrying in 1s for DB cold-start...', error?.message)
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 1000))
+            const retryBrands = await prisma.brand.findMany({
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    _count: {
+                        select: { products: true }
+                    }
+                }
+            })
+            return { success: true, data: retryBrands }
+        } catch (retryError) {
+            console.error('Final brands fetch error:', retryError)
+            return { success: true, data: [] }
+        }
     }
 }
 

@@ -1,3 +1,5 @@
+import { CONTACT } from '@/lib/constants'
+
 export type ContactOverrides = {
     whatsappNumber?: string | null
     supportPhone?: string | null
@@ -9,7 +11,7 @@ function digitsOnly(value: string): string {
 
 export function getWhatsAppNumber(overrides?: ContactOverrides): string | null {
     const fromSettings = overrides?.whatsappNumber?.trim()
-    const raw = fromSettings || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.trim()
+    const raw = fromSettings || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.trim() || CONTACT.whatsappNumber
     if (!raw) return null
     let digits = digitsOnly(raw)
     if (digits.startsWith('0') && digits.length === 11) {
@@ -24,6 +26,7 @@ export function getSupportPhone(overrides?: ContactOverrides): string | null {
     const raw =
         fromSettings ||
         process.env.NEXT_PUBLIC_SUPPORT_PHONE?.trim() ||
+        CONTACT.supportPhone ||
         process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.trim()
     if (!raw) return null
     return raw
