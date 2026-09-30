@@ -17,13 +17,18 @@ export default function EditorialJournal() {
     }
   } catch {}
 
-  const eyebrow = customJournal?.eyebrow || EDITORIAL_JOURNAL.eyebrow
-  const title = customJournal?.title || EDITORIAL_JOURNAL.title
-  const viewAllLabel = customJournal?.viewAllLabel || EDITORIAL_JOURNAL.viewAllLabel
-  const viewAllHref = customJournal?.viewAllHref || EDITORIAL_JOURNAL.viewAllHref
-  const articles = (customJournal?.articles && Array.isArray(customJournal.articles) && customJournal.articles.length > 0)
-    ? customJournal.articles
-    : EDITORIAL_JOURNAL.articles
+  const articles: any[] = Array.isArray(customJournal)
+    ? customJournal
+    : (Array.isArray(customJournal?.articles) ? customJournal.articles : [])
+
+  if (!articles || articles.length === 0) {
+    return null
+  }
+
+  const eyebrow = customJournal?.eyebrow || 'Guides'
+  const title = customJournal?.title || 'Buying guides'
+  const viewAllLabel = customJournal?.viewAllLabel || 'View all'
+  const viewAllHref = customJournal?.viewAllHref || '/faqs'
 
   return (
     <section className="bg-white py-20 sm:py-24 lg:py-28 border-t border-neutral-100 scroll-mt-16">
@@ -49,10 +54,16 @@ export default function EditorialJournal() {
           </Link>
         </div>
 
-        {/* 3-Article Editorial Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10">
+        {/* Dynamic Editorial Grid */}
+        <div className={`grid gap-8 sm:gap-10 ${
+          articles.length === 1
+            ? 'grid-cols-1 max-w-xl mx-auto'
+            : articles.length === 2
+            ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto'
+            : 'grid-cols-1 md:grid-cols-3'
+        }`}>
           {articles.map((article: any, idx: number) => {
-            const imageSrc = article.imageUrl || article.image || '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg'
+            const imageSrc = article.imageUrl || ''
             const category = article.category || article.tag || 'Guide'
             const readTime = article.readTime || '3 min read'
             const excerpt = article.excerpt || article.description || ''
@@ -67,13 +78,20 @@ export default function EditorialJournal() {
                 className="group flex flex-col cursor-pointer"
               >
                 <Link href={article.href || '#'} className="block overflow-hidden rounded-2xl bg-neutral-100 aspect-[16/11] relative">
-                  <Image
-                    src={imageSrc}
-                    alt={article.title || 'Article'}
-                    fill
-                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
+                  {imageSrc ? (
+                    <Image
+                      src={imageSrc}
+                      alt={article.title || 'Article'}
+                      fill
+                      unoptimized
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-stone-100 text-stone-400 text-xs font-semibold uppercase tracking-wider">
+                      {category}
+                    </div>
+                  )}
                 </Link>
 
                 {/* Meta details */}

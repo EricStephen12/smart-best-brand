@@ -250,12 +250,13 @@ export async function updateSiteSettings(input: Partial<SiteSettingsData>) {
         if (input.navLinksJson !== undefined) add('navLinksJson', input.navLinksJson)
         if (input.footerLinksJson !== undefined) add('footerLinksJson', input.footerLinksJson)
 
-        // Ensure row exists first
+        // Ensure row exists first with valid updatedAt
         await prisma.$executeRawUnsafe(
-            `INSERT INTO "SiteSettings" (id) VALUES ('default') ON CONFLICT (id) DO NOTHING`
+            `INSERT INTO "SiteSettings" (id, "updatedAt") VALUES ('default', NOW()) ON CONFLICT (id) DO NOTHING`
         )
 
         if (setCols.length > 0) {
+            setCols.push(`"updatedAt" = NOW()`)
             vals.push('default')
             await prisma.$executeRawUnsafe(
                 `UPDATE "SiteSettings" SET ${setCols.join(', ')} WHERE id = $${p}`,
@@ -287,7 +288,7 @@ export async function resetSiteSettings() {
         const d = DEFAULT_SITE_SETTINGS
 
         await prisma.$executeRawUnsafe(
-            `INSERT INTO "SiteSettings" (id) VALUES ('default') ON CONFLICT (id) DO NOTHING`
+            `INSERT INTO "SiteSettings" (id, "updatedAt") VALUES ('default', NOW()) ON CONFLICT (id) DO NOTHING`
         )
 
         await prisma.$executeRawUnsafe(`
@@ -319,7 +320,8 @@ export async function resetSiteSettings() {
                 "faqsJson" = $61,
                 "styleComfortJson" = $62, "editorialJournalJson" = $63,
                 "tickerLabelsJson" = $64, "newsletterJson" = $65,
-                "trustBadgesJson" = $66, "navLinksJson" = $67, "footerLinksJson" = $68
+                "trustBadgesJson" = $66, "navLinksJson" = $67, "footerLinksJson" = $68,
+                "updatedAt" = NOW()
             WHERE id = 'default'`,
             d.siteName, d.tagline, d.logoUrl,
             d.primaryColor, d.accentColor, d.backgroundColor,

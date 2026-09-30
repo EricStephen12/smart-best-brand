@@ -408,3 +408,31 @@ export async function deleteProduct(id: string) {
         return { success: false, error: 'Failed to delete product' }
     }
 }
+
+// Fetch active products for recent sales floating notifications (100% real database, 0 mock)
+export async function getRecentSalesProducts() {
+    try {
+        const products = await prisma.product.findMany({
+            where: { isActive: true },
+            take: 8,
+            orderBy: { createdAt: 'desc' },
+            select: {
+                id: true,
+                name: true,
+                slug: true,
+                images: true,
+                brand: { select: { name: true } },
+                variants: {
+                    take: 1,
+                    select: {
+                        size: { select: { label: true } },
+                    }
+                }
+            }
+        })
+        return { success: true, data: products }
+    } catch (error) {
+        console.error('Error fetching recent sales products:', error)
+        return { success: true, data: [] }
+    }
+}

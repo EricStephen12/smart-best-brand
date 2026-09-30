@@ -157,6 +157,7 @@ export default function ProductDetailView({
                     src={activeImage || product.images?.[0] || '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg'}
                     alt={product.name}
                     fill
+                    unoptimized
                     className="object-cover object-center"
                     priority
                     sizes="(max-width: 1024px) 100vw, 55vw"
@@ -202,7 +203,7 @@ export default function ProductDetailView({
                         : 'border-transparent opacity-75 hover:opacity-100'
                     }`}
                   >
-                    <Image src={img} alt="" fill className="object-cover" sizes="160px" />
+                    <Image src={img} alt="" fill unoptimized className="object-cover" sizes="160px" />
                   </button>
                 ))}
               </div>

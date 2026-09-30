@@ -1,47 +1,43 @@
+require('dotenv').config({ path: '.env.local' });
+if (!process.env.DATABASE_URL) {
+    require('dotenv').config({ path: '.env' });
+}
 const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-async function testVariant(name, url) {
-    console.log(`\nTesting Variant: ${name}`);
-    const prisma = new PrismaClient({
-        datasources: { db: { url } },
-        log: ['error']
-    });
-
+async function run() {
     try {
-        const start = Date.now();
+        console.log('Connecting...');
         await prisma.$connect();
-        const result = await prisma.$queryRaw`SELECT 1`;
-        console.log(`✅ SUCCESS [${Date.now() - start}ms]`);
+        
+        console.log('Checking columns of SiteSettings:');
+        const cols = await prisma.$queryRawUnsafe(`
+            SELECT column_name, data_type 
+            FROM information_schema.columns 
+            WHERE table_name = 'SiteSettings'
+            ORDER BY ordinal_position
+        `);
+        console.log('Found columns:', cols.map(c => c.column_name).join(', '));
+
+        console.log('Testing line 254 executeRawUnsafe...');
+        await prisma.$executeRawUnsafe(
+            `INSERT INTO "SiteSettings" (id) VALUES ('default') ON CONFLICT (id) DO NOTHING`
+        );
+        console.log('Insert/upsert check OK!');
+
+        console.log('Checking if styleComfortJson column exists:');
+        const hasStyleComfort = cols.some(c => c.column_name === 'styleComfortJson');
+        console.log('has styleComfortJson?', hasStyleComfort);
+        const hasEditorial = cols.some(c => c.column_name === 'editorialJournalJson');
+        console.log('has editorialJournalJson?', hasEditorial);
+        const hasTicker = cols.some(c => c.column_name === 'tickerLabelsJson');
+        console.log('has tickerLabelsJson?', hasTicker);
+
+    } catch (e) {
+        console.error('ERROR OCCURRED:', e);
+    } finally {
         await prisma.$disconnect();
-        return true;
-    } catch (error) {
-        console.log(`❌ FAILED: ${error.message.split('\n')[0]}`);
-        return false;
     }
 }
 
-async function runTests() {
-    const host = "aws-1-eu-west-2.pooler.supabase.com";
-    const user = "postgres.icekkdpxbywgojfpgocf";
-    const passUpper = "Xayno5377946";
-    const passLower = "xayno5377946";
-
-    const variants = [
-        { name: "6543 (Pooled) + Capital X", url: `postgresql://${user}:${passUpper}@${host}:6543/postgres?pgbouncer=true&connect_timeout=10` },
-        { name: "6543 (Pooled) + Lowercase x", url: `postgresql://${user}:${passLower}@${host}:6543/postgres?pgbouncer=true&connect_timeout=10` },
-        { name: "5432 (Direct) + Capital X", url: `postgresql://${user}:${passUpper}@${host}:5432/postgres?connect_timeout=10` },
-        { name: "5432 (Direct) + Lowercase x", url: `postgresql://${user}:${passLower}@${host}:5432/postgres?connect_timeout=10` }
-    ];
-
-    for (const v of variants) {
-        if (await testVariant(v.name, v.url)) {
-            console.log(`\nFound working configuration! Use ${v.name}`);
-            process.exit(0);
-        }
-    }
-
-    console.log('\nAll variants failed. Please double check the Supabase dashboard for the correct password and host.');
-    process.exit(1);
-}
-
-runTests();
+run();

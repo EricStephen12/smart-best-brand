@@ -27,6 +27,7 @@ import {
   User as UserIcon,
   Users,
   MessageSquare,
+  HelpCircle,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -214,7 +215,8 @@ export default function AccountLayout({
         <NavItem href="/account/promotions" icon={Percent} active={pathname.startsWith('/account/promotions')} onClick={closeSidebar}>Promotions</NavItem>
         <NavItem href="/account/reviews" icon={Star} active={pathname.startsWith('/account/reviews')} onClick={closeSidebar}>Reviews</NavItem>
         <NavItem href="/account/contact-inquiries" icon={MessageSquare} active={pathname.startsWith('/account/contact-inquiries')} onClick={closeSidebar}>Contact Inquiries</NavItem>
-        <NavItem href="/account/site" icon={Palette} active={pathname.startsWith('/account/site')} onClick={closeSidebar}>Site Appearance</NavItem>
+        <NavItem href="/account/site" icon={Palette} active={pathname === '/account/site'} onClick={closeSidebar}>Site Appearance</NavItem>
+        <NavItem href="/account/site?section=faqs" icon={HelpCircle} active={false} onClick={closeSidebar}>FAQs &amp; Policies</NavItem>
 
         <div className="pt-4 mt-4 border-t border-stone-100 space-y-1">
           <NavItem href="/account/settings" icon={Settings} active={pathname.startsWith('/account/settings')} onClick={closeSidebar}>Settings</NavItem>

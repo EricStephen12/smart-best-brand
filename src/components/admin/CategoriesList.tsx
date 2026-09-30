@@ -1,15 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Edit3, Grid, Check, X, Loader2 } from 'lucide-react';
 import { createCategory, updateCategory, deleteCategory } from '@/actions/categories';
+import CloudinaryUpload from '@/components/CloudinaryUpload';
 import { toast } from 'react-hot-toast';
 
 interface Category {
     id: string;
     name: string;
     slug: string;
+    imageUrl?: string | null;
     _count?: {
         products: number;
     };
@@ -24,19 +27,22 @@ export default function CategoriesList({ initialCategories }: CategoriesListProp
     const [isAdding, setIsAdding] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [name, setName] = useState('');
+    const [imageUrl, setImageUrl] = useState('');
     const [loading, setLoading] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
     const handleCreate = async () => {
-        if (!name) return;
+        if (!name.trim()) return;
         setLoading(true);
         try {
             const formData = new FormData();
-            formData.append('name', name);
+            formData.append('name', name.trim());
+            if (imageUrl) formData.append('imageUrl', imageUrl);
             const result = await createCategory(formData);
             if (result.success) {
                 setCategories([result.data as Category, ...categories]);
                 setName('');
+                setImageUrl('');
                 setIsAdding(false);
                 toast.success('Category created');
             } else {
@@ -50,16 +56,18 @@ export default function CategoriesList({ initialCategories }: CategoriesListProp
     };
 
     const handleUpdate = async () => {
-        if (!editingCategory || !name) return;
+        if (!editingCategory || !name.trim()) return;
         setLoading(true);
         try {
             const formData = new FormData();
-            formData.append('name', name);
+            formData.append('name', name.trim());
+            formData.append('imageUrl', imageUrl || '');
             const result = await updateCategory(editingCategory.id, formData);
             if (result.success) {
                 setCategories(categories.map(c => c.id === editingCategory.id ? result.data as Category : c));
                 setEditingCategory(null);
                 setName('');
+                setImageUrl('');
                 toast.success('Category updated');
             } else {
                 toast.error(result.error || 'Failed to update category');
@@ -92,6 +100,7 @@ export default function CategoriesList({ initialCategories }: CategoriesListProp
     const startEditing = (cat: Category) => {
         setEditingCategory(cat);
         setName(cat.name);
+        setImageUrl(cat.imageUrl || '');
         setIsAdding(false);
     };
 
@@ -112,9 +121,21 @@ export default function CategoriesList({ initialCategories }: CategoriesListProp
                             <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-full -mr-16 -mt-16 group-hover:bg-sky-50 transition-colors" />
 
                             <div className="relative z-10 flex flex-col h-full">
-                                <div className="w-12 h-12 bg-blue-950 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:bg-sky-600 transition-colors shadow-lg shadow-blue-900/20">
-                                    <Grid className="w-5 h-5" />
-                                </div>
+                                {cat.imageUrl ? (
+                                    <div className="relative w-16 h-16 rounded-2xl overflow-hidden mb-6 border border-slate-100 shadow-sm shrink-0">
+                                        <Image
+                                            src={cat.imageUrl}
+                                            alt={cat.name}
+                                            fill
+                                            className="object-cover"
+                                            sizes="64px"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="w-12 h-12 bg-blue-950 rounded-2xl flex items-center justify-center text-white mb-6 group-hover:bg-sky-600 transition-colors shadow-lg shadow-blue-900/20">
+                                        <Grid className="w-5 h-5" />
+                                    </div>
+                                )}
                                 <h3 className="text-xl font-black text-blue-950 mb-2">{cat.name}</h3>
                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                                     {cat._count?.products || 0} Active Products
@@ -175,6 +196,20 @@ export default function CategoriesList({ initialCategories }: CategoriesListProp
                                     />
                                 </div>
 
+                                <div>
+                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-400 block mb-3 opacity-60">
+                                        Category Photo (Image)
+                                    </label>
+                                    <div className="bg-white/5 rounded-2xl p-3 border border-white/10">
+                                        <CloudinaryUpload
+                                            value={imageUrl ? [imageUrl] : []}
+                                            onChange={(urls) => setImageUrl(urls[0] || '')}
+                                            maxFiles={1}
+                                            label="Upload category photo"
+                                        />
+                                    </div>
+                                </div>
+
                                 <div className="flex gap-4 pt-4">
                                     <button
                                         onClick={isAdding ? handleCreate : handleUpdate}
@@ -193,6 +228,7 @@ export default function CategoriesList({ initialCategories }: CategoriesListProp
                                             setIsAdding(false);
                                             setEditingCategory(null);
                                             setName('');
+                                            setImageUrl('');
                                         }}
                                         className="w-14 h-14 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center transition-all"
                                     >

@@ -357,6 +357,7 @@ function ProductCard({ product, index }: { product: ShopProduct; index: number }
               src={product.images[0]}
               alt={product.name}
               fill
+              unoptimized
               className={`object-cover transition-all duration-700 ${
                 hasSecond
                   ? 'group-hover:opacity-0 group-hover:scale-105'
@@ -375,6 +376,7 @@ function ProductCard({ product, index }: { product: ShopProduct; index: number }
               src={product.images[1]}
               alt=""
               fill
+              unoptimized
               className="object-cover absolute inset-0 opacity-0 scale-105 transition-all duration-700 group-hover:opacity-100 group-hover:scale-100"
               sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 25vw"
             />

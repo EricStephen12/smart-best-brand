@@ -81,42 +81,52 @@ const SECTION_PAGE_MAP: Record<string, string> = {
   collections: '/',
   promo: '/',
   featured: '/',
-  editorial: '/',
   newsletter: '/',
-  policies: '/delivery',
   footer: '/',
+  faqs: '/faqs',
+  policies: '/delivery',
+  contact: '/contact',
+  bank: '/',
 }
 
 // Maps each section to a friendly label the owner will recognise
 const SECTION_CONTEXT: Record<string, { page: string; where: string }> = {
   announcement: { page: 'Every Page', where: 'The coloured banner at the very top of your site' },
-  hero: { page: 'Homepage (Top)', where: 'The first big section with your main headline, photo, and button' },
-  story: { page: 'Homepage (Section 2)', where: 'The \'Who We Are\' story writeup and guarantee section' },
-  styleComfort: { page: 'Homepage (Section 3)', where: 'The \'Style Meets Comfort\' headline and photo section' },
-  ticker: { page: 'Homepage (Section 4)', where: 'The sliding text banner moving across the page' },
-  collections: { page: 'Homepage (Section 5)', where: 'The \'Shop by Room / Collections\' section title & description' },
+  hero: { page: 'Homepage (Top)', where: 'The main hero headline, photo carousel, and primary shop button' },
+  story: { page: 'Homepage (Section 2)', where: 'The \'Who We Are\' story writeup, guarantee and story photos' },
+  styleComfort: { page: 'Homepage (Section 3)', where: 'The \'Style Meets Comfort\' headline, description and photo' },
+  ticker: { page: 'Homepage (Section 4)', where: 'The continuous sliding text banner moving across the page' },
+  collections: { page: 'Homepage (Section 5)', where: 'The \'Shop by Room / Collections\' category grid title & description' },
   promo: { page: 'Homepage (Section 6)', where: 'The full-width callout banner with photo, headline & button' },
   featured: { page: 'Homepage (Section 7)', where: 'The \'Featured / Best Sellers\' section title & subtitle' },
-  editorial: { page: 'Homepage (Section 8)', where: 'The \'Buying Guides & Articles\' section with photos' },
-  newsletter: { page: 'Homepage (Section 9)', where: 'The email sign-up box near the bottom of the homepage' },
-  policies: { page: 'Delivery & Refund Pages', where: 'Your delivery, return/refund, and warranty policy writeups' },
-  footer: { page: 'Every Page (Bottom)', where: 'The brand description text at the bottom of every page' },
+  newsletter: { page: 'Homepage (Section 8)', where: 'The email newsletter sign-up box' },
+  footer: { page: 'Every Page (Bottom)', where: 'The brand description text and contact details at the bottom of every page' },
+  faqs: { page: 'FAQs Page (/faqs)', where: 'Customer questions & answers accordion on your FAQs page' },
+  policies: { page: 'Delivery & Refund Pages (/delivery & /refund)', where: 'Your delivery, return/refund, and warranty policy writeups' },
+  contact: { page: 'Contact Us (/contact)', where: 'Phone, WhatsApp, store address, and social media handles' },
+  bank: { page: 'Checkout Page', where: 'Bank account number and instructions shown to customers paying via transfer' },
 }
 
-// Sections list in exact home screen top-to-bottom order
-const SECTIONS_LIST = [
+// Homepage sections list in exact home screen top-to-bottom order
+const HOMEPAGE_SECTIONS = [
   { id: 'announcement', number: 'Top Ribbon', label: 'Announcement Ribbon', icon: Megaphone, desc: 'Top message above the header', targetId: 'announcement' },
-  { id: 'hero', number: 'Section 1', label: 'Hero Banner (Home Screen Top)', icon: ImageIcon, desc: 'Main headline, photo, description & button', targetId: 'hero' },
+  { id: 'hero', number: 'Section 1', label: 'Hero Banner (Home Screen Top)', icon: ImageIcon, desc: 'Main headline, photo carousel, description & button', targetId: 'hero' },
   { id: 'story', number: 'Section 2', label: 'Our Story (Who We Are)', icon: Sparkles, desc: 'Story writeup, promise & photos', targetId: 'story' },
   { id: 'styleComfort', number: 'Section 3', label: 'Style Meets Comfort', icon: Sparkles, desc: 'Headline, description & lifestyle photo', targetId: null },
   { id: 'ticker', number: 'Section 4', label: 'Promo Text Ticker', icon: Megaphone, desc: 'Sliding text messages moving across screen', targetId: null },
   { id: 'collections', number: 'Section 5', label: 'Shop by Room / Collections', icon: ShoppingBag, desc: 'Category grid title & description', targetId: 'collections' },
   { id: 'promo', number: 'Section 6', label: 'Mid-Page Promo Banner', icon: Layers, desc: 'Full-width banner with photo, headline & button', targetId: 'promo' },
   { id: 'featured', number: 'Section 7', label: 'Featured Best Sellers', icon: ShoppingBag, desc: 'Best selling products section title & subtitle', targetId: 'featured' },
-  { id: 'editorial', number: 'Section 8', label: 'Editorial Journal & Articles', icon: Sparkles, desc: 'Blog/articles title, photos & summaries', targetId: null },
-  { id: 'newsletter', number: 'Section 9', label: 'Newsletter Sign-up', icon: Megaphone, desc: 'Email sign-up box headline & button', targetId: null },
-  { id: 'policies', number: 'Section 10', label: 'Guarantees & Policies', icon: ShieldCheck, desc: 'Delivery, returns & warranty writeups', targetId: null },
-  { id: 'footer', number: 'Section 11', label: 'Footer & Store Details', icon: CreditCard, desc: 'Store writeup, address, phone & copyright', targetId: null },
+  { id: 'newsletter', number: 'Section 8', label: 'Newsletter Sign-up', icon: Megaphone, desc: 'Email sign-up box headline & button', targetId: null },
+  { id: 'footer', number: 'Section 9', label: 'Footer & Store Details', icon: CreditCard, desc: 'Store writeup, address, phone & copyright', targetId: null },
+]
+
+// Standalone pages & FAQs content list
+const PAGES_SETTINGS_LIST = [
+  { id: 'faqs', label: 'Frequently Asked Questions (FAQs)', icon: HelpCircle, desc: 'Add, edit, reorder & delete Q&As shown on /faqs', targetPage: '/faqs' },
+  { id: 'policies', label: 'Delivery, Returns & Warranty Policies', icon: ShieldCheck, desc: 'Delivery guarantees, return window & warranty writeups on /delivery and /refund', targetPage: '/delivery' },
+  { id: 'contact', label: 'Contact & Social Channels', icon: Phone, desc: 'Phone, WhatsApp, physical address & social links on /contact', targetPage: '/contact' },
+  { id: 'bank', label: 'Bank Transfer Details (Checkout)', icon: CreditCard, desc: 'Bank account name, number & instructions for offline orders', targetPage: '/' },
 ]
 
 // Theme settings list for global visual styling
@@ -124,11 +134,10 @@ const THEME_SETTINGS_LIST = [
   { id: 'identity', label: 'Store Identity & Logo', icon: Home, desc: 'Store name, tagline and official logo' },
   { id: 'colors', label: 'Brand Colors', icon: Palette, desc: 'Pick from curated palettes or set your own hex colors' },
   { id: 'buttons', label: 'Button Style', icon: Layers, desc: 'Sharp, Soft or Pill — choose corner radius' },
+  { id: 'cards', label: 'Product Cards Style', icon: Layers, desc: 'Corner radius for product cards and containers' },
+  { id: 'badges', label: 'Tag & Badge Style', icon: Layers, desc: 'Corner radius for discount and status badges' },
   { id: 'typography', label: 'Typography & Fonts', icon: Type, desc: 'Heading display font & body reading font' },
-  { id: 'faqs', label: 'FAQs Manager', icon: HelpCircle, desc: 'Add, edit, reorder and delete FAQ items' },
   { id: 'customSize', label: 'Custom Size Modal', icon: Sliders, desc: 'Popup copy for custom mattress size requests' },
-  { id: 'contact', label: 'Contact & Social Links', icon: Phone, desc: 'Phone, WhatsApp, address & social media URLs' },
-  { id: 'bank', label: 'Bank Transfer Details', icon: CreditCard, desc: 'Checkout bank account name & number' },
 ]
 
 type BannerItem = {
@@ -151,6 +160,7 @@ export default function SiteSettingsPage() {
 
   // Carousel banners state
   const [banners, setBanners] = useState<BannerItem[]>([])
+  const [initialBanners, setInitialBanners] = useState<BannerItem[]>([])
   const [bannersLoading, setBannersLoading] = useState(true)
   const [savingBannerId, setSavingBannerId] = useState<string | null>(null)
   const [showAddBanner, setShowAddBanner] = useState(false)
@@ -162,9 +172,10 @@ export default function SiteSettingsPage() {
     ctaHref: '/products',
   })
   const [addingBanner, setAddingBanner] = useState(false)
+  const [activeHeroSlideIndex, setActiveHeroSlideIndex] = useState(0)
 
-  // Shopify-style customizer state
-  const [category, setCategory] = useState<'sections' | 'theme'>('sections')
+  // Shopify-style customizer state (Homepage, Pages & FAQs, Theme Styles)
+  const [category, setCategory] = useState<'sections' | 'pages' | 'theme'>('sections')
   const [expandedSection, setExpandedSection] = useState<string | null>('hero')
   const [searchQuery, setSearchQuery] = useState('')
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
@@ -180,6 +191,7 @@ export default function SiteSettingsPage() {
       const res = await getAllBanners()
       if (res.success && res.data) {
         setBanners(res.data)
+        setInitialBanners(res.data)
       }
     } catch (e) {
       console.error('Failed to load banners:', e)
@@ -195,6 +207,25 @@ export default function SiteSettingsPage() {
       if (sec === 'hero' || sec === 'banners') {
         setCategory('sections')
         setExpandedSection('hero')
+        setPreviewUrl('/')
+      } else if (sec === 'faqs') {
+        setCategory('pages')
+        setExpandedSection('faqs')
+        setPreviewUrl('/faqs')
+      } else if (sec === 'policies' || sec === 'delivery' || sec === 'refund') {
+        setCategory('pages')
+        setExpandedSection('policies')
+        setPreviewUrl('/delivery')
+      } else if (sec === 'contact') {
+        setCategory('pages')
+        setExpandedSection('contact')
+        setPreviewUrl('/contact')
+      } else if (sec === 'bank') {
+        setCategory('pages')
+        setExpandedSection('bank')
+      } else if (['identity', 'colors', 'buttons', 'cards', 'badges', 'typography', 'customSize'].includes(sec || '')) {
+        setCategory('theme')
+        setExpandedSection(sec)
       } else if (sec) {
         setCategory('sections')
         setExpandedSection(sec)
@@ -390,7 +421,9 @@ export default function SiteSettingsPage() {
   const set = <K extends keyof SiteSettingsData>(k: K, v: SiteSettingsData[K]) =>
     setForm((p) => (p ? { ...p, [k]: v } : p))
 
-  const isDirty = form && initialForm ? JSON.stringify(form) !== JSON.stringify(initialForm) : false
+  const isDirty =
+    (form && initialForm ? JSON.stringify(form) !== JSON.stringify(initialForm) : false) ||
+    (banners.length > 0 && initialBanners.length > 0 ? JSON.stringify(banners) !== JSON.stringify(initialBanners) : false)
 
   const handleSave = async (e?: React.FormEvent) => {
     e?.preventDefault()
@@ -403,31 +436,42 @@ export default function SiteSettingsPage() {
         return
       }
 
-      // Also ensure hero banner in banners table is synced and saved
+      // Also ensure all hero banners in banners table are synced and saved
       if (banners && banners.length > 0) {
-        const first = banners[0]
-        await updateBanner(first.id, {
-          title: form.heroTitle || first.title,
-          subtitle: form.heroSubtitle ?? first.subtitle,
-          imageUrl: first.imageUrl || '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
-          ctaLabel: form.heroCtaLabel || first.ctaLabel,
-          ctaHref: form.heroCtaHref || first.ctaHref,
-          isActive: first.isActive,
-          sortOrder: 0,
-        })
-      } else {
-        await createBanner({
-          title: form.heroTitle || 'Quality mattresses, pillows & furniture',
-          subtitle: form.heroSubtitle || undefined,
-          imageUrl: '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
-          ctaLabel: form.heroCtaLabel || 'Shop products',
-          ctaHref: form.heroCtaHref || '/products',
-          sortOrder: 0,
-          isActive: true,
-        })
+        for (let idx = 0; idx < banners.length; idx++) {
+          const b = banners[idx]
+          const title = idx === 0 ? (form.heroTitle || b.title) : (b.title || 'Slide')
+          const subtitle = idx === 0 ? (form.heroSubtitle ?? b.subtitle) : b.subtitle
+          const imageUrl = b.imageUrl ?? ''
+          const ctaLabel = idx === 0 ? (form.heroCtaLabel || b.ctaLabel) : b.ctaLabel
+          const ctaHref = idx === 0 ? (form.heroCtaHref || b.ctaHref) : b.ctaHref
+
+          if (b.id && !b.id.startsWith('banner-temp-')) {
+            await updateBanner(b.id, {
+              title,
+              subtitle,
+              imageUrl,
+              ctaLabel,
+              ctaHref,
+              isActive: b.isActive ?? true,
+              sortOrder: idx,
+            })
+          } else {
+            await createBanner({
+              title,
+              subtitle: subtitle || undefined,
+              imageUrl,
+              ctaLabel: ctaLabel || 'Shop products',
+              ctaHref: ctaHref || '/products',
+              sortOrder: idx,
+              isActive: true,
+            })
+          }
+        }
       }
 
       await loadBanners()
+      setInitialBanners(banners)
 
       if (res.data) {
         setForm(res.data)
@@ -518,6 +562,8 @@ export default function SiteSettingsPage() {
     imageAlt: string
     stats: Array<{ value: string; label: string }>
     slides: Array<{ id: string; label: string; imageUrl: string; href: string }>
+    storySecondaryImage?: string
+    storyCompanionImage?: string
   }
   const getStyleComfort = (): StyleComfortData => {
     try {
@@ -596,9 +642,17 @@ export default function SiteSettingsPage() {
 
   // Filter items based on search query
   const filteredSections = useMemo(() => {
-    if (!searchQuery.trim()) return SECTIONS_LIST
+    if (!searchQuery.trim()) return HOMEPAGE_SECTIONS
     const q = searchQuery.toLowerCase()
-    return SECTIONS_LIST.filter(
+    return HOMEPAGE_SECTIONS.filter(
+      (s) => s.label.toLowerCase().includes(q) || s.desc.toLowerCase().includes(q)
+    )
+  }, [searchQuery])
+
+  const filteredPages = useMemo(() => {
+    if (!searchQuery.trim()) return PAGES_SETTINGS_LIST
+    const q = searchQuery.toLowerCase()
+    return PAGES_SETTINGS_LIST.filter(
       (s) => s.label.toLowerCase().includes(q) || s.desc.toLowerCase().includes(q)
     )
   }, [searchQuery])
@@ -667,7 +721,23 @@ export default function SiteSettingsPage() {
           <div className="relative">
             <select
               value={previewUrl}
-              onChange={(e) => setPreviewUrl(e.target.value)}
+              onChange={(e) => {
+                const nextUrl = e.target.value
+                setPreviewUrl(nextUrl)
+                if (nextUrl === '/faqs') {
+                  setCategory('pages')
+                  setExpandedSection('faqs')
+                } else if (nextUrl === '/delivery' || nextUrl === '/refund') {
+                  setCategory('pages')
+                  setExpandedSection('policies')
+                } else if (nextUrl === '/contact') {
+                  setCategory('pages')
+                  setExpandedSection('contact')
+                } else if (nextUrl === '/') {
+                  setCategory('sections')
+                  setExpandedSection('hero')
+                }
+              }}
               className="appearance-none bg-stone-100 hover:bg-stone-200/80 text-blue-950 text-xs font-semibold px-3.5 py-1.5 pr-8 rounded-xl border border-stone-200/70 cursor-pointer outline-none focus:ring-2 focus:ring-blue-950/10 transition-all"
             >
               {PREVIEW_PAGES.map((page) => (
@@ -822,22 +892,118 @@ export default function SiteSettingsPage() {
               )}
             </div>
 
-            {/* Category Toggle: "Sections" vs "Theme Settings" (Shopify Standard) */}
-            <div className="grid grid-cols-2 p-1 bg-stone-100/80 rounded-xl border border-stone-200/60">
+            {/* Quick jump pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px] no-scrollbar">
+              <span className="text-stone-400 font-bold uppercase text-[9px] tracking-wider shrink-0 mr-0.5">Jump:</span>
               <button
                 type="button"
                 onClick={() => {
                   setCategory('sections')
                   setExpandedSection('hero')
+                  setPreviewUrl('/')
                 }}
-                className={`flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                className={`px-2 py-0.5 rounded-md font-semibold shrink-0 transition-colors ${
+                  category === 'sections' && expandedSection === 'hero'
+                    ? 'bg-blue-950 text-white'
+                    : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
+                }`}
+              >
+                ⚡ Hero
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCategory('pages')
+                  setExpandedSection('faqs')
+                  setPreviewUrl('/faqs')
+                }}
+                className={`px-2 py-0.5 rounded-md font-semibold shrink-0 transition-colors border ${
+                  category === 'pages' && expandedSection === 'faqs'
+                    ? 'bg-emerald-700 text-white border-emerald-700'
+                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200/70'
+                }`}
+              >
+                ❓ FAQs
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCategory('pages')
+                  setExpandedSection('policies')
+                  setPreviewUrl('/delivery')
+                }}
+                className={`px-2 py-0.5 rounded-md font-semibold shrink-0 transition-colors border ${
+                  category === 'pages' && expandedSection === 'policies'
+                    ? 'bg-amber-700 text-white border-amber-700'
+                    : 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200/70'
+                }`}
+              >
+                🛡️ Policies
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCategory('theme')
+                  setExpandedSection('colors')
+                }}
+                className={`px-2 py-0.5 rounded-md font-semibold shrink-0 transition-colors border ${
+                  category === 'theme' && expandedSection === 'colors'
+                    ? 'bg-indigo-700 text-white border-indigo-700'
+                    : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border-indigo-200/70'
+                }`}
+              >
+                🎨 Colors
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCategory('pages')
+                  setExpandedSection('contact')
+                  setPreviewUrl('/contact')
+                }}
+                className={`px-2 py-0.5 rounded-md font-semibold shrink-0 transition-colors ${
+                  category === 'pages' && expandedSection === 'contact'
+                    ? 'bg-blue-950 text-white'
+                    : 'bg-stone-100 hover:bg-stone-200 text-stone-700'
+                }`}
+              >
+                📞 Contact
+              </button>
+            </div>
+
+            {/* Category Toggle: 3 clear tabs */}
+            <div className="grid grid-cols-3 p-1 bg-stone-100/80 rounded-xl border border-stone-200/60 text-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setCategory('sections')
+                  setExpandedSection('hero')
+                  setPreviewUrl('/')
+                }}
+                className={`flex items-center justify-center gap-1.5 py-1.5 font-semibold rounded-lg transition-all ${
                   category === 'sections'
                     ? 'bg-white text-blue-950 shadow-sm border border-stone-200/60'
                     : 'text-stone-500 hover:text-stone-900'
                 }`}
               >
                 <Layers className="w-3.5 h-3.5 text-sky-600" />
-                <span>Page Sections</span>
+                <span>Homepage</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCategory('pages')
+                  setExpandedSection('faqs')
+                  setPreviewUrl('/faqs')
+                }}
+                className={`flex items-center justify-center gap-1.5 py-1.5 font-semibold rounded-lg transition-all ${
+                  category === 'pages'
+                    ? 'bg-white text-blue-950 shadow-sm border border-stone-200/60'
+                    : 'text-stone-500 hover:text-stone-900'
+                }`}
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Pages &amp; FAQs</span>
               </button>
               <button
                 type="button"
@@ -845,13 +1011,13 @@ export default function SiteSettingsPage() {
                   setCategory('theme')
                   setExpandedSection('identity')
                 }}
-                className={`flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                className={`flex items-center justify-center gap-1.5 py-1.5 font-semibold rounded-lg transition-all ${
                   category === 'theme'
                     ? 'bg-white text-blue-950 shadow-sm border border-stone-200/60'
                     : 'text-stone-500 hover:text-stone-900'
                 }`}
               >
-                <SlidersHorizontal className="w-3.5 h-3.5 text-sky-600" />
+                <SlidersHorizontal className="w-3.5 h-3.5 text-indigo-600" />
                 <span>Theme Styles</span>
               </button>
             </div>
@@ -970,287 +1136,546 @@ export default function SiteSettingsPage() {
                           )}
 
                           {/* Section 1: Hero Banner (Home Screen Top) */}
-                          {sec.id === 'hero' && (
-                            <div className="space-y-4 pt-2">
-                              {/* Main Banner Photo */}
-                              <Field label="Banner Photo (Image)" hint="Full-screen photo for the top section of your homepage">
-                                <CloudinaryUpload
-                                  value={banners[0]?.imageUrl ? [banners[0].imageUrl] : ['/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg']}
-                                  onChange={(urls) => {
-                                    if (urls[0]) {
-                                      if (banners.length > 0) {
-                                        handleBannerFieldChange(banners[0].id, 'imageUrl', urls[0])
-                                      } else {
-                                        setBanners([{
-                                          id: 'hero-primary',
-                                          title: form.heroTitle,
-                                          subtitle: form.heroSubtitle,
-                                          imageUrl: urls[0],
-                                          ctaLabel: form.heroCtaLabel,
-                                          ctaHref: form.heroCtaHref,
-                                          isActive: true,
-                                          sortOrder: 0,
-                                        }])
-                                      }
-                                    }
-                                  }}
-                                  maxFiles={1}
-                                  label="Upload or change hero photo"
-                                />
-                              </Field>
+                          {sec.id === 'hero' && (() => {
+                            const curSlideIdx = Math.min(activeHeroSlideIndex, Math.max(0, banners.length - 1))
+                            const currentSlide = banners[curSlideIdx] || {
+                              id: 'hero-primary',
+                              title: form.heroTitle,
+                              subtitle: form.heroSubtitle,
+                              imageUrl: '',
+                              ctaLabel: form.heroCtaLabel,
+                              ctaHref: form.heroCtaHref,
+                              isActive: true,
+                              sortOrder: 0,
+                            }
 
-                              {/* Main Headline */}
-                              <Field label="Main Headline" hint="Large bold title on your hero banner">
-                                <input
-                                  type="text"
-                                  value={form.heroTitle}
-                                  onChange={(e) => {
-                                    set('heroTitle', e.target.value)
-                                    if (banners[0]) handleBannerFieldChange(banners[0].id, 'title', e.target.value)
-                                  }}
-                                  placeholder="Quality mattresses, pillows & furniture"
-                                  className={inputClass}
-                                />
-                              </Field>
-
-                              {/* Subtitle / Paragraph */}
-                              <Field label="Subtitle / Paragraph" hint="Descriptive text below the headline">
-                                <textarea
-                                  rows={2}
-                                  value={form.heroSubtitle}
-                                  onChange={(e) => {
-                                    set('heroSubtitle', e.target.value)
-                                    if (banners[0]) handleBannerFieldChange(banners[0].id, 'subtitle', e.target.value)
-                                  }}
-                                  placeholder="Authentic comfort for Nigerian homes — shop trusted brands with clear pricing and delivery."
-                                  className={textareaClass}
-                                />
-                              </Field>
-
-                              {/* Button Text & Link */}
-                              <div className="grid grid-cols-2 gap-2">
-                                <Field label="Button Text">
-                                  <input
-                                    type="text"
-                                    value={form.heroCtaLabel}
-                                    onChange={(e) => {
-                                      set('heroCtaLabel', e.target.value)
-                                      if (banners[0]) handleBannerFieldChange(banners[0].id, 'ctaLabel', e.target.value)
-                                    }}
-                                    placeholder="Shop products"
-                                    className={inputClass}
-                                  />
-                                </Field>
-                                <Field label="Button Link">
-                                  <input
-                                    type="text"
-                                    value={form.heroCtaHref}
-                                    onChange={(e) => {
-                                      set('heroCtaHref', e.target.value)
-                                      if (banners[0]) handleBannerFieldChange(banners[0].id, 'ctaHref', e.target.value)
-                                    }}
-                                    placeholder="/products"
-                                    className={inputClass}
-                                  />
-                                </Field>
-                              </div>
-
-                              {/* Optional: Extra rotating slides disclosure */}
-                              <div className="pt-2 border-t border-stone-200/80">
-                                <button
-                                  type="button"
-                                  onClick={() => setShowAddBanner(!showAddBanner)}
-                                  className="w-full flex items-center justify-between p-2.5 bg-stone-50 hover:bg-stone-100 rounded-xl text-left text-xs font-semibold text-stone-700 transition-colors"
-                                >
-                                  <span>Need more rotating slides in your banner carousel? (Optional)</span>
-                                  <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showAddBanner ? 'rotate-180' : ''}`} />
-                                </button>
-
-                                {showAddBanner && (
-                                  <div className="mt-3 p-3 bg-stone-50 rounded-xl border border-stone-200/80 space-y-3">
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-[11px] font-bold text-stone-700 uppercase">
-                                        Total Slides: {banners.length}
-                                      </span>
+                            return (
+                              <div className="space-y-4 pt-2">
+                                {/* Slide Tabs Switcher */}
+                                <div className="flex items-center justify-between pb-3 border-b border-stone-200/70">
+                                  <div className="flex items-center gap-1.5 overflow-x-auto">
+                                    {banners.map((_, idx) => (
                                       <button
+                                        key={idx}
                                         type="button"
-                                        onClick={async () => {
-                                          const res = await createBanner({
-                                            title: 'Comfort for Every Home',
-                                            subtitle: 'Original brands delivered directly to your door.',
-                                            imageUrl: '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg',
-                                            ctaLabel: 'Explore Collection',
-                                            ctaHref: '/products',
-                                            sortOrder: banners.length,
-                                            isActive: true,
-                                          })
-                                          if (res.success) {
-                                            toast.success('Slide added')
-                                            void loadBanners()
-                                          }
-                                        }}
-                                        className="px-2 py-1 bg-blue-950 text-white rounded-lg text-xs font-semibold hover:bg-sky-800"
+                                        onClick={() => setActiveHeroSlideIndex(idx)}
+                                        className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                                          curSlideIdx === idx
+                                            ? 'bg-blue-950 text-white shadow-sm'
+                                            : 'bg-stone-100 text-stone-600 hover:text-blue-950 hover:bg-stone-200/70'
+                                        }`}
                                       >
-                                        + Add Extra Slide
+                                        Slide {idx + 1}
                                       </button>
-                                    </div>
-                                    {banners.slice(1).map((slide, idx) => (
-                                      <div key={slide.id} className="p-3 bg-white rounded-lg border border-stone-200 space-y-2">
+                                    ))}
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const newSlide: BannerItem = {
+                                          id: `banner-temp-${Date.now()}`,
+                                          title: '',
+                                          subtitle: '',
+                                          imageUrl: '',
+                                          ctaLabel: 'Shop products',
+                                          ctaHref: '/products',
+                                          isActive: true,
+                                          sortOrder: banners.length,
+                                        }
+                                        const updated = [...banners, newSlide]
+                                        setBanners(updated)
+                                        setActiveHeroSlideIndex(updated.length - 1)
+                                        if (form) syncIframe(form, updated)
+                                      }}
+                                      className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100/70 border border-sky-200/60 rounded-lg transition-all shrink-0"
+                                    >
+                                      <Plus className="w-3.5 h-3.5" />
+                                      <span>Add Slide</span>
+                                    </button>
+                                  </div>
+
+                                  {banners.length > 1 && curSlideIdx > 0 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const bannerToDelete = banners[curSlideIdx]
+                                        if (bannerToDelete && !bannerToDelete.id.startsWith('banner-temp-')) {
+                                          void handleDeleteBanner(bannerToDelete.id)
+                                        } else {
+                                          const updated = banners.filter((_, idx) => idx !== curSlideIdx)
+                                          setBanners(updated)
+                                          setActiveHeroSlideIndex(Math.max(0, curSlideIdx - 1))
+                                          if (form) syncIframe(form, updated)
+                                        }
+                                      }}
+                                      className="text-[11px] font-medium text-rose-600 hover:text-rose-700 flex items-center gap-1 hover:bg-rose-50 px-2 py-1 rounded-lg transition-colors"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                      <span>Delete Slide</span>
+                                    </button>
+                                  )}
+                                </div>
+
+                                {/* Banner Photo */}
+                                <Field
+                                  label={`Slide ${curSlideIdx + 1} Photo`}
+                                  hint="Full-screen photo for this slide"
+                                >
+                                  <CloudinaryUpload
+                                    value={currentSlide?.imageUrl ? [currentSlide.imageUrl] : []}
+                                    onChange={(urls) => {
+                                      const newUrl = urls[0] || ''
+                                      if (banners.length > 0 && banners[curSlideIdx]) {
+                                        handleBannerFieldChange(banners[curSlideIdx].id, 'imageUrl', newUrl)
+                                      } else {
+                                        setBanners([
+                                          {
+                                            id: 'hero-primary',
+                                            title: form.heroTitle,
+                                            subtitle: form.heroSubtitle,
+                                            imageUrl: newUrl,
+                                            ctaLabel: form.heroCtaLabel,
+                                            ctaHref: form.heroCtaHref,
+                                            isActive: true,
+                                            sortOrder: 0,
+                                          },
+                                        ])
+                                      }
+                                    }}
+                                    maxFiles={1}
+                                    label={`Slide ${curSlideIdx + 1} photo`}
+                                  />
+                                </Field>
+
+                                {/* Headline */}
+                                <Field
+                                  label={`Slide ${curSlideIdx + 1} Headline`}
+                                  hint="Large bold title on this slide"
+                                >
+                                  <input
+                                    type="text"
+                                    value={curSlideIdx === 0 ? form.heroTitle : (currentSlide.title || '')}
+                                    onChange={(e) => {
+                                      const val = e.target.value
+                                      if (curSlideIdx === 0) set('heroTitle', val)
+                                      if (banners[curSlideIdx]) {
+                                        handleBannerFieldChange(banners[curSlideIdx].id, 'title', val)
+                                      }
+                                    }}
+                                    placeholder="Quality mattresses, pillows & furniture"
+                                    className={inputClass}
+                                  />
+                                </Field>
+
+                                {/* Subtitle / Paragraph */}
+                                <Field
+                                  label={`Slide ${curSlideIdx + 1} Subtitle / Paragraph`}
+                                  hint="Descriptive text below the headline"
+                                >
+                                  <textarea
+                                    rows={2}
+                                    value={curSlideIdx === 0 ? form.heroSubtitle : (currentSlide.subtitle || '')}
+                                    onChange={(e) => {
+                                      const val = e.target.value
+                                      if (curSlideIdx === 0) set('heroSubtitle', val)
+                                      if (banners[curSlideIdx]) {
+                                        handleBannerFieldChange(banners[curSlideIdx].id, 'subtitle', val)
+                                      }
+                                    }}
+                                    placeholder="Authentic comfort for Nigerian homes…"
+                                    className={textareaClass}
+                                  />
+                                </Field>
+
+                                {/* Button Text & Link */}
+                                <div className="grid grid-cols-2 gap-2">
+                                  <Field label="Button Text">
+                                    <input
+                                      type="text"
+                                      value={curSlideIdx === 0 ? form.heroCtaLabel : (currentSlide.ctaLabel || '')}
+                                      onChange={(e) => {
+                                        const val = e.target.value
+                                        if (curSlideIdx === 0) set('heroCtaLabel', val)
+                                        if (banners[curSlideIdx]) {
+                                          handleBannerFieldChange(banners[curSlideIdx].id, 'ctaLabel', val)
+                                        }
+                                      }}
+                                      placeholder="Shop products"
+                                      className={inputClass}
+                                    />
+                                  </Field>
+                                  <Field label="Button Link">
+                                    <input
+                                      type="text"
+                                      value={curSlideIdx === 0 ? form.heroCtaHref : (currentSlide.ctaHref || '')}
+                                      onChange={(e) => {
+                                        const val = e.target.value
+                                        if (curSlideIdx === 0) set('heroCtaHref', val)
+                                        if (banners[curSlideIdx]) {
+                                          handleBannerFieldChange(banners[curSlideIdx].id, 'ctaHref', val)
+                                        }
+                                      }}
+                                      placeholder="/products"
+                                      className={inputClass}
+                                    />
+                                  </Field>
+                                </div>
+                              </div>
+                            )
+                          })()}
+
+                          {/* Section 2: Story Section (Who We Are & Our Promise) */}
+                          {sec.id === 'story' && (() => {
+                            const sc = getStyleComfort()
+                            return (
+                              <div className="space-y-4 pt-2">
+                                {/* Story Block 1: Who We Are */}
+                                <div className="space-y-3 p-3 bg-stone-50 rounded-xl border border-stone-200/70">
+                                  <span className="text-[11px] font-bold text-blue-950 uppercase tracking-wider block">
+                                    Story Block 1: Who We Are
+                                  </span>
+                                  <Field label="Section Badge">
+                                    <input
+                                      type="text"
+                                      value={form.storyBadge}
+                                      onChange={(e) => set('storyBadge', e.target.value)}
+                                      placeholder="Who We Are"
+                                      className={inputClass}
+                                    />
+                                  </Field>
+                                  <Field label="Headline">
+                                    <input
+                                      type="text"
+                                      value={form.storyTitle}
+                                      onChange={(e) => set('storyTitle', e.target.value)}
+                                      placeholder="Original Mattresses, Directly to Your Home."
+                                      className={inputClass}
+                                    />
+                                  </Field>
+                                  <Field label="Story Paragraph">
+                                    <textarea
+                                      rows={3}
+                                      value={form.storyText}
+                                      onChange={(e) => set('storyText', e.target.value)}
+                                      className={textareaClass}
+                                    />
+                                  </Field>
+                                  <Field label="Block 1 Lifestyle Photo (Image 1 of 3)" hint="Main featured lifestyle photo for Block 1">
+                                    <CloudinaryUpload
+                                      value={form.storyImageUrl ? [form.storyImageUrl] : []}
+                                      onChange={(urls) => set('storyImageUrl', urls[0] || '')}
+                                      maxFiles={1}
+                                      label="Story Block 1 photo"
+                                    />
+                                  </Field>
+                                </div>
+
+                                {/* Story Block 2: Our Promise */}
+                                <div className="space-y-3 p-3 bg-stone-50 rounded-xl border border-stone-200/70">
+                                  <span className="text-[11px] font-bold text-blue-950 uppercase tracking-wider block">
+                                    Story Block 2: Our Promise
+                                  </span>
+                                  <Field label="Promise Badge">
+                                    <input
+                                      type="text"
+                                      value={form.storySecondaryBadge}
+                                      onChange={(e) => set('storySecondaryBadge', e.target.value)}
+                                      placeholder="Our Promise"
+                                      className={inputClass}
+                                    />
+                                  </Field>
+                                  <Field label="Promise Headline">
+                                    <input
+                                      type="text"
+                                      value={form.storySecondaryTitle}
+                                      onChange={(e) => set('storySecondaryTitle', e.target.value)}
+                                      placeholder="100% Authentic, Direct From the Factory."
+                                      className={inputClass}
+                                    />
+                                  </Field>
+                                  <Field label="Promise Paragraph">
+                                    <textarea
+                                      rows={3}
+                                      value={form.storySecondaryText}
+                                      onChange={(e) => set('storySecondaryText', e.target.value)}
+                                      className={textareaClass}
+                                    />
+                                  </Field>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                                    <Field label="Promise Photo (Image 2 of 3)" hint="Square photo on left">
+                                      <CloudinaryUpload
+                                        value={sc.storySecondaryImage ? [sc.storySecondaryImage] : []}
+                                        onChange={(urls) => {
+                                          setStyleComfort({ ...sc, storySecondaryImage: urls[0] || '' })
+                                        }}
+                                        maxFiles={1}
+                                        label="Promise photo"
+                                      />
+                                    </Field>
+                                    <Field label="Companion Photo (Image 3 of 3)" hint="Tall photo on right">
+                                      <CloudinaryUpload
+                                        value={sc.storyCompanionImage ? [sc.storyCompanionImage] : []}
+                                        onChange={(urls) => {
+                                          setStyleComfort({ ...sc, storyCompanionImage: urls[0] || '' })
+                                        }}
+                                        maxFiles={1}
+                                        label="Companion photo"
+                                      />
+                                    </Field>
+                                  </div>
+                                </div>
+
+                                {/* Story Stats & Link */}
+                                <div className="space-y-3 p-3 bg-stone-50 rounded-xl border border-stone-200/70">
+                                  <span className="text-[11px] font-bold text-blue-950 uppercase tracking-wider block">
+                                    Story Stats & Link
+                                  </span>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <Field label="Stat 1 (Number / Badge)">
+                                      <input
+                                        type="text"
+                                        value={form.statOneValue}
+                                        onChange={(e) => set('statOneValue', e.target.value)}
+                                        placeholder="07"
+                                        className={inputClass}
+                                      />
+                                      <input
+                                        type="text"
+                                        value={form.statOneBadge}
+                                        onChange={(e) => set('statOneBadge', e.target.value)}
+                                        placeholder="Partner Brands"
+                                        className={`${inputClass} mt-1`}
+                                      />
+                                    </Field>
+                                    <Field label="Stat 2 (Number / Badge)">
+                                      <input
+                                        type="text"
+                                        value={form.statTwoValue}
+                                        onChange={(e) => set('statTwoValue', e.target.value)}
+                                        placeholder="100%"
+                                        className={inputClass}
+                                      />
+                                      <input
+                                        type="text"
+                                        value={form.statTwoBadge}
+                                        onChange={(e) => set('statTwoBadge', e.target.value)}
+                                        placeholder="Original Stock"
+                                        className={`${inputClass} mt-1`}
+                                      />
+                                    </Field>
+                                  </div>
+                                  <Field label="Story Link Label" hint="Link button text pointing to /about">
+                                    <input
+                                      type="text"
+                                      value={form.storyLinkLabel}
+                                      onChange={(e) => set('storyLinkLabel', e.target.value)}
+                                      placeholder="Learn more"
+                                      className={inputClass}
+                                    />
+                                  </Field>
+                                </div>
+                              </div>
+                            )
+                          })()}
+
+                          {/* Section 3: Style Meets Comfort */}
+                          {sec.id === 'styleComfort' && (() => {
+                            const sc = getStyleComfort()
+                            const stats = sc.stats && sc.stats.length >= 2 ? sc.stats : [
+                              { value: '07', label: 'Partner Brands' },
+                              { value: '100%', label: 'Authentic Warranty' },
+                            ]
+
+                            return (
+                              <div className="space-y-4 pt-2">
+                                <Field label="Headline" hint="Main large uppercase title">
+                                  <input
+                                    type="text"
+                                    value={sc.title ?? 'STYLE MEETS COMFORT'}
+                                    onChange={(e) => setStyleComfort({ ...sc, title: e.target.value })}
+                                    placeholder="STYLE MEETS COMFORT"
+                                    className={inputClass}
+                                  />
+                                </Field>
+
+                                <Field label="Description / Paragraph" hint="Descriptive text below the headline">
+                                  <textarea
+                                    rows={3}
+                                    value={sc.description ?? ''}
+                                    onChange={(e) => setStyleComfort({ ...sc, description: e.target.value })}
+                                    placeholder="Crafted with purpose, engineered for longevity. Every piece is sourced to transform your home with genuine comfort."
+                                    className={textareaClass}
+                                  />
+                                </Field>
+
+                                <Field label="Lifestyle Photo" hint="Clean square lifestyle image shown on the right">
+                                  <CloudinaryUpload
+                                    value={sc.imageUrl ? [sc.imageUrl] : []}
+                                    onChange={(urls) => setStyleComfort({ ...sc, imageUrl: urls[0] || '' })}
+                                    maxFiles={1}
+                                    label="Lifestyle photo"
+                                  />
+                                </Field>
+
+                                <div className="space-y-3 p-3 bg-stone-50 rounded-xl border border-stone-200/70">
+                                  <span className="text-[11px] font-bold text-blue-950 uppercase tracking-wider block">
+                                    Section Stats
+                                  </span>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <Field label="Stat 1 (Number / Label)">
+                                      <input
+                                        type="text"
+                                        value={stats[0]?.value ?? ''}
+                                        onChange={(e) => {
+                                          const next = [...stats]
+                                          next[0] = { ...next[0], value: e.target.value }
+                                          setStyleComfort({ ...sc, stats: next })
+                                        }}
+                                        placeholder="07"
+                                        className={inputClass}
+                                      />
+                                      <input
+                                        type="text"
+                                        value={stats[0]?.label ?? ''}
+                                        onChange={(e) => {
+                                          const next = [...stats]
+                                          next[0] = { ...next[0], label: e.target.value }
+                                          setStyleComfort({ ...sc, stats: next })
+                                        }}
+                                        placeholder="Partner Brands"
+                                        className={`${inputClass} mt-1`}
+                                      />
+                                    </Field>
+                                    <Field label="Stat 2 (Number / Label)">
+                                      <input
+                                        type="text"
+                                        value={stats[1]?.value ?? ''}
+                                        onChange={(e) => {
+                                          const next = [...stats]
+                                          next[1] = { ...next[1], value: e.target.value }
+                                          setStyleComfort({ ...sc, stats: next })
+                                        }}
+                                        placeholder="100%"
+                                        className={inputClass}
+                                      />
+                                      <input
+                                        type="text"
+                                        value={stats[1]?.label ?? ''}
+                                        onChange={(e) => {
+                                          const next = [...stats]
+                                          next[1] = { ...next[1], label: e.target.value }
+                                          setStyleComfort({ ...sc, stats: next })
+                                        }}
+                                        placeholder="Authentic Warranty"
+                                        className={`${inputClass} mt-1`}
+                                      />
+                                    </Field>
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          })()}
+
+                          {/* Section 4: Promo Text Ticker */}
+                          {sec.id === 'ticker' && (() => {
+                            const items = getTickerItems()
+                            return (
+                              <div className="space-y-4 pt-2">
+                                <div className="flex items-center justify-between pb-1 border-b border-stone-200/70">
+                                  <div>
+                                    <span className="text-xs font-bold text-blue-950 block">Sliding Ticker Messages</span>
+                                    <span className="text-[10px] text-stone-400">Continuous sliding marquee banner across the homepage</span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const next = [
+                                        ...items,
+                                        { id: `ticker-${Date.now()}`, text: '', href: '/products' },
+                                      ]
+                                      setTickerItems(next)
+                                    }}
+                                    className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100/70 border border-sky-200/60 rounded-lg transition-all"
+                                  >
+                                    <Plus className="w-3.5 h-3.5" />
+                                    <span>Add Message</span>
+                                  </button>
+                                </div>
+
+                                {items.length === 0 ? (
+                                  <div className="p-4 rounded-xl bg-stone-50 border border-dashed border-stone-300 text-center space-y-2">
+                                    <p className="text-xs text-stone-500">
+                                      Default category and brand names are currently scrolling.
+                                    </p>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setTickerItems([
+                                          { id: '1', text: '100% FACTORY-SEALED MATTRESSES', href: '/products' },
+                                          { id: '2', text: 'NATIONWIDE DIRECT DELIVERY', href: '/delivery' },
+                                          { id: '3', text: 'GENUINE MANUFACTURER WARRANTY', href: '/products' },
+                                          { id: '4', text: 'OFFICIAL MOUKA & VITAFOAM DISTRIBUTOR', href: '/products' },
+                                        ])
+                                      }}
+                                      className="text-xs font-semibold text-blue-950 underline hover:text-blue-800"
+                                    >
+                                      Load standard promo messages
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="space-y-2.5">
+                                    {items.map((item, idx) => (
+                                      <div key={item.id || idx} className="p-3 bg-stone-50 rounded-xl border border-stone-200/70 space-y-2">
                                         <div className="flex items-center justify-between">
-                                          <span className="text-[11px] font-bold text-blue-950">Slide {idx + 2}</span>
+                                          <span className="text-[11px] font-bold text-blue-950 uppercase tracking-wider">
+                                            Message {idx + 1}
+                                          </span>
                                           <button
                                             type="button"
-                                            onClick={() => handleDeleteBanner(slide.id)}
-                                            className="text-red-500 hover:text-red-700 text-xs flex items-center gap-0.5"
+                                            onClick={() => {
+                                              const next = items.filter((_, i) => i !== idx)
+                                              setTickerItems(next)
+                                            }}
+                                            className="text-stone-400 hover:text-rose-600 p-1"
+                                            title="Delete message"
                                           >
-                                            <Trash2 className="w-3 h-3" /> Remove
+                                            <Trash2 className="w-3.5 h-3.5" />
                                           </button>
                                         </div>
-                                        <CloudinaryUpload
-                                          value={slide.imageUrl ? [slide.imageUrl] : []}
-                                          onChange={(urls) => {
-                                            if (urls[0]) handleBannerFieldChange(slide.id, 'imageUrl', urls[0])
-                                          }}
-                                          maxFiles={1}
-                                          label={`Slide ${idx + 2} Image`}
-                                        />
-                                        <input
-                                          type="text"
-                                          value={slide.title}
-                                          onChange={(e) => handleBannerFieldChange(slide.id, 'title', e.target.value)}
-                                          placeholder="Slide title"
-                                          className={inputClass}
-                                        />
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                          <Field label="Text">
+                                            <input
+                                              type="text"
+                                              value={item.text}
+                                              onChange={(e) => {
+                                                const next = [...items]
+                                                next[idx] = { ...next[idx], text: e.target.value }
+                                                setTickerItems(next)
+                                              }}
+                                              placeholder="e.g. FACTORY-SEALED MATTRESSES"
+                                              className={inputClass}
+                                            />
+                                          </Field>
+                                          <Field label="Link (Optional)">
+                                            <input
+                                              type="text"
+                                              value={item.href}
+                                              onChange={(e) => {
+                                                const next = [...items]
+                                                next[idx] = { ...next[idx], href: e.target.value }
+                                                setTickerItems(next)
+                                              }}
+                                              placeholder="/products"
+                                              className={inputClass}
+                                            />
+                                          </Field>
+                                        </div>
                                       </div>
                                     ))}
                                   </div>
                                 )}
                               </div>
-                            </div>
-                          )}
-
-                          {/* 3. Story Section Form */}
-                          {sec.id === 'story' && (
-                            <div className="space-y-4 pt-2">
-                              <div className="space-y-3 p-3 bg-stone-50 rounded-xl border border-stone-200/70">
-                                <span className="text-[11px] font-bold text-blue-950 uppercase tracking-wider block">
-                                  Story Block 1: Who We Are
-                                </span>
-                                <Field label="Section Badge">
-                                  <input
-                                    type="text"
-                                    value={form.storyBadge}
-                                    onChange={(e) => set('storyBadge', e.target.value)}
-                                    placeholder="Who We Are"
-                                    className={inputClass}
-                                  />
-                                </Field>
-                                <Field label="Headline">
-                                  <input
-                                    type="text"
-                                    value={form.storyTitle}
-                                    onChange={(e) => set('storyTitle', e.target.value)}
-                                    placeholder="Original Mattresses, Directly to Your Home."
-                                    className={inputClass}
-                                  />
-                                </Field>
-                                <Field label="Story Paragraph">
-                                  <textarea
-                                    rows={3}
-                                    value={form.storyText}
-                                    onChange={(e) => set('storyText', e.target.value)}
-                                    className={textareaClass}
-                                  />
-                                </Field>
-                                <Field label="Story Image" hint="Featured lifestyle photo">
-                                  <CloudinaryUpload
-                                    value={form.storyImageUrl ? [form.storyImageUrl] : []}
-                                    onChange={(urls) => set('storyImageUrl', urls[0] || null)}
-                                    maxFiles={1}
-                                    label="Upload story image"
-                                  />
-                                </Field>
-                              </div>
-
-                              <div className="space-y-3 p-3 bg-stone-50 rounded-xl border border-stone-200/70">
-                                <span className="text-[11px] font-bold text-blue-950 uppercase tracking-wider block">
-                                  Story Block 2: Our Promise
-                                </span>
-                                <Field label="Promise Badge">
-                                  <input
-                                    type="text"
-                                    value={form.storySecondaryBadge}
-                                    onChange={(e) => set('storySecondaryBadge', e.target.value)}
-                                    placeholder="Our Promise"
-                                    className={inputClass}
-                                  />
-                                </Field>
-                                <Field label="Promise Headline">
-                                  <input
-                                    type="text"
-                                    value={form.storySecondaryTitle}
-                                    onChange={(e) => set('storySecondaryTitle', e.target.value)}
-                                    placeholder="100% Authentic, Direct From the Factory."
-                                    className={inputClass}
-                                  />
-                                </Field>
-                                <Field label="Promise Paragraph">
-                                  <textarea
-                                    rows={3}
-                                    value={form.storySecondaryText}
-                                    onChange={(e) => set('storySecondaryText', e.target.value)}
-                                    className={textareaClass}
-                                  />
-                                </Field>
-                                <Field label="Promise Photo" hint="Lifestyle photo shown in Our Promise block">
-                                  <CloudinaryUpload
-                                    value={((getStyleComfort() as any).storySecondaryImage) ? [(getStyleComfort() as any).storySecondaryImage] : ['/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg']}
-                                    onChange={(urls) => {
-                                      const sc = getStyleComfort()
-                                      setStyleComfort({ ...sc, storySecondaryImage: urls[0] || '' } as any)
-                                    }}
-                                    maxFiles={1}
-                                    label="Upload promise image"
-                                  />
-                                </Field>
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-2">
-                                <Field label="Stat 1 (Number / Badge)">
-                                  <input
-                                    type="text"
-                                    value={form.statOneValue}
-                                    onChange={(e) => set('statOneValue', e.target.value)}
-                                    placeholder="07"
-                                    className={inputClass}
-                                  />
-                                  <input
-                                    type="text"
-                                    value={form.statOneBadge}
-                                    onChange={(e) => set('statOneBadge', e.target.value)}
-                                    placeholder="Partner Brands"
-                                    className={`${inputClass} mt-1`}
-                                  />
-                                </Field>
-                                <Field label="Stat 2 (Number / Badge)">
-                                  <input
-                                    type="text"
-                                    value={form.statTwoValue}
-                                    onChange={(e) => set('statTwoValue', e.target.value)}
-                                    placeholder="100%"
-                                    className={inputClass}
-                                  />
-                                  <input
-                                    type="text"
-                                    value={form.statTwoBadge}
-                                    onChange={(e) => set('statTwoBadge', e.target.value)}
-                                    placeholder="Original Stock"
-                                    className={`${inputClass} mt-1`}
-                                  />
-                                </Field>
-                              </div>
-                            </div>
-                          )}
+                            )
+                          })()}
 
                           {/* Section 5: Shop by Room / Collections */}
                           {sec.id === 'collections' && (
@@ -1299,6 +1724,61 @@ export default function SiteSettingsPage() {
                             </div>
                           )}
 
+                          {/* Section 6: Mid-Page Promo Banner */}
+                          {sec.id === 'promo' && (
+                            <div className="space-y-4 pt-2">
+                              <Field label="Banner Badge" hint="Small label above headline (e.g. For Nigerian homes)">
+                                <input
+                                  type="text"
+                                  value={form.promoBadge}
+                                  onChange={(e) => set('promoBadge', e.target.value)}
+                                  placeholder="For Nigerian homes"
+                                  className={inputClass}
+                                />
+                              </Field>
+
+                              <Field label="Headline" hint="Large bold title on the promo banner">
+                                <input
+                                  type="text"
+                                  value={form.promoTitle}
+                                  onChange={(e) => set('promoTitle', e.target.value)}
+                                  placeholder="Comfort that feels like home"
+                                  className={inputClass}
+                                />
+                              </Field>
+
+                              <Field label="Banner Photo (Image)" hint="Full-width background image for the promo banner">
+                                <CloudinaryUpload
+                                  value={form.promoImageUrl ? [form.promoImageUrl] : []}
+                                  onChange={(urls) => set('promoImageUrl', urls[0] || '')}
+                                  maxFiles={1}
+                                  label="Promo banner photo"
+                                />
+                              </Field>
+
+                              <div className="grid grid-cols-2 gap-2">
+                                <Field label="Button Text">
+                                  <input
+                                    type="text"
+                                    value={form.promoCtaLabel}
+                                    onChange={(e) => set('promoCtaLabel', e.target.value)}
+                                    placeholder="Discover now"
+                                    className={inputClass}
+                                  />
+                                </Field>
+                                <Field label="Button Link">
+                                  <input
+                                    type="text"
+                                    value={form.promoCtaHref}
+                                    onChange={(e) => set('promoCtaHref', e.target.value)}
+                                    placeholder="/products"
+                                    className={inputClass}
+                                  />
+                                </Field>
+                              </div>
+                            </div>
+                          )}
+
                           {/* Section 7: Featured Best Sellers */}
                           {sec.id === 'featured' && (
                             <div className="space-y-3 pt-2">
@@ -1323,92 +1803,52 @@ export default function SiteSettingsPage() {
                             </div>
                           )}
 
-                          {/* 5. Promo Banner Form */}
-                          {sec.id === 'promo' && (
-                            <div className="space-y-3 pt-2">
-                              <Field label="Banner Badge">
-                                <input
-                                  type="text"
-                                  value={form.promoBadge}
-                                  onChange={(e) => set('promoBadge', e.target.value)}
-                                  placeholder="Crafted for Nigerian homes"
-                                  className={inputClass}
-                                />
-                              </Field>
-                              <Field label="Banner Headline">
-                                <input
-                                  type="text"
-                                  value={form.promoTitle}
-                                  onChange={(e) => set('promoTitle', e.target.value)}
-                                  placeholder="Spaces worth living in."
-                                  className={inputClass}
-                                />
-                              </Field>
-                              <div className="grid grid-cols-2 gap-2">
-                                <Field label="Button Label">
+                          {/* Section 8: Newsletter */}
+                          {sec.id === 'newsletter' && (() => {
+                            const nl = getNewsletter()
+                            return (
+                              <div className="space-y-3 pt-2">
+                                <Field label="Headline">
                                   <input
                                     type="text"
-                                    value={form.promoCtaLabel}
-                                    onChange={(e) => set('promoCtaLabel', e.target.value)}
-                                    placeholder="Shop the collection"
+                                    value={nl.title}
+                                    onChange={(e) => setNewsletter({ ...nl, title: e.target.value })}
+                                    placeholder="Get exclusive deals & interior tips"
                                     className={inputClass}
                                   />
                                 </Field>
-                                <Field label="Button Link">
+                                <Field label="Subtitle / Body">
+                                  <textarea
+                                    rows={2}
+                                    value={nl.subtitle}
+                                    onChange={(e) => setNewsletter({ ...nl, subtitle: e.target.value })}
+                                    placeholder="Join 2,000+ Nigerians who shop smarter."
+                                    className={textareaClass}
+                                  />
+                                </Field>
+                                <Field label="Email Input Placeholder">
                                   <input
                                     type="text"
-                                    value={form.promoCtaHref}
-                                    onChange={(e) => set('promoCtaHref', e.target.value)}
-                                    placeholder="/products"
+                                    value={nl.placeholder}
+                                    onChange={(e) => setNewsletter({ ...nl, placeholder: e.target.value })}
+                                    placeholder="Enter your email…"
+                                    className={inputClass}
+                                  />
+                                </Field>
+                                <Field label="Subscribe Button Label">
+                                  <input
+                                    type="text"
+                                    value={nl.ctaLabel}
+                                    onChange={(e) => setNewsletter({ ...nl, ctaLabel: e.target.value })}
+                                    placeholder="Subscribe"
                                     className={inputClass}
                                   />
                                 </Field>
                               </div>
-                              <Field label="Banner Photo">
-                                <CloudinaryUpload
-                                  value={form.promoImageUrl ? [form.promoImageUrl] : []}
-                                  onChange={(urls) => set('promoImageUrl', urls[0] || null)}
-                                  maxFiles={1}
-                                  label="Upload banner image"
-                                />
-                              </Field>
-                            </div>
-                          )}
+                            )
+                          })()}
 
-                          {/* 6. Policies Accordion Form */}
-                          {sec.id === 'policies' && (
-                            <div className="space-y-3 pt-2">
-                              <Field label="Delivery Policy" hint="One bullet per line">
-                                <textarea
-                                  rows={3}
-                                  value={form.deliveryPolicy || ''}
-                                  onChange={(e) => set('deliveryPolicy', e.target.value)}
-                                  placeholder="Free doorstep delivery on select orders..."
-                                  className={textareaClass}
-                                />
-                              </Field>
-                              <Field label="Return Policy" hint="One bullet per line">
-                                <textarea
-                                  rows={3}
-                                  value={form.returnPolicy || ''}
-                                  onChange={(e) => set('returnPolicy', e.target.value)}
-                                  placeholder="7-day inspection window on factory-sealed items..."
-                                  className={textareaClass}
-                                />
-                              </Field>
-                              <Field label="Factory Warranty Policy" hint="One bullet per line">
-                                <textarea
-                                  rows={3}
-                                  value={form.warrantyPolicy || ''}
-                                  onChange={(e) => set('warrantyPolicy', e.target.value)}
-                                  placeholder="100% genuine factory warranty..."
-                                  className={textareaClass}
-                                />
-                              </Field>
-                            </div>
-                          )}
-
-                          {/* 7. Footer Copy Form */}
+                          {/* Section 9: Footer Copy Form */}
                           {sec.id === 'footer' && (
                             <div className="space-y-3 pt-2">
                               <Field label="Footer Bio / Brand Copy" hint="Displayed on every page above copyright">
@@ -1423,128 +1863,326 @@ export default function SiteSettingsPage() {
                             </div>
                           )}
 
-                          {/* 8. Style Meets Comfort - simplified */}
-                          {sec.id === 'styleComfort' && (() => {
-                            const sc = getStyleComfort()
-                            return (
-                              <div className="space-y-4 pt-2">
-                                <div className="p-3 bg-amber-50 border border-amber-200/70 rounded-xl">
-                                  <p className="text-[11px] text-amber-800 leading-relaxed">✏️ Edit the headline, description and photo for the <strong>Style Meets Comfort</strong> section on your homepage.</p>
-                                </div>
-                                <Field label="Section Headline">
-                                  <input type="text" value={sc.title} onChange={(e) => setStyleComfort({ ...sc, title: e.target.value })} placeholder="Style Meets Comfort" className={inputClass} />
-                                </Field>
-                                <Field label="Section Description" hint="1-2 sentences describing this section">
-                                  <textarea rows={3} value={sc.description} onChange={(e) => setStyleComfort({ ...sc, description: e.target.value })} className={textareaClass} placeholder="Where great design meets genuine comfort." />
-                                </Field>
-                                <Field label="Feature Photo" hint="Large lifestyle photo shown in this section">
-                                  <CloudinaryUpload
-                                    value={sc.imageUrl ? [sc.imageUrl] : []}
-                                    onChange={(urls) => setStyleComfort({ ...sc, imageUrl: urls[0] || '', imageAlt: sc.imageAlt })}
-                                    maxFiles={1}
-                                    label="Upload feature photo"
-                                  />
-                                  <input type="url" value={sc.imageUrl} onChange={(e) => setStyleComfort({ ...sc, imageUrl: e.target.value })} placeholder="Or paste a photo URL here" className={`${inputClass} mt-1.5`} />
-                                </Field>
-                              </div>
-                            )
-                          })()}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
 
-                          {/* 10. Editorial Journal - hidden (too technical for owner) */}
-                          {/* 11. Newsletter */}
-                          {sec.id === 'ticker' && (() => {
-                            const items = getTickerItems()
-                            return (
-                              <div className="space-y-3 pt-2">
-                                <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-                                  <span className="text-xs font-semibold text-stone-600">{items.length} ticker items</span>
-                                  <button type="button" onClick={() => setTickerItems([...items, { id: Date.now().toString(), text: 'New announcement', href: '/products' }])} className="flex items-center gap-1 text-xs font-bold text-white bg-blue-950 hover:bg-blue-900 px-2.5 py-1 rounded-lg">
-                                    <Plus className="w-3 h-3" /> Add Item
+            {/* ── 2B. PAGES & FAQS CONTENT MODE ── */}
+            {category === 'pages' && (
+              <div className="space-y-2">
+                {filteredPages.map((pageSec) => {
+                  const Icon = pageSec.icon
+                  const isOpen = expandedSection === pageSec.id
+
+                  return (
+                    <div
+                      key={pageSec.id}
+                      className={`border rounded-xl transition-all overflow-hidden ${
+                        isOpen
+                          ? 'border-blue-950/20 bg-stone-50/40 shadow-sm ring-1 ring-blue-950/5'
+                          : 'border-stone-200/80 bg-white hover:border-stone-300'
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = isOpen ? null : pageSec.id
+                          setExpandedSection(next)
+                          if (next && pageSec.targetPage) {
+                            setPreviewUrl(pageSec.targetPage)
+                          }
+                        }}
+                        className="w-full flex items-center justify-between p-3.5 text-left group"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                              isOpen ? 'bg-blue-950 text-white' : 'bg-stone-100 text-stone-500 group-hover:text-blue-950'
+                            }`}
+                          >
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <span className="text-xs font-bold text-blue-950 block truncate">{pageSec.label}</span>
+                            <span className="text-[11px] text-stone-400 block truncate">{pageSec.desc}</span>
+                          </div>
+                        </div>
+                        <ChevronDown
+                          className={`w-4 h-4 text-stone-400 transition-transform duration-200 shrink-0 ${
+                            isOpen ? 'rotate-180 text-blue-950' : ''
+                          }`}
+                        />
+                      </button>
+
+                      {isOpen && (
+                        <div className="p-4 pt-1 border-t border-stone-200/60 bg-white space-y-4">
+                          {/* Context banner */}
+                          {SECTION_CONTEXT[pageSec.id] && (
+                            <div className="flex items-start gap-2.5 p-3 bg-sky-950/5 border border-sky-950/10 rounded-xl">
+                              <span className="text-base shrink-0 mt-0.5">📍</span>
+                              <div>
+                                <p className="text-[11px] font-bold text-blue-950">{SECTION_CONTEXT[pageSec.id].page}</p>
+                                <p className="text-[11px] text-stone-500 mt-0.5 leading-relaxed">{SECTION_CONTEXT[pageSec.id].where}</p>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 1. FAQs Manager */}
+                          {pageSec.id === 'faqs' && (
+                            <div className="space-y-3 pt-2">
+                              <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                                <span className="text-xs font-semibold text-stone-600">
+                                  {getFaqsList().length} Questions Configured
+                                </span>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => setPreviewUrl('/faqs')}
+                                    className="text-[10px] font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 px-2 py-1 rounded-lg border border-sky-200/60 transition-colors"
+                                  >
+                                    Preview /faqs ↗
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={handleAddFaq}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-white bg-blue-950 hover:bg-blue-900 rounded-lg transition-colors"
+                                  >
+                                    <Plus className="w-3 h-3" />
+                                    <span>Add FAQ</span>
                                   </button>
                                 </div>
-                                <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                                  {items.map((item, idx) => (
-                                    <div key={item.id} className="p-3 bg-stone-50 rounded-xl border border-stone-200 space-y-2">
-                                      <div className="flex items-center justify-between">
-                                        <span className="text-[10px] font-mono font-bold text-sky-700">#{idx + 1}</span>
-                                        <div className="flex items-center gap-1">
-                                          <button type="button" disabled={idx === 0} onClick={() => { const a = [...items]; [a[idx], a[idx-1]] = [a[idx-1], a[idx]]; setTickerItems(a) }} className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30"><ArrowUp className="w-3 h-3" /></button>
-                                          <button type="button" disabled={idx === items.length - 1} onClick={() => { const a = [...items]; [a[idx], a[idx+1]] = [a[idx+1], a[idx]]; setTickerItems(a) }} className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30"><ArrowDown className="w-3 h-3" /></button>
-                                          <button type="button" onClick={() => setTickerItems(items.filter((_, i) => i !== idx))} className="p-1 text-rose-500 hover:text-rose-700"><Trash2 className="w-3 h-3" /></button>
-                                        </div>
+                              </div>
+
+                              <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
+                                {getFaqsList().map((faq, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="p-3 bg-stone-50/80 border border-stone-200 rounded-xl space-y-2"
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-[10px] font-mono font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
+                                        Q{idx + 1}
+                                      </span>
+                                      <div className="flex items-center gap-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleMoveFaq(idx, -1)}
+                                          disabled={idx === 0}
+                                          className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30"
+                                          title="Move up"
+                                        >
+                                          <ArrowUp className="w-3 h-3" />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleMoveFaq(idx, 1)}
+                                          disabled={idx === getFaqsList().length - 1}
+                                          className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30"
+                                          title="Move down"
+                                        >
+                                          <ArrowDown className="w-3 h-3" />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleDeleteFaq(idx)}
+                                          className="p-1 text-rose-500 hover:text-rose-700"
+                                          title="Delete question"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                        </button>
                                       </div>
-                                      <input type="text" value={item.text} onChange={(e) => { const a = [...items]; a[idx] = { ...a[idx], text: e.target.value }; setTickerItems(a) }} placeholder="Ticker text…" className={inputClass} />
-                                      <input type="text" value={item.href} onChange={(e) => { const a = [...items]; a[idx] = { ...a[idx], href: e.target.value }; setTickerItems(a) }} placeholder="/products" className={inputClass} />
                                     </div>
-                                  ))}
-                                </div>
+                                    <input
+                                      type="text"
+                                      value={faq.question}
+                                      onChange={(e) => handleUpdateFaq(idx, 'question', e.target.value)}
+                                      placeholder="Frequently Asked Question..."
+                                      className={inputClass}
+                                    />
+                                    <textarea
+                                      rows={2}
+                                      value={faq.answer}
+                                      onChange={(e) => handleUpdateFaq(idx, 'answer', e.target.value)}
+                                      placeholder="Clear and helpful answer..."
+                                      className={textareaClass}
+                                    />
+                                  </div>
+                                ))}
                               </div>
-                            )
-                          })()}
+                            </div>
+                          )}
 
-                          {/* 12. Trust Badges - hidden (too technical) */}
-                          {/* 13. Navigation Links - hidden (could break site) */}
-                          {/* 14. Footer Navigation Links - hidden (could break site) */}
-                          {sec.id === 'editorial' && (() => {
-                            const articles = getEditorial()
-                            return (
-                              <div className="space-y-3 pt-2">
-                                <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-                                  <span className="text-xs font-semibold text-stone-600">{articles.length} articles</span>
-                                  <button type="button" onClick={() => setEditorial([...articles, { id: Date.now().toString(), tag: 'New', title: '', description: '', imageUrl: '', href: '#' }])} className="flex items-center gap-1 text-xs font-bold text-white bg-blue-950 hover:bg-blue-900 px-2.5 py-1 rounded-lg">
-                                    <Plus className="w-3 h-3" /> Add Article
-                                  </button>
-                                </div>
-                                <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
-                                  {articles.map((art, idx) => (
-                                    <div key={art.id} className="p-3 bg-stone-50 rounded-xl border border-stone-200 space-y-2">
-                                      <div className="flex items-center justify-between">
-                                        <span className="text-[10px] font-bold text-blue-950">Article {idx + 1}</span>
-                                        <button type="button" onClick={() => setEditorial(articles.filter((_, i) => i !== idx))} className="p-1 text-rose-500"><Trash2 className="w-3 h-3" /></button>
-                                      </div>
-                                      <Field label="Tag / Category">
-                                        <input type="text" value={art.tag} onChange={(e) => { const a = [...articles]; a[idx] = { ...a[idx], tag: e.target.value }; setEditorial(a) }} placeholder="Guide" className={inputClass} />
-                                      </Field>
-                                      <Field label="Article Title">
-                                        <input type="text" value={art.title} onChange={(e) => { const a = [...articles]; a[idx] = { ...a[idx], title: e.target.value }; setEditorial(a) }} placeholder="How to choose the right mattress" className={inputClass} />
-                                      </Field>
-                                      <Field label="Description">
-                                        <textarea rows={2} value={art.description} onChange={(e) => { const a = [...articles]; a[idx] = { ...a[idx], description: e.target.value }; setEditorial(a) }} placeholder="Short summary…" className={textareaClass} />
-                                      </Field>
-                                      <Field label="Cover Image">
-                                        <CloudinaryUpload value={art.imageUrl ? [art.imageUrl] : []} onChange={(urls) => { const a = [...articles]; a[idx] = { ...a[idx], imageUrl: urls[0] || '' }; setEditorial(a) }} maxFiles={1} label="Article image" />
-                                      </Field>
-                                      <Field label="Link / Href">
-                                        <input type="text" value={art.href} onChange={(e) => { const a = [...articles]; a[idx] = { ...a[idx], href: e.target.value }; setEditorial(a) }} placeholder="#" className={inputClass} />
-                                      </Field>
-                                    </div>
-                                  ))}
-                                </div>
+                          {/* 2. Policies & Guarantees Form */}
+                          {pageSec.id === 'policies' && (
+                            <div className="space-y-4 pt-2">
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewUrl('/delivery')}
+                                  className="text-[11px] font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg border border-sky-200/60 transition-colors"
+                                >
+                                  Preview /delivery ↗
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewUrl('/refund')}
+                                  className="text-[11px] font-semibold text-stone-600 bg-stone-100 hover:bg-stone-200 px-2.5 py-1 rounded-lg transition-colors"
+                                >
+                                  Preview /refund ↗
+                                </button>
                               </div>
-                            )
-                          })()}
 
-                          {/* 11. Newsletter */}
-                          {sec.id === 'newsletter' && (() => {
-                            const nl = getNewsletter()
-                            return (
-                              <div className="space-y-3 pt-2">
-                                <Field label="Headline">
-                                  <input type="text" value={nl.title} onChange={(e) => setNewsletter({ ...nl, title: e.target.value })} placeholder="Get exclusive deals & interior tips" className={inputClass} />
-                                </Field>
-                                <Field label="Subtitle / Body">
-                                  <textarea rows={2} value={nl.subtitle} onChange={(e) => setNewsletter({ ...nl, subtitle: e.target.value })} placeholder="Join 2,000+ Nigerians who shop smarter." className={textareaClass} />
-                                </Field>
-                                <Field label="Email Input Placeholder">
-                                  <input type="text" value={nl.placeholder} onChange={(e) => setNewsletter({ ...nl, placeholder: e.target.value })} placeholder="Enter your email…" className={inputClass} />
-                                </Field>
-                                <Field label="Subscribe Button Label">
-                                  <input type="text" value={nl.ctaLabel} onChange={(e) => setNewsletter({ ...nl, ctaLabel: e.target.value })} placeholder="Subscribe" className={inputClass} />
-                                </Field>
+                              <Field label="Delivery Guarantees" hint="One bullet per line · Appears live on /delivery page">
+                                <textarea
+                                  rows={3}
+                                  value={form.deliveryPolicy || ''}
+                                  onChange={(e) => set('deliveryPolicy', e.target.value)}
+                                  placeholder="Abuja & Lagos: 24–48 hours. Same-day dispatch on morning orders.&#10;Other states: 3–5 business days.&#10;Check the packaging before the driver leaves."
+                                  className={textareaClass}
+                                />
+                              </Field>
+
+                              <Field label="Return & Refund Terms" hint="One bullet per line · Appears live on /delivery and /refund pages">
+                                <textarea
+                                  rows={3}
+                                  value={form.returnPolicy || ''}
+                                  onChange={(e) => set('returnPolicy', e.target.value)}
+                                  placeholder="7-day inspection window on factory-sealed items.&#10;Mattress polythene seal must remain intact for hygiene reasons.&#10;Immediate replacement if damaged in transit."
+                                  className={textareaClass}
+                                />
+                              </Field>
+
+                              <Field label="Factory Warranty Terms" hint="One bullet per line · Appears live on /delivery page">
+                                <textarea
+                                  rows={3}
+                                  value={form.warrantyPolicy || ''}
+                                  onChange={(e) => set('warrantyPolicy', e.target.value)}
+                                  placeholder="100% authentic manufacturer warranty.&#10;Direct replacement on verified manufacturing defects.&#10;Official distributor coverage for Mouka & Vitafoam."
+                                  className={textareaClass}
+                                />
+                              </Field>
+                            </div>
+                          )}
+
+                          {/* 3. Contact & Socials Form */}
+                          {pageSec.id === 'contact' && (
+                            <div className="space-y-3 pt-2">
+                              <div className="flex items-center justify-end">
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewUrl('/contact')}
+                                  className="text-[10px] font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg border border-sky-200/60 transition-colors"
+                                >
+                                  Preview /contact ↗
+                                </button>
                               </div>
-                            )
-                          })()}
+                              <Field label="Store Address">
+                                <input
+                                  type="text"
+                                  value={form.storeAddress}
+                                  onChange={(e) => set('storeAddress', e.target.value)}
+                                  placeholder="Abuja · Benin City"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Support Email">
+                                <input
+                                  type="email"
+                                  value={form.contactEmail}
+                                  onChange={(e) => set('contactEmail', e.target.value)}
+                                  placeholder="hello@smartbestbrands.com"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="WhatsApp Number (With country code)">
+                                <input
+                                  type="text"
+                                  value={form.whatsappNumber || ''}
+                                  onChange={(e) => set('whatsappNumber', e.target.value || null)}
+                                  placeholder="2348012345678"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Support Phone Call">
+                                <input
+                                  type="text"
+                                  value={form.supportPhone || ''}
+                                  onChange={(e) => set('supportPhone', e.target.value || null)}
+                                  placeholder="+234 800 000 0000"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <div className="pt-2 border-t border-stone-100 space-y-2">
+                                <span className="text-[11px] font-bold text-stone-700 block">Social Links</span>
+                                <input
+                                  type="url"
+                                  value={form.instagramUrl || ''}
+                                  onChange={(e) => set('instagramUrl', e.target.value || null)}
+                                  placeholder="Instagram URL"
+                                  className={inputClass}
+                                />
+                                <input
+                                  type="url"
+                                  value={form.facebookUrl || ''}
+                                  onChange={(e) => set('facebookUrl', e.target.value || null)}
+                                  placeholder="Facebook URL"
+                                  className={inputClass}
+                                />
+                                <input
+                                  type="url"
+                                  value={form.twitterUrl || ''}
+                                  onChange={(e) => set('twitterUrl', e.target.value || null)}
+                                  placeholder="X (Twitter) URL"
+                                  className={inputClass}
+                                />
+                                <input
+                                  type="url"
+                                  value={form.tiktokUrl || ''}
+                                  onChange={(e) => set('tiktokUrl', e.target.value || null)}
+                                  placeholder="TikTok URL"
+                                  className={inputClass}
+                                />
+                              </div>
+                            </div>
+                          )}
 
+                          {/* 4. Bank Transfer Details Form */}
+                          {pageSec.id === 'bank' && (
+                            <div className="space-y-3 pt-2">
+                              <Field label="Bank Name">
+                                <input
+                                  type="text"
+                                  value={form.bankName || ''}
+                                  onChange={(e) => set('bankName', e.target.value || null)}
+                                  placeholder="Moniepoint Microfinance Bank"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Account Name">
+                                <input
+                                  type="text"
+                                  value={form.bankAccountName || ''}
+                                  onChange={(e) => set('bankAccountName', e.target.value || null)}
+                                  placeholder="Smart Best Brands Nigeria"
+                                  className={inputClass}
+                                />
+                              </Field>
+                              <Field label="Account Number">
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  value={form.bankAccountNumber || ''}
+                                  onChange={(e) => set('bankAccountNumber', e.target.value || null)}
+                                  placeholder="0123456789"
+                                  className={inputClass}
+                                />
+                              </Field>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -1622,14 +2260,7 @@ export default function SiteSettingsPage() {
                                   value={form.logoUrl ? [form.logoUrl] : []}
                                   onChange={(urls) => set('logoUrl', urls[0] || null)}
                                   maxFiles={1}
-                                  label="Upload store logo"
-                                />
-                                <input
-                                  type="url"
-                                  value={form.logoUrl || ''}
-                                  onChange={(e) => set('logoUrl', e.target.value || null)}
-                                  placeholder="Or paste direct image URL (https://...)"
-                                  className={`${inputClass} mt-1`}
+                                  label="Store logo"
                                 />
                               </Field>
                             </div>
@@ -1891,80 +2522,7 @@ export default function SiteSettingsPage() {
                             </div>
                           )}
 
-                          {/* 7. FAQs Manager */}
-                          {thm.id === 'faqs' && (
-                            <div className="space-y-3 pt-2">
-                              <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-                                <span className="text-xs font-semibold text-stone-600">
-                                  {getFaqsList().length} Questions Configured
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={handleAddFaq}
-                                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-white bg-blue-950 hover:bg-blue-900 rounded-lg transition-colors"
-                                >
-                                  <Plus className="w-3 h-3" />
-                                  <span>Add FAQ</span>
-                                </button>
-                              </div>
-
-                              <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
-                                {getFaqsList().map((faq, idx) => (
-                                  <div
-                                    key={idx}
-                                    className="p-3 bg-stone-50/80 border border-stone-200 rounded-xl space-y-2"
-                                  >
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-[10px] font-mono font-bold text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">
-                                        Q{idx + 1}
-                                      </span>
-                                      <div className="flex items-center gap-1">
-                                        <button
-                                          type="button"
-                                          onClick={() => handleMoveFaq(idx, -1)}
-                                          disabled={idx === 0}
-                                          className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30"
-                                        >
-                                          <ArrowUp className="w-3 h-3" />
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleMoveFaq(idx, 1)}
-                                          disabled={idx === getFaqsList().length - 1}
-                                          className="p-1 text-stone-400 hover:text-stone-700 disabled:opacity-30"
-                                        >
-                                          <ArrowDown className="w-3 h-3" />
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleDeleteFaq(idx)}
-                                          className="p-1 text-rose-500 hover:text-rose-700"
-                                        >
-                                          <Trash2 className="w-3 h-3" />
-                                        </button>
-                                      </div>
-                                    </div>
-                                    <input
-                                      type="text"
-                                      value={faq.question}
-                                      onChange={(e) => handleUpdateFaq(idx, 'question', e.target.value)}
-                                      placeholder="Question..."
-                                      className={inputClass}
-                                    />
-                                    <textarea
-                                      rows={2}
-                                      value={faq.answer}
-                                      onChange={(e) => handleUpdateFaq(idx, 'answer', e.target.value)}
-                                      placeholder="Answer..."
-                                      className={textareaClass}
-                                    />
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* 8. Custom Size Modal */}
+                          {/* Custom Size Modal */}
                           {thm.id === 'customSize' && (
                             <div className="space-y-3 pt-2">
                               <Field label="Modal Headline">
@@ -1982,113 +2540,6 @@ export default function SiteSettingsPage() {
                                   value={form.customRequestSubtitle}
                                   onChange={(e) => set('customRequestSubtitle', e.target.value)}
                                   className={textareaClass}
-                                />
-                              </Field>
-                            </div>
-                          )}
-
-                          {/* 9. Contact & Socials */}
-                          {thm.id === 'contact' && (
-                            <div className="space-y-3 pt-2">
-                              <Field label="Store Address">
-                                <input
-                                  type="text"
-                                  value={form.storeAddress}
-                                  onChange={(e) => set('storeAddress', e.target.value)}
-                                  placeholder="Abuja · Benin City"
-                                  className={inputClass}
-                                />
-                              </Field>
-                              <Field label="Support Email">
-                                <input
-                                  type="email"
-                                  value={form.contactEmail}
-                                  onChange={(e) => set('contactEmail', e.target.value)}
-                                  placeholder="hello@smartbestbrands.com"
-                                  className={inputClass}
-                                />
-                              </Field>
-                              <Field label="WhatsApp Number">
-                                <input
-                                  type="text"
-                                  value={form.whatsappNumber || ''}
-                                  onChange={(e) => set('whatsappNumber', e.target.value || null)}
-                                  placeholder="08012345678"
-                                  className={inputClass}
-                                />
-                              </Field>
-                              <Field label="Support Phone Call">
-                                <input
-                                  type="text"
-                                  value={form.supportPhone || ''}
-                                  onChange={(e) => set('supportPhone', e.target.value || null)}
-                                  placeholder="+234 800 000 0000"
-                                  className={inputClass}
-                                />
-                              </Field>
-                              <div className="pt-2 border-t border-stone-100 space-y-2">
-                                <span className="text-[11px] font-bold text-stone-700 block">Social Links</span>
-                                <input
-                                  type="url"
-                                  value={form.instagramUrl || ''}
-                                  onChange={(e) => set('instagramUrl', e.target.value || null)}
-                                  placeholder="Instagram URL"
-                                  className={inputClass}
-                                />
-                                <input
-                                  type="url"
-                                  value={form.facebookUrl || ''}
-                                  onChange={(e) => set('facebookUrl', e.target.value || null)}
-                                  placeholder="Facebook URL"
-                                  className={inputClass}
-                                />
-                                <input
-                                  type="url"
-                                  value={form.twitterUrl || ''}
-                                  onChange={(e) => set('twitterUrl', e.target.value || null)}
-                                  placeholder="X (Twitter) URL"
-                                  className={inputClass}
-                                />
-                                <input
-                                  type="url"
-                                  value={form.tiktokUrl || ''}
-                                  onChange={(e) => set('tiktokUrl', e.target.value || null)}
-                                  placeholder="TikTok URL"
-                                  className={inputClass}
-                                />
-                              </div>
-                            </div>
-                          )}
-
-                          {/* 10. Bank Transfer Payment */}
-                          {thm.id === 'bank' && (
-                            <div className="space-y-3 pt-2">
-                              <Field label="Bank Name">
-                                <input
-                                  type="text"
-                                  value={form.bankName || ''}
-                                  onChange={(e) => set('bankName', e.target.value || null)}
-                                  placeholder="Moniepoint Microfinance Bank"
-                                  className={inputClass}
-                                />
-                              </Field>
-                              <Field label="Account Name">
-                                <input
-                                  type="text"
-                                  value={form.bankAccountName || ''}
-                                  onChange={(e) => set('bankAccountName', e.target.value || null)}
-                                  placeholder="Smart Best Brands Nigeria"
-                                  className={inputClass}
-                                />
-                              </Field>
-                              <Field label="Account Number">
-                                <input
-                                  type="text"
-                                  inputMode="numeric"
-                                  value={form.bankAccountNumber || ''}
-                                  onChange={(e) => set('bankAccountNumber', e.target.value || null)}
-                                  placeholder="0123456789"
-                                  className={inputClass}
                                 />
                               </Field>
                             </div>

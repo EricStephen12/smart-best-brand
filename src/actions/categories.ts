@@ -40,16 +40,19 @@ export async function getAllCategories() {
 export async function createCategory(formData: FormData) {
     try {
         await requireAdmin()
-        const name = formData.get('name') as string
+        const name = (formData.get('name') as string)?.trim()
+        const imageUrl = (formData.get('imageUrl') as string)?.trim() || null
         const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
 
         const category = await prisma.category.create({
             data: {
                 name,
-                slug
+                slug,
+                imageUrl
             }
         })
 
+        revalidatePath('/')
         revalidatePath('/account/categories')
         revalidatePath('/products')
 
@@ -64,17 +67,20 @@ export async function createCategory(formData: FormData) {
 export async function updateCategory(id: string, formData: FormData) {
     try {
         await requireAdmin()
-        const name = formData.get('name') as string
+        const name = (formData.get('name') as string)?.trim()
+        const imageUrl = (formData.get('imageUrl') as string)?.trim() || null
         const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
 
         const category = await prisma.category.update({
             where: { id },
             data: {
                 name,
-                slug
+                slug,
+                imageUrl
             }
         })
 
+        revalidatePath('/')
         revalidatePath('/account/categories')
         revalidatePath('/products')
 

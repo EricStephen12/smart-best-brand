@@ -4,6 +4,7 @@ type CategoryLike = {
     id: string
     name: string
     slug?: string
+    imageUrl?: string | null
 }
 
 type ProductLike = {
@@ -17,7 +18,7 @@ type ProductLike = {
     }>
 }
 
-/** Build up to 4 collection tiles from categories, using a product image when available. */
+/** Build up to 4 collection tiles from categories, using the category's image or falling back to a product image. */
 export function buildCollectionTiles(
     categories: CategoryLike[],
     products: ProductLike[],
@@ -33,7 +34,7 @@ export function buildCollectionTiles(
             id: category.id,
             name: category.name,
             href: `/products?category=${encodeURIComponent(category.name)}`,
-            imageUrl: match?.images?.[0] || null,
+            imageUrl: category.imageUrl || match?.images?.[0] || null,
         }
     })
 

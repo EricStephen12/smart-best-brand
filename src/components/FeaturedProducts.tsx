@@ -34,6 +34,11 @@ export default function FeaturedProducts({ products }: { products: FeaturedProdu
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-neutral-900 uppercase font-sans">
               {featuredTitle}
             </h2>
+            {featuredDescription && (
+              <p className="text-sm sm:text-base text-neutral-600 mt-2 max-w-xl font-sans">
+                {featuredDescription}
+              </p>
+            )}
           </div>
           <Link
             href="/products"
@@ -74,6 +79,7 @@ export default function FeaturedProducts({ products }: { products: FeaturedProdu
                         src={product.images[0]}
                         alt={product.name}
                         fill
+                        unoptimized
                         className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                         sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 25vw"
                       />

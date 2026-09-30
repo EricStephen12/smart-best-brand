@@ -17,7 +17,7 @@ export default function ScrollLabels({ labels }: { labels: ScrollLabel[] }) {
   try {
     if (settings.tickerLabelsJson) {
       const parsed = JSON.parse(settings.tickerLabelsJson)
-      if (parsed?.mode === 'custom' && Array.isArray(parsed?.customItems) && parsed.customItems.length > 0) {
+      if (Array.isArray(parsed?.customItems) && parsed.customItems.length > 0) {
         activeLabels = parsed.customItems.map((item: any, idx: number) => ({
           id: item.id || `custom-${idx}`,
           name: item.text || item.name || '',
