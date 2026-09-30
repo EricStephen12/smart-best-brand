@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -29,6 +29,33 @@ import {
 } from '@/lib/constants'
 import toast from 'react-hot-toast'
 
+const COLOR_NAME_TO_HEX: Record<string, string> = {
+  'oatmeal bouclé': '#EBE7DF',
+  'warm camel': '#9B7C5F',
+  'charcoal black': '#1C1917',
+  'chalk white': '#F5F5F0',
+  'deep ocean navy': '#1E293B',
+  'forest green': '#2D3B2D',
+  'stone grey': '#78716C',
+  'warm terracotta': '#9C4221',
+  'cream beige': '#D6C7B2',
+}
+
+function getProductColorHex(name: string): string {
+  const lower = name.toLowerCase().trim()
+  if (COLOR_NAME_TO_HEX[lower]) return COLOR_NAME_TO_HEX[lower]
+  if (lower.includes('white') || lower.includes('chalk')) return '#F8FAFC'
+  if (lower.includes('black') || lower.includes('charcoal')) return '#18181B'
+  if (lower.includes('navy') || lower.includes('blue')) return '#1E3A8A'
+  if (lower.includes('green') || lower.includes('moss') || lower.includes('olive')) return '#166534'
+  if (lower.includes('brown') || lower.includes('camel') || lower.includes('tan')) return '#92400E'
+  if (lower.includes('grey') || lower.includes('gray')) return '#71717A'
+  if (lower.includes('cream') || lower.includes('beige') || lower.includes('oatmeal')) return '#F5F5DC'
+  if (lower.includes('gold') || lower.includes('yellow')) return '#D97706'
+  if (lower.includes('red') || lower.includes('terracotta') || lower.includes('rust')) return '#991B1B'
+  return '#CBD5E1'
+}
+
 interface ProductDetailViewProps {
   product: any
   reviews?: ReviewItem[]
@@ -54,9 +81,27 @@ export default function ProductDetailView({
     product?.variants?.find((v: any) => v.price > 0) ||
     product?.variants?.[0] || { size: { label: 'Standard' }, price: 0, stock: 0 }
 
+  const availableColors: Array<{ name: string; hex: string }> = useMemo(() => {
+    if (Array.isArray(product?.colors) && product.colors.length > 0) {
+      return product.colors.map((c: string) => ({
+        name: c,
+        hex: getProductColorHex(c),
+      }))
+    }
+    return PRODUCT_COLOR_SWATCHES.map((s) => ({
+      name: s.name,
+      hex: s.hex,
+    }))
+  }, [product?.colors])
+
   const [selectedVariant, setSelectedVariant] = useState(initialVariant)
   const [activeImage, setActiveImage] = useState(product?.images?.[0] || '')
-  const [selectedColor, setSelectedColor] = useState<string>(PRODUCT_COLOR_SWATCHES[0].name)
+  const [selectedColor, setSelectedColor] = useState<string>(() => {
+    if (Array.isArray(product?.colors) && product.colors.length > 0) {
+      return product.colors[0]
+    }
+    return PRODUCT_COLOR_SWATCHES[0].name
+  })
   const [quantity, setQuantity] = useState(1)
   const [activeTab, setActiveTab] = useState<'description' | 'dimensions' | 'materials' | 'shipping'>('description')
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false)
@@ -269,39 +314,47 @@ export default function ProductDetailView({
               ) : null}
             </div>
 
-            {/* Colour Swatches from Constant */}
-            <div className="mt-6">
-              <div className="flex items-center justify-between text-xs mb-2.5">
-                <span className="font-medium text-neutral-900">Colour: <span className="text-neutral-500">{selectedColor}</span></span>
+            {/* Colour Swatches */}
+            {availableColors.length > 0 && (
+              <div className="mt-6">
+                <div className="flex items-center justify-between text-xs mb-2.5">
+                  <span className="font-medium text-neutral-900">
+                    Colour: <span className="text-neutral-500">{selectedColor}</span>
+                  </span>
+                </div>
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  {availableColors.map((swatch) => (
+                    <button
+                      key={swatch.name}
+                      type="button"
+                      onClick={() => setSelectedColor(swatch.name)}
+                      aria-label={swatch.name}
+                      title={swatch.name}
+                      style={{ backgroundColor: swatch.hex }}
+                      className={`w-7 h-7 rounded-full border border-black/10 transition-all ${
+                        selectedColor === swatch.name
+                          ? 'ring-2 ring-offset-2 ring-neutral-900 scale-105'
+                          : 'hover:scale-105'
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="flex items-center gap-2.5">
-                {PRODUCT_COLOR_SWATCHES.map((swatch) => (
-                  <button
-                    key={swatch.name}
-                    type="button"
-                    onClick={() => setSelectedColor(swatch.name)}
-                    aria-label={swatch.name}
-                    className={`w-7 h-7 rounded-full ${swatch.bg} border border-black/10 transition-all ${
-                      selectedColor === swatch.name
-                        ? 'ring-2 ring-offset-2 ring-neutral-900 scale-105'
-                        : 'hover:scale-105'
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
+            )}
 
             {/* Size / Variant Selector */}
             <div className="mt-6">
               <div className="flex items-center justify-between text-xs mb-2.5">
                 <span className="font-medium text-neutral-900">Size</span>
-                <button
-                  type="button"
-                  onClick={() => setIsCustomModalOpen(true)}
-                  className="text-xs font-medium text-[#9B7C5F] hover:text-neutral-900 underline transition-colors"
-                >
-                  Custom size
-                </button>
+                {product.allowCustomSize !== false ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomModalOpen(true)}
+                    className="text-xs font-medium text-[#9B7C5F] hover:text-neutral-900 underline transition-colors"
+                  >
+                    Custom size
+                  </button>
+                ) : null}
               </div>
 
               <div className="flex flex-wrap gap-2">
@@ -449,33 +502,56 @@ export default function ProductDetailView({
             {/* Left Column: Detailed description text */}
             <div className="lg:col-span-7 space-y-4 text-xs sm:text-[13px] text-neutral-600 leading-relaxed font-normal">
               {activeTab === 'description' && (
-                <>
-                  <p>
-                    {product.description || PRODUCT_TABS_DEFAULT.descriptionParagraphs[0]}
-                  </p>
-                  <p>{PRODUCT_TABS_DEFAULT.descriptionParagraphs[1]}</p>
-                </>
+                product.description ? (
+                  product.description.split(/\n+/).filter(Boolean).map((para: string, idx: number) => (
+                    <p key={idx}>{para}</p>
+                  ))
+                ) : (
+                  <>
+                    <p>{PRODUCT_TABS_DEFAULT.descriptionParagraphs[0]}</p>
+                    <p>{PRODUCT_TABS_DEFAULT.descriptionParagraphs[1]}</p>
+                  </>
+                )
               )}
 
               {activeTab === 'dimensions' && (
-                <>
-                  <p>{PRODUCT_TABS_DEFAULT.dimensionsParagraphs[0]}</p>
-                  <p>{PRODUCT_TABS_DEFAULT.dimensionsParagraphs[1]}</p>
-                </>
+                product.dimensions ? (
+                  product.dimensions.split(/\n+/).filter(Boolean).map((para: string, idx: number) => (
+                    <p key={idx}>{para}</p>
+                  ))
+                ) : (
+                  <>
+                    <p>{PRODUCT_TABS_DEFAULT.dimensionsParagraphs[0]}</p>
+                    <p>{PRODUCT_TABS_DEFAULT.dimensionsParagraphs[1]}</p>
+                  </>
+                )
               )}
 
               {activeTab === 'materials' && (
-                <>
-                  <p>{PRODUCT_TABS_DEFAULT.materialsParagraphs[0]}</p>
-                  <p>{PRODUCT_TABS_DEFAULT.materialsParagraphs[1]}</p>
-                </>
+                product.materialsCare ? (
+                  product.materialsCare.split(/\n+/).filter(Boolean).map((para: string, idx: number) => (
+                    <p key={idx}>{para}</p>
+                  ))
+                ) : (
+                  <>
+                    {product.materials && <p><strong>Composition:</strong> {product.materials}</p>}
+                    <p>{PRODUCT_TABS_DEFAULT.materialsParagraphs[0]}</p>
+                    <p>{PRODUCT_TABS_DEFAULT.materialsParagraphs[1]}</p>
+                  </>
+                )
               )}
 
               {activeTab === 'shipping' && (
-                <>
-                  <p>{PRODUCT_TABS_DEFAULT.shippingParagraphs[0]}</p>
-                  <p>{PRODUCT_TABS_DEFAULT.shippingParagraphs[1]}</p>
-                </>
+                product.shippingDelivery ? (
+                  product.shippingDelivery.split(/\n+/).filter(Boolean).map((para: string, idx: number) => (
+                    <p key={idx}>{para}</p>
+                  ))
+                ) : (
+                  <>
+                    <p>{PRODUCT_TABS_DEFAULT.shippingParagraphs[0]}</p>
+                    <p>{PRODUCT_TABS_DEFAULT.shippingParagraphs[1]}</p>
+                  </>
+                )
               )}
             </div>
 

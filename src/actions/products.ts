@@ -172,12 +172,18 @@ export async function createProduct(formData: FormData) {
         const finishing = formData.get('finishing') as string
         const warranty = formData.get('warranty') as string
         const isNegotiable = formData.get('isNegotiable') === 'true'
+        const dimensions = (formData.get('dimensions') as string) || null
+        const materialsCare = (formData.get('materialsCare') as string) || null
+        const shippingDelivery = (formData.get('shippingDelivery') as string) || null
+        const allowCustomSize = formData.get('allowCustomSize') !== 'false'
+        const customSizeNote = (formData.get('customSizeNote') as string) || null
 
         // Parse arrays
         const features = JSON.parse(formData.get('features') as string || '[]')
         const images = JSON.parse(formData.get('images') as string || '[]')
         const categoryIds = JSON.parse(formData.get('categoryIds') as string || '[]')
         const variants = JSON.parse(formData.get('variants') as string || '[]')
+        const colors = JSON.parse(formData.get('colors') as string || '[]')
 
         const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
 
@@ -193,6 +199,12 @@ export async function createProduct(formData: FormData) {
                 finishing,
                 warranty,
                 isNegotiable,
+                dimensions,
+                materialsCare,
+                shippingDelivery,
+                colors,
+                allowCustomSize,
+                customSizeNote,
                 features,
                 images,
                 categories: {
@@ -244,11 +256,17 @@ export async function updateProduct(id: string, formData: FormData) {
         const warranty = formData.get('warranty') as string
         const isNegotiable = formData.get('isNegotiable') === 'true'
         const isActive = formData.get('isActive') === 'true'
+        const dimensions = (formData.get('dimensions') as string) || null
+        const materialsCare = (formData.get('materialsCare') as string) || null
+        const shippingDelivery = (formData.get('shippingDelivery') as string) || null
+        const allowCustomSize = formData.get('allowCustomSize') !== 'false'
+        const customSizeNote = (formData.get('customSizeNote') as string) || null
 
         const features = JSON.parse(formData.get('features') as string || '[]')
         const images = JSON.parse(formData.get('images') as string || '[]')
         const categoryIds = JSON.parse(formData.get('categoryIds') as string || '[]')
         const variants = JSON.parse(formData.get('variants') as string || '[]')
+        const colors = JSON.parse(formData.get('colors') as string || '[]')
 
         const slug = name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')
 
@@ -349,6 +367,12 @@ export async function updateProduct(id: string, formData: FormData) {
                 warranty,
                 isNegotiable,
                 isActive,
+                dimensions,
+                materialsCare,
+                shippingDelivery,
+                colors,
+                allowCustomSize,
+                customSizeNote,
                 features,
                 images,
             },
