@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -21,12 +21,7 @@ import ProductReviews, { type ReviewItem } from '@/components/ProductReviews'
 import RelatedProducts from '@/components/RelatedProducts'
 import { getWhatsAppUrl } from '@/lib/contact-channels'
 import { useSiteSettings } from '@/components/site-settings-context'
-import {
-  PRODUCT_COLOR_SWATCHES,
-  PRODUCT_FEATURE_CHECKLIST,
-  PRODUCT_TABS_DEFAULT,
-  PRODUCT_NEWSLETTER,
-} from '@/lib/constants'
+import { PRODUCT_NEWSLETTER } from '@/lib/constants'
 import toast from 'react-hot-toast'
 
 const COLOR_NAME_TO_HEX: Record<string, string> = {
@@ -75,6 +70,7 @@ export default function ProductDetailView({
 }: ProductDetailViewProps) {
   const { addToCart } = useCart()
   const { isInWishlist, toggleWishlist } = useWishlist()
+  const settings = useSiteSettings()
 
   const initialVariant =
     product?.variants?.find((v: any) => v.price > 0 && v.stock > 0) ||
@@ -83,34 +79,119 @@ export default function ProductDetailView({
 
   const availableColors: Array<{ name: string; hex: string }> = useMemo(() => {
     if (Array.isArray(product?.colors) && product.colors.length > 0) {
-      return product.colors.map((c: string) => ({
-        name: c,
-        hex: getProductColorHex(c),
-      }))
+      return product.colors
+        .filter((c: string) => Boolean(c && c.trim()))
+        .map((c: string) => ({
+          name: c.trim(),
+          hex: getProductColorHex(c),
+        }))
     }
-    return PRODUCT_COLOR_SWATCHES.map((s) => ({
-      name: s.name,
-      hex: s.hex,
-    }))
+    return []
   }, [product?.colors])
 
   const [selectedVariant, setSelectedVariant] = useState(initialVariant)
   const [activeImage, setActiveImage] = useState(product?.images?.[0] || '')
   const [selectedColor, setSelectedColor] = useState<string>(() => {
     if (Array.isArray(product?.colors) && product.colors.length > 0) {
-      return product.colors[0]
+      return product.colors[0]?.trim() || ''
     }
-    return PRODUCT_COLOR_SWATCHES[0].name
+    return ''
   })
   const [quantity, setQuantity] = useState(1)
-  const [activeTab, setActiveTab] = useState<'description' | 'dimensions' | 'materials' | 'shipping'>('description')
+  const [activeTabId, setActiveTabId] = useState<string>('')
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false)
   const [newsletterEmail, setNewsletterEmail] = useState('')
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Build tabs dynamically based strictly on available data
+  const tabs = useMemo(() => {
+    const list: Array<{ id: string; label: string; content: React.ReactNode }> = []
+
+    if (product?.description && product.description.trim()) {
+      list.push({
+        id: 'description',
+        label: 'Description',
+        content: (
+          <div className="space-y-4">
+            {product.description.split(/\n+/).filter(Boolean).map((para: string, idx: number) => (
+              <p key={idx}>{para}</p>
+            ))}
+          </div>
+        ),
+      })
+    }
+
+    if (product?.dimensions && product.dimensions.trim()) {
+      list.push({
+        id: 'dimensions',
+        label: 'Dimensions',
+        content: (
+          <div className="space-y-4">
+            {product.dimensions.split(/\n+/).filter(Boolean).map((para: string, idx: number) => (
+              <p key={idx}>{para}</p>
+            ))}
+          </div>
+        ),
+      })
+    }
+
+    const hasMaterialsCare = Boolean(product?.materialsCare && product.materialsCare.trim())
+    const hasMaterials = Boolean(product?.materials && product.materials.trim())
+    if (hasMaterialsCare || hasMaterials) {
+      list.push({
+        id: 'materials',
+        label: 'Materials & care',
+        content: (
+          <div className="space-y-4">
+            {hasMaterials ? (
+              <p><strong>Composition / Materials:</strong> {product.materials}</p>
+            ) : null}
+            {hasMaterialsCare ? (
+              product.materialsCare.split(/\n+/).filter(Boolean).map((para: string, idx: number) => (
+                <p key={idx}>{para}</p>
+              ))
+            ) : null}
+          </div>
+        ),
+      })
+    }
+
+    const shippingText = (product?.shippingDelivery && product.shippingDelivery.trim()) || (settings?.deliveryPolicy && settings.deliveryPolicy.trim())
+    if (shippingText) {
+      list.push({
+        id: 'shipping',
+        label: 'Shipping & delivery',
+        content: (
+          <div className="space-y-4">
+            {shippingText.split(/\n+/).filter(Boolean).map((para: string, idx: number) => (
+              <p key={idx}>{para}</p>
+            ))}
+          </div>
+        ),
+      })
+    }
+
+    return list
+  }, [product, settings?.deliveryPolicy])
+
+  const currentTab = tabs.find((t) => t.id === activeTabId) || tabs[0]
+
+  const hasSpecs = Boolean(
+    product?.brand?.name ||
+    (product?.type && product.type.trim()) ||
+    (product?.materials && product.materials.trim()) ||
+    (product?.firmness && product.firmness.trim()) ||
+    (product?.finishing && product.finishing.trim()) ||
+    (product?.warranty && product.warranty.trim())
+  )
 
   if (!product) return null
 
-  const settings = useSiteSettings()
-  const isSaved = isInWishlist(product.id)
+  const isSaved = mounted && isInWishlist(product.id)
   const stock = typeof selectedVariant.stock === 'number' ? selectedVariant.stock : 0
   const canAddToCart = selectedVariant.price > 0 && stock > 0
   const category = product.categories?.[0]?.category?.name || 'Furniture'
@@ -453,143 +534,114 @@ export default function ProductDetailView({
               ) : null}
             </div>
 
-            {/* Feature Checklist from Constants */}
-            <div className="mt-8 space-y-2.5 text-xs text-neutral-600">
-              {PRODUCT_FEATURE_CHECKLIST.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-2.5">
-                  <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" />
-                  <span>{item}</span>
+            {/* Feature Checklist - only features saved on the product */}
+            {Array.isArray(product?.features) && product.features.filter((f: string) => f && f.trim()).length > 0 ? (
+              <div className="mt-8 space-y-2.5 text-xs text-neutral-600">
+                {product.features.filter((f: string) => f && f.trim()).map((item: string, idx: number) => (
+                  <div key={idx} className="flex items-center gap-2.5">
+                    <Check className="w-3.5 h-3.5 text-neutral-900 shrink-0" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* ── 3. Product Information Tabs & Specifications ── */}
+      {(tabs.length > 0 || hasSpecs) && (
+        <section className="bg-[#F2ECE2] py-16 sm:py-20 border-y border-[#E5DCCE]">
+          <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+
+            {/* Tab Navigation - Only shows tabs that exist for this product */}
+            {tabs.length > 0 && (
+              <div className="flex items-center gap-8 border-b border-[#E5DCCE] pb-4 mb-10 overflow-x-auto text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                {tabs.map((tab) => {
+                  const isActive = currentTab?.id === tab.id
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTabId(tab.id)}
+                      className={`pb-4 -mb-4 transition-colors relative whitespace-nowrap ${
+                        isActive
+                          ? 'text-neutral-900'
+                          : 'hover:text-neutral-900'
+                      }`}
+                    >
+                      {tab.label}
+                      {isActive ? (
+                        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
+                      ) : null}
+                    </button>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Tab Content & Optional Specs Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 font-sans">
+
+              {/* Left Column: Active tab content */}
+              <div className={`${hasSpecs ? 'lg:col-span-7' : 'lg:col-span-12'} text-xs sm:text-[13px] text-neutral-600 leading-relaxed font-normal`}>
+                {currentTab?.content}
+              </div>
+
+              {/* Right Column: Key Specifications Grid - Only display specs that actually have values */}
+              {hasSpecs && (
+                <div className="lg:col-span-5 bg-white/70 backdrop-blur-sm p-6 sm:p-7 rounded-2xl border border-[#E5DCCE] space-y-4">
+                  {product?.brand?.name ? (
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Brand</p>
+                      <p className="text-xs sm:text-[13px] font-semibold text-neutral-900 mt-1">{product.brand.name}</p>
+                    </div>
+                  ) : null}
+
+                  {product?.type && product.type.trim() ? (
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Type / Category</p>
+                      <p className="text-xs sm:text-[13px] font-semibold text-neutral-900 mt-1">{product.type}</p>
+                    </div>
+                  ) : null}
+
+                  {product?.materials && product.materials.trim() ? (
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Core / Materials</p>
+                      <p className="text-xs sm:text-[13px] font-semibold text-neutral-900 mt-1">{product.materials}</p>
+                    </div>
+                  ) : null}
+
+                  {product?.firmness && product.firmness.trim() ? (
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Firmness / Comfort</p>
+                      <p className="text-xs sm:text-[13px] font-semibold text-neutral-900 mt-1">{product.firmness}</p>
+                    </div>
+                  ) : null}
+
+                  {product?.finishing && product.finishing.trim() ? (
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Cover &amp; Finishing</p>
+                      <p className="text-xs sm:text-[13px] font-semibold text-neutral-900 mt-1">{product.finishing}</p>
+                    </div>
+                  ) : null}
+
+                  {product?.warranty && product.warranty.trim() ? (
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Manufacturer Warranty</p>
+                      <p className="text-xs sm:text-[13px] font-semibold text-neutral-900 mt-1">{product.warranty}</p>
+                    </div>
+                  ) : null}
                 </div>
-              ))}
+              )}
+
             </div>
 
           </div>
-
-        </div>
-      </section>
-
-      {/* ── 3. Product Information Tabs & Specifications (Light Brown #F2ECE2 Canvas) ── */}
-      <section className="bg-[#F2ECE2] py-16 sm:py-20 border-y border-[#E5DCCE]">
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-
-          {/* Tab Navigation */}
-          <div className="flex items-center gap-8 border-b border-[#E5DCCE] pb-4 mb-10 overflow-x-auto text-xs font-semibold uppercase tracking-wider text-neutral-500">
-            {(['description', 'dimensions', 'materials', 'shipping'] as const).map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setActiveTab(tab)}
-                className={`pb-4 -mb-4 transition-colors relative whitespace-nowrap ${
-                  activeTab === tab
-                    ? 'text-neutral-900'
-                    : 'hover:text-neutral-900'
-                }`}
-              >
-                {tab === 'description' && 'Description'}
-                {tab === 'dimensions' && 'Dimensions'}
-                {tab === 'materials' && 'Materials & care'}
-                {tab === 'shipping' && 'Shipping & delivery'}
-                {activeTab === tab ? (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
-                ) : null}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab Content (2 Columns: Editorial Copy on left, Spec Grid on right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 font-sans">
-
-            {/* Left Column: Detailed description text */}
-            <div className="lg:col-span-7 space-y-4 text-xs sm:text-[13px] text-neutral-600 leading-relaxed font-normal">
-              {activeTab === 'description' && (
-                product.description ? (
-                  product.description.split(/\n+/).filter(Boolean).map((para: string, idx: number) => (
-                    <p key={idx}>{para}</p>
-                  ))
-                ) : (
-                  <>
-                    <p>{PRODUCT_TABS_DEFAULT.descriptionParagraphs[0]}</p>
-                    <p>{PRODUCT_TABS_DEFAULT.descriptionParagraphs[1]}</p>
-                  </>
-                )
-              )}
-
-              {activeTab === 'dimensions' && (
-                product.dimensions ? (
-                  product.dimensions.split(/\n+/).filter(Boolean).map((para: string, idx: number) => (
-                    <p key={idx}>{para}</p>
-                  ))
-                ) : (
-                  <>
-                    <p>{PRODUCT_TABS_DEFAULT.dimensionsParagraphs[0]}</p>
-                    <p>{PRODUCT_TABS_DEFAULT.dimensionsParagraphs[1]}</p>
-                  </>
-                )
-              )}
-
-              {activeTab === 'materials' && (
-                product.materialsCare ? (
-                  product.materialsCare.split(/\n+/).filter(Boolean).map((para: string, idx: number) => (
-                    <p key={idx}>{para}</p>
-                  ))
-                ) : (
-                  <>
-                    {product.materials && <p><strong>Composition:</strong> {product.materials}</p>}
-                    <p>{PRODUCT_TABS_DEFAULT.materialsParagraphs[0]}</p>
-                    <p>{PRODUCT_TABS_DEFAULT.materialsParagraphs[1]}</p>
-                  </>
-                )
-              )}
-
-              {activeTab === 'shipping' && (
-                product.shippingDelivery ? (
-                  product.shippingDelivery.split(/\n+/).filter(Boolean).map((para: string, idx: number) => (
-                    <p key={idx}>{para}</p>
-                  ))
-                ) : (
-                  <>
-                    <p>{PRODUCT_TABS_DEFAULT.shippingParagraphs[0]}</p>
-                    <p>{PRODUCT_TABS_DEFAULT.shippingParagraphs[1]}</p>
-                  </>
-                )
-              )}
-            </div>
-
-            {/* Right Column: Key Specifications Grid */}
-            <div className="lg:col-span-5 bg-white/70 backdrop-blur-sm p-6 sm:p-7 rounded-2xl border border-[#E5DCCE] space-y-4">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Core / Frame</p>
-                <p className="text-xs sm:text-[13px] font-semibold text-neutral-900 mt-1">
-                  {product.materials || PRODUCT_TABS_DEFAULT.defaultSpecs.materials}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Firmness / Comfort</p>
-                <p className="text-xs sm:text-[13px] font-semibold text-neutral-900 mt-1">
-                  {product.firmness || PRODUCT_TABS_DEFAULT.defaultSpecs.firmness}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Cover & Finishing</p>
-                <p className="text-xs sm:text-[13px] font-semibold text-neutral-900 mt-1">
-                  {product.finishing || PRODUCT_TABS_DEFAULT.defaultSpecs.finishing}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Manufacturer Warranty</p>
-                <p className="text-xs sm:text-[13px] font-semibold text-neutral-900 mt-1">
-                  {product.warranty || PRODUCT_TABS_DEFAULT.defaultSpecs.warranty}
-                </p>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── 4. Customer Reviews (Pure White) ── */}
       <ProductReviews

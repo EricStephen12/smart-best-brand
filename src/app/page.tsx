@@ -13,7 +13,6 @@ import { getAllCategories } from '@/actions/categories'
 import { getActiveBanners } from '@/actions/banners'
 import { buildCollectionTiles } from '@/lib/collections'
 import { pickFeaturedProducts } from '@/lib/featured-products'
-import { FALLBACK_SCROLL_LABELS } from '@/lib/constants'
 import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
@@ -78,11 +77,7 @@ export default async function Home() {
     })),
   ]
 
-  // Ensure marquee has enough items to scroll smoothly
-  const scrollLabels =
-    labels.length >= 4
-      ? labels
-      : [...labels, ...FALLBACK_SCROLL_LABELS]
+  const scrollLabels = labels
 
   return (
     <div className="bg-transparent">

@@ -159,7 +159,7 @@ export default function CustomerOverview({ user, recentOrders, totalOrderCount }
                                             Order #{order.orderNumber}
                                         </p>
                                         <p className="text-xs text-slate-400 mt-0.5">
-                                            Placed on {new Date(order.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            Placed on {new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}
                                         </p>
                                     </div>
                                 </div>

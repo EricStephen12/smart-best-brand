@@ -121,8 +121,8 @@ export default function ReviewsAdminPage() {
                       </Link>
                       <span className="text-stone-300 text-xs">·</span>
                       <span className="text-xs text-stone-400">
-                        {new Date(review.createdAt).toLocaleDateString(undefined, {
-                          day: 'numeric', month: 'short', year: 'numeric',
+                        {new Date(review.createdAt).toLocaleDateString('en-US', {
+                          day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC',
                         })}
                       </span>
                     </div>

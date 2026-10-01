@@ -17,12 +17,14 @@ export default function Header() {
   const { state, toggleCart } = useCart()
   const { items: wishlistItems } = useWishlist()
   const [isScrolled, setIsScrolled] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const settings = useSiteSettings()
   const brand = brandNameParts(settings.siteName)
   const isHome = pathname === '/'
   const overHero = isHome && !isScrolled
 
   useEffect(() => {
+    setMounted(true)
     const handleScroll = () => setIsScrolled(window.scrollY > 24)
     handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -30,6 +32,25 @@ export default function Header() {
   }, [])
 
   useEffect(() => { setIsMenuOpen(false) }, [pathname])
+
+  let customNav: any = null
+  try {
+    if (settings.navLinksJson) {
+      customNav = JSON.parse(settings.navLinksJson)
+    }
+  } catch {}
+
+  const navLeft = (Array.isArray(customNav?.left) && customNav.left.length > 0)
+    ? customNav.left
+    : NAV_LEFT
+
+  const navRight = (Array.isArray(customNav?.right) && customNav.right.length > 0)
+    ? customNav.right
+    : NAV_RIGHT
+
+  const navMobile = (Array.isArray(customNav?.mobile) && customNav.mobile.length > 0)
+    ? customNav.mobile
+    : NAV_MOBILE
 
   const navLinkClass = overHero
     ? 'text-white/90 hover:text-white transition-colors text-[13px] font-medium'
@@ -66,7 +87,7 @@ export default function Header() {
 
           {/* Left nav — desktop */}
           <nav className="hidden md:flex items-center space-x-8 flex-1">
-            {NAV_LEFT.map((item) => (
+            {navLeft.map((item: any) => (
               <Link key={item.href} href={item.href} className={navLinkClass}>{item.label}</Link>
             ))}
           </nav>
@@ -109,7 +130,7 @@ export default function Header() {
           {/* Right nav + icon actions */}
           <div className="flex items-center justify-end gap-3 sm:gap-8 flex-1">
             <nav className="hidden md:flex items-center space-x-8">
-              {NAV_RIGHT.map((item) => (
+              {navRight.map((item: any) => (
                 <Link key={item.href} href={item.href} className={navLinkClass}>{item.label}</Link>
               ))}
             </nav>
@@ -134,7 +155,7 @@ export default function Header() {
               title="Saved items"
             >
               <Heart className="h-[18px] w-[18px]" />
-              {wishlistItems.length > 0 && (
+              {mounted && wishlistItems.length > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 bg-brand-primary text-white text-[9px] font-bold rounded-full h-[14px] w-[14px] flex items-center justify-center">
                   {wishlistItems.length > 9 ? '9+' : wishlistItems.length}
                 </span>
@@ -150,7 +171,7 @@ export default function Header() {
               aria-label="Shopping cart"
             >
               <ShoppingCart className="h-[18px] w-[18px]" />
-              {state.items.length > 0 && (
+              {mounted && state.items.length > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 bg-brand-primary text-white text-[9px] font-bold rounded-full h-[14px] w-[14px] flex items-center justify-center">
                   {state.items.length > 9 ? '9+' : state.items.length}
                 </span>
@@ -167,7 +188,7 @@ export default function Header() {
           className="md:hidden overflow-hidden"
         >
           <nav className="py-5 space-y-4 border-t border-neutral-100">
-            {NAV_MOBILE.map((item) => (
+            {navMobile.map((item: any) => (
               <Link
                 key={item.label}
                 href={item.href}

@@ -17,23 +17,22 @@ export default function StorySection({ brandCount }: { brandCount?: number }) {
     }
   } catch {}
 
-  // Pure dummy: read whatever is in settings
-  const storyBadge = settings.storyBadge ?? 'Who We Are'
-  const storyTitle = settings.storyTitle ?? 'Original Mattresses, Directly to Your Home.'
+  const storyBadge = settings.storyBadge ?? ''
+  const storyTitle = settings.storyTitle ?? ''
   const storyText = settings.storyText ?? ''
   const mainImage = settings.storyImageUrl || ''
 
-  const secondaryBadge = settings.storySecondaryBadge ?? 'Our Promise'
-  const secondaryTitle = settings.storySecondaryTitle ?? '100% Authentic, Direct From the Factory.'
+  const secondaryBadge = settings.storySecondaryBadge ?? ''
+  const secondaryTitle = settings.storySecondaryTitle ?? ''
   const secondaryText = settings.storySecondaryText ?? ''
   const secondaryImage = customStyleComfort?.storySecondaryImage || ''
   const companionImage = customStyleComfort?.storyCompanionImage || ''
 
-  const statOneBadge = settings.statOneBadge ?? 'Partner Brands'
-  const statOneValue = settings.statOneValue ?? (brandCount ? brandCount.toString().padStart(2, '0') : '07')
-  const statTwoBadge = settings.statTwoBadge ?? 'Original Stock'
-  const statTwoValue = settings.statTwoValue ?? '100%'
-  const storyLinkLabel = settings.storyLinkLabel ?? 'Learn more'
+  const statOneBadge = settings.statOneBadge ?? ''
+  const statOneValue = settings.statOneValue ?? (brandCount ? brandCount.toString().padStart(2, '0') : '')
+  const statTwoBadge = settings.statTwoBadge ?? ''
+  const statTwoValue = settings.statTwoValue ?? ''
+  const storyLinkLabel = settings.storyLinkLabel ?? ''
 
   return (
     <section ref={containerRef} id="story" className="bg-[#F2ECE2] py-20 sm:py-24 md:py-28 scroll-mt-16">

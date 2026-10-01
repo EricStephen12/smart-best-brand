@@ -253,9 +253,10 @@ export default function ProductReviews({
                   </div>
                   {r.createdAt ? (
                     <span className="text-[11px] text-neutral-400">
-                      {new Date(r.createdAt).toLocaleDateString(undefined, {
+                      {new Date(r.createdAt).toLocaleDateString('en-US', {
                         month: 'short',
                         year: 'numeric',
+                        timeZone: 'UTC',
                       })}
                     </span>
                   ) : null}

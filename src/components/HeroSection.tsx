@@ -33,7 +33,7 @@ export default function HeroSection({ banners = [] }: { banners?: HeroBanner[] }
 
   // Sync if banners prop updates from server
   useEffect(() => {
-    if (banners && banners.length > 0) setLiveBanners(banners)
+    setLiveBanners(banners || [])
   }, [banners])
 
   // Build active slides list from liveBanners

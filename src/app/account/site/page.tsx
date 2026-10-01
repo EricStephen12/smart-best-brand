@@ -332,10 +332,6 @@ export default function SiteSettingsPage() {
   }
 
   const handleDeleteBanner = async (id: string) => {
-    if (banners.length <= 1) {
-      toast.error('You must keep at least 1 hero slide in the carousel')
-      return
-    }
     if (!confirm('Are you sure you want to remove this slide from the carousel?')) return
 
     const updated = banners.filter((b) => b.id !== id)
@@ -477,6 +473,9 @@ export default function SiteSettingsPage() {
         setForm(res.data)
         setInitialForm(res.data)
         syncIframe(res.data)
+        try {
+          sessionStorage.removeItem('sbb_preview_site_settings')
+        } catch {}
       }
       toast.success('All changes saved and published successfully!')
     } catch {

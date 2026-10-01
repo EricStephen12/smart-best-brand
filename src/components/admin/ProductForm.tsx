@@ -89,15 +89,13 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
     );
 
     // 2. Specifications & Attributes
-    const [type, setType] = useState(initialData?.type || 'Mattress');
+    const [type, setType] = useState(initialData?.type || '');
     const [materials, setMaterials] = useState(initialData?.materials || '');
-    const [firmness, setFirmness] = useState(initialData?.firmness || 'Standard Medium');
+    const [firmness, setFirmness] = useState(initialData?.firmness || '');
     const [finishing, setFinishing] = useState(initialData?.finishing || '');
-    const [warranty, setWarranty] = useState(initialData?.warranty || '10-Year Factory Warranty');
+    const [warranty, setWarranty] = useState(initialData?.warranty || '');
     const [features, setFeatures] = useState<string[]>(
-        initialData?.features && initialData.features.length > 0
-            ? initialData.features
-            : ['100% Original Brand Guarantee', 'Direct Factory Sourcing', 'Free Setup Support']
+        Array.isArray(initialData?.features) ? initialData.features : []
     );
 
     // 3. Customer Tabs & Sizing
@@ -105,13 +103,11 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
     const [materialsCare, setMaterialsCare] = useState(initialData?.materialsCare || '');
     const [shippingDelivery, setShippingDelivery] = useState(initialData?.shippingDelivery || '');
     const [colors, setColors] = useState<string[]>(
-        initialData?.colors && initialData.colors.length > 0
-            ? initialData.colors
-            : ['Oatmeal Bouclé', 'Warm Camel', 'Charcoal Black', 'Chalk White']
+        Array.isArray(initialData?.colors) ? initialData.colors : []
     );
     const [newColorInput, setNewColorInput] = useState('');
     const [allowCustomSize, setAllowCustomSize] = useState<boolean>(
-        initialData ? initialData.allowCustomSize !== false : true
+        initialData ? Boolean(initialData.allowCustomSize) : false
     );
     const [customSizeNote, setCustomSizeNote] = useState(initialData?.customSizeNote || '');
 
@@ -374,11 +370,12 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                     onChange={(e) => setType(e.target.value)}
                                     className="w-full px-3.5 py-2.5 bg-stone-50/70 hover:bg-stone-50 focus:bg-white border border-stone-200 focus:border-blue-950 focus:ring-2 focus:ring-blue-950/5 rounded-xl text-xs font-medium text-stone-900 outline-none transition-all cursor-pointer"
                                 >
+                                    <option value="">Select Product Type…</option>
                                     <option value="Mattress">Mattress</option>
                                     <option value="Pillow">Pillow / Cushion</option>
                                     <option value="Bed Frame">Bed Frame / Furniture</option>
                                     <option value="Bedding">Bedding / Bed Sheets</option>
-                                    <option value="Accessory">Accessory</option>
+                                    <option value="Accessory">Accessory / Decor</option>
                                 </select>
                             </div>
                         </div>
@@ -604,7 +601,7 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                     </div>
                                 ))}
                                 {colors.length === 0 && (
-                                    <span className="text-xs text-stone-400 italic">No colors selected. Default neutral swatches will be used.</span>
+                                    <span className="text-xs text-stone-400 italic">No color variants added (swatches will be hidden on product page).</span>
                                 )}
                             </div>
                         </div>
@@ -737,10 +734,12 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                     onChange={(e) => setFirmness(e.target.value)}
                                     className="w-full px-3 py-2 bg-stone-50 border border-stone-200 focus:border-blue-950 rounded-lg text-xs font-medium text-stone-900 outline-none"
                                 >
-                                    <option>Standard Medium</option>
-                                    <option>Plush Soft</option>
-                                    <option>Superior Hard</option>
-                                    <option>Orthopedic Support</option>
+                                    <option value="">None / Not Applicable</option>
+                                    <option value="Plush Soft">Plush Soft</option>
+                                    <option value="Standard Medium">Standard Medium</option>
+                                    <option value="Medium Firm">Medium Firm</option>
+                                    <option value="Superior Hard">Superior Hard</option>
+                                    <option value="Orthopedic Support">Orthopedic Support</option>
                                 </select>
                             </div>
 
@@ -790,6 +789,11 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                     + Add Feature
                                 </button>
                             </div>
+                            {features.length === 0 && (
+                                <p className="text-xs text-stone-400 italic py-1">
+                                    No custom bullet features added yet. Click &quot;+ Add Feature&quot; to highlight selling points (e.g. 100% Original Brand Guarantee, 7-Day Replacement).
+                                </p>
+                            )}
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 {features.map((f, i) => (
                                     <div key={i} className="relative flex items-center">
@@ -800,15 +804,14 @@ export default function ProductForm({ brands, categories, sizes, initialData }: 
                                             placeholder="e.g. Anti-dust mite cover"
                                             className="w-full pl-3 pr-8 py-2 bg-stone-50 border border-stone-200 focus:border-blue-950 rounded-lg text-xs font-medium text-stone-900 outline-none"
                                         />
-                                        {features.length > 1 && (
-                                            <button
-                                                type="button"
-                                                onClick={() => removeFeature(i)}
-                                                className="absolute right-2 text-stone-400 hover:text-rose-500"
-                                            >
-                                                <X className="w-3.5 h-3.5" />
-                                            </button>
-                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => removeFeature(i)}
+                                            className="absolute right-2 text-stone-400 hover:text-rose-500"
+                                            title="Remove feature"
+                                        >
+                                            <X className="w-3.5 h-3.5" />
+                                        </button>
                                     </div>
                                 ))}
                             </div>

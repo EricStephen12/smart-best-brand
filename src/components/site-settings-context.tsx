@@ -22,28 +22,34 @@ export function SiteSettingsProvider({
         setCurrentSettings(settings)
     }, [settings])
 
-    // Initialize from sessionStorage if inside iframe or preview mode
+    // Initialize from sessionStorage ONLY when genuinely inside customizer iframe preview
     useEffect(() => {
         if (typeof window === 'undefined') return
+        const isInsideIframe = window.parent && window.parent !== window
 
-        try {
-            const cached = sessionStorage.getItem(PREVIEW_STORAGE_KEY)
-            if (cached) {
-                const parsed = JSON.parse(cached)
-                if (parsed && typeof parsed === 'object') {
-                    setCurrentSettings((prev) => ({ ...prev, ...parsed }))
+        if (isInsideIframe) {
+            try {
+                const cached = sessionStorage.getItem(PREVIEW_STORAGE_KEY)
+                if (cached) {
+                    const parsed = JSON.parse(cached)
+                    if (parsed && typeof parsed === 'object') {
+                        setCurrentSettings((prev) => ({ ...prev, ...parsed }))
+                    }
                 }
+            } catch {
+                // Ignore storage errors
             }
-        } catch {
-            // Ignore storage errors
-        }
 
-        // Notify parent customizer that iframe is mounted and ready for real-time sync
-        try {
-            if (window.parent && window.parent !== window) {
+            // Notify parent customizer that iframe is mounted and ready for real-time sync
+            try {
                 window.parent.postMessage({ type: 'SITE_SETTINGS_IFRAME_MOUNTED' }, '*')
-            }
-        } catch {}
+            } catch {}
+        } else {
+            // Live storefront browsing -> purge any stale preview cache so DB is always source of truth
+            try {
+                sessionStorage.removeItem(PREVIEW_STORAGE_KEY)
+            } catch {}
+        }
 
         // Listen for real-time live preview updates from parent customizer
         const handleMessage = (event: MessageEvent) => {

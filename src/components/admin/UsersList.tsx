@@ -224,8 +224,9 @@ export default function UsersList({ initialUsers, currentAdminId }: UsersListPro
                       <div className="flex items-center gap-1.5">
                         <Calendar className="w-3.5 h-3.5 text-slate-400" />
                         <span>
-                          {new Date(user.createdAt).toLocaleDateString(undefined, {
+                          {new Date(user.createdAt).toLocaleDateString('en-US', {
                             dateStyle: 'medium',
+                            timeZone: 'UTC',
                           })}
                         </span>
                       </div>

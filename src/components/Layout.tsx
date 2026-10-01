@@ -20,9 +20,23 @@ export default function Layout({ children }: LayoutProps) {
   const isAccount = pathname?.startsWith('/account')
   const isAdmin = user?.role === 'ADMIN'
   const isCheckout = pathname?.startsWith('/checkout')
+  const isManagementRoute = Boolean(
+    pathname?.startsWith('/account/products') ||
+    pathname?.startsWith('/account/categories') ||
+    pathname?.startsWith('/account/brands') ||
+    pathname?.startsWith('/account/sizes') ||
+    pathname?.startsWith('/account/banners') ||
+    pathname?.startsWith('/account/promotions') ||
+    pathname?.startsWith('/account/reviews') ||
+    pathname?.startsWith('/account/delivery-locations') ||
+    pathname?.startsWith('/account/customers') ||
+    pathname?.startsWith('/account/contact-inquiries') ||
+    pathname?.startsWith('/account/site') ||
+    pathname?.startsWith('/account/settings')
+  )
 
   // Hide store chrome for admin backoffice and the checkout flow
-  const hideHeaderFooter = (isAccount && isAdmin) || isCheckout
+  const hideHeaderFooter = isCheckout || isManagementRoute || (isAccount && isAdmin)
 
   return (
     <div className="min-h-screen bg-[var(--brand-bg)] flex flex-col">

@@ -9,9 +9,9 @@ export default function PromoBanner() {
   const settings = useSiteSettings()
   const [imageError, setImageError] = useState(false)
 
-  const badge = settings.promoBadge ?? 'For Nigerian homes'
-  const title = settings.promoTitle ?? 'Comfort that feels like home'
-  const ctaLabel = settings.promoCtaLabel ?? 'Discover now'
+  const badge = settings.promoBadge ?? ''
+  const title = settings.promoTitle ?? ''
+  const ctaLabel = settings.promoCtaLabel ?? ''
   const ctaHref = settings.promoCtaHref || '/products'
   const imageUrl = settings.promoImageUrl || ''
 

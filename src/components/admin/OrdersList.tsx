@@ -154,10 +154,10 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className="text-xs font-medium text-slate-600 block">
-                                            {new Date(order.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            {new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}
                                         </span>
                                         <span className="text-[11px] text-slate-400">
-                                            {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {new Date(order.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' })}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">

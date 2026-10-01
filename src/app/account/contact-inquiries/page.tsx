@@ -119,10 +119,11 @@ export default function ContactInquiriesPage() {
                     </span>
                     <span className="inline-flex items-center gap-1 text-xs text-stone-400">
                       <Clock className="w-3 h-3" />
-                      {new Date(inquiry.createdAt).toLocaleDateString(undefined, {
+                      {new Date(inquiry.createdAt).toLocaleDateString('en-US', {
                         day: 'numeric',
                         month: 'short',
                         year: 'numeric',
+                        timeZone: 'UTC',
                       })}
                     </span>
                     <span className={`text-xs font-semibold transition-colors ${isOpen ? 'text-blue-950' : 'text-stone-400'}`}>

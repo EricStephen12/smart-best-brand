@@ -23,6 +23,21 @@ export default function Footer() {
   const whatsappUrl = getWhatsAppUrl(undefined, contact)
   const telHref = getTelHref(contact)
 
+  let customFooterLinks: any = null
+  try {
+    if (settings.footerLinksJson) {
+      customFooterLinks = JSON.parse(settings.footerLinksJson)
+    }
+  } catch {}
+
+  const shopLinks = (Array.isArray(customFooterLinks?.shopLinks) && customFooterLinks.shopLinks.length > 0)
+    ? customFooterLinks.shopLinks
+    : FOOTER_SHOP_LINKS
+
+  const companyLinks = (Array.isArray(customFooterLinks?.companyLinks) && customFooterLinks.companyLinks.length > 0)
+    ? customFooterLinks.companyLinks
+    : FOOTER_COMPANY_LINKS
+
   return (
     <footer id="footer" className="bg-navy-dark text-white pt-16 sm:pt-20 pb-10 print:hidden scroll-mt-16">
       <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
@@ -37,14 +52,15 @@ export default function Footer() {
               {brand.lead}
               <span className="text-neutral-400">{brand.accent}</span>
             </Link>
-            <p className="mt-4 text-sm text-white/45 leading-relaxed max-w-xs">
-              {settings.footerText ||
-                'Original mattresses, luxury furniture, and bedding — factory-direct, delivered to your door.'}
-            </p>
+            {settings.footerText ? (
+              <p className="mt-4 text-sm text-white/45 leading-relaxed max-w-xs">
+                {settings.footerText}
+              </p>
+            ) : null}
           </div>
 
-          <FooterSection title="Shop" links={FOOTER_SHOP_LINKS} />
-          <FooterSection title="Company" links={FOOTER_COMPANY_LINKS} />
+          <FooterSection title="Shop" links={shopLinks} />
+          <FooterSection title="Company" links={companyLinks} />
 
           {/* Contact */}
           <div>

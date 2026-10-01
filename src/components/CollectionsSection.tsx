@@ -13,17 +13,10 @@ export type CollectionTile = {
   imageUrl: string | null
 }
 
-const FALLBACK_IMAGES = [
-  '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
-  '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg',
-  '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg',
-  '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
-]
-
 export default function CollectionsSection({ collections }: { collections: CollectionTile[] }) {
   if (!collections.length) return null
   const settings = useSiteSettings()
-  const collectionsTitle = settings.collectionsTitle ?? 'Shop by category'
+  const collectionsTitle = settings.collectionsTitle ?? ''
   const collectionsDescription = settings.collectionsDescription ?? ''
 
   return (

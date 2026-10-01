@@ -19,8 +19,8 @@ type FeaturedProduct = {
 export default function FeaturedProducts({ products }: { products: FeaturedProduct[] }) {
   if (!products.length) return null
   const settings = useSiteSettings()
-  const featuredTitle = settings.featuredTitle || FEATURED_SECTION.title
-  const featuredDescription = settings.featuredDescription || FEATURED_SECTION.description
+  const featuredTitle = settings.featuredTitle ?? ''
+  const featuredDescription = settings.featuredDescription ?? ''
 
   return (
     <section id="featured" className="bg-[#F2ECE2] py-20 sm:py-24 md:py-28 scroll-mt-16">

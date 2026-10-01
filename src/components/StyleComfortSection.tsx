@@ -16,16 +16,13 @@ export default function StyleComfortSection() {
     }
   } catch {}
 
-  const title = customData?.title ?? 'STYLE MEETS COMFORT'
+  const title = customData?.title ?? ''
   const description = customData?.description ?? ''
   const imageSrc = customData?.imageUrl || ''
-  const imageAlt = customData?.imageAlt || 'Style Meets Comfort'
-  const stats = (customData?.stats && Array.isArray(customData.stats) && customData.stats.length > 0)
+  const imageAlt = customData?.imageAlt || ''
+  const stats = (customData?.stats && Array.isArray(customData.stats))
     ? customData.stats
-    : [
-        { value: '07', label: 'Partner Brands' },
-        { value: '100%', label: 'Authentic Warranty' }
-      ]
+    : []
 
   return (
     <section id="style-comfort" className="bg-white py-20 sm:py-24 lg:py-32 scroll-mt-16">

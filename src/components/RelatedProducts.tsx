@@ -1,5 +1,6 @@
 'use client'
 
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Heart } from 'lucide-react'
@@ -23,6 +24,11 @@ export default function RelatedProducts({
   categoryLabel?: string
 }) {
   const { isInWishlist, toggleWishlist } = useWishlist()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   if (!products.length) return null
 
@@ -55,13 +61,13 @@ export default function RelatedProducts({
             const minPromo = promos.length ? Math.min(...promos) : Infinity
             const display = minPromo !== Infinity ? minPromo : minPrice
             const onSale = minPromo !== Infinity && minPromo < minPrice
-            const isSaved = isInWishlist(product.id)
+            const isSaved = mounted && isInWishlist(product.id)
 
             return (
-              <div key={product.id} className="group block">
-                <Link href={`/products/${product.slug}`} className="block">
-                  {/* Clean image canvas */}
-                  <div className="relative aspect-square bg-[#F5F3EF] rounded-2xl overflow-hidden mb-3">
+              <div key={product.id} className="group block relative">
+                {/* Clean image canvas */}
+                <div className="relative aspect-square bg-[#F5F3EF] rounded-2xl overflow-hidden mb-3">
+                  <Link href={`/products/${product.slug}`} className="block w-full h-full">
                     {product.images[0] ? (
                       <Image
                         src={product.images[0]}
@@ -75,32 +81,35 @@ export default function RelatedProducts({
                         <div className="w-10 h-10 rounded-full bg-neutral-200" />
                       </div>
                     )}
+                  </Link>
 
-                    {/* Sale badge */}
-                    {onSale ? (
-                      <span className="absolute top-3 left-3 bg-brand-primary text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                        Sale
-                      </span>
-                    ) : null}
+                  {/* Sale badge */}
+                  {onSale ? (
+                    <span className="absolute top-3 left-3 bg-brand-primary text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider pointer-events-none">
+                      Sale
+                    </span>
+                  ) : null}
 
-                    {/* Wishlist toggle */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        toggleWishlist(product)
-                      }}
-                      className="absolute top-3 right-3 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-800 hover:bg-white transition-all shadow-sm"
-                      aria-label="Save to wishlist"
-                    >
-                      <Heart
-                        className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${
-                          isSaved ? 'fill-current text-rose-600' : 'text-neutral-700'
-                        }`}
-                      />
-                    </button>
-                  </div>
+                  {/* Wishlist toggle - placed cleanly outside the <a> tag */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      toggleWishlist(product)
+                    }}
+                    className="absolute top-3 right-3 z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-neutral-800 hover:bg-white transition-all shadow-sm"
+                    aria-label="Save to wishlist"
+                  >
+                    <Heart
+                      className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${
+                        isSaved ? 'fill-current text-rose-600' : 'text-neutral-700'
+                      }`}
+                    />
+                  </button>
+                </div>
 
+                <Link href={`/products/${product.slug}`} className="block">
                   {/* Line 1: Title & Price */}
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="text-xs sm:text-[13px] font-bold text-neutral-900 uppercase tracking-tight font-sans line-clamp-1 group-hover:text-neutral-600 transition-colors">

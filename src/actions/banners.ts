@@ -15,51 +15,8 @@ async function requireAdmin() {
     return session
 }
 
-const DEFAULT_SLIDES = [
-    {
-        title: 'Pure Comfort',
-        subtitle: 'Mattresses, pillows & furniture for Nigerian homes.',
-        imageUrl: '/images/hero/jason-wang-8J49mtYWu7E-unsplash.jpg',
-        ctaLabel: 'View the Collection',
-        ctaHref: '/products',
-        sortOrder: 0,
-        isActive: true,
-    },
-    {
-        title: 'Rest Well',
-        subtitle: 'Trusted brands. Clear pricing. Delivery you can count on.',
-        imageUrl: '/images/hero/mahmoud-azmy-MPd1Vcdvg1w-unsplash.jpg',
-        ctaLabel: 'Shop products',
-        ctaHref: '/products',
-        sortOrder: 1,
-        isActive: true,
-    },
-    {
-        title: 'Live Better',
-        subtitle: 'From bedroom to living space — comfort that fits your home.',
-        imageUrl: '/images/hero/Luxury MasterBedroom - Nesreen Maher.jpeg',
-        ctaLabel: 'Explore now',
-        ctaHref: '/products',
-        sortOrder: 2,
-        isActive: true,
-    },
-]
-
-/** Seeds multiple hero slides so the carousel works out of the box. */
-export async function ensureDefaultBanner() {
-    const existing = await prisma.banner.findMany({ select: { imageUrl: true } })
-    const urls = new Set(existing.map((b) => b.imageUrl))
-
-    for (const slide of DEFAULT_SLIDES) {
-        if (urls.has(slide.imageUrl)) continue
-        await prisma.banner.create({ data: slide })
-        urls.add(slide.imageUrl)
-    }
-}
-
 export async function getActiveBanners() {
     try {
-        await ensureDefaultBanner()
         const banners = await prisma.banner.findMany({
             where: { isActive: true },
             orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
@@ -76,7 +33,6 @@ export async function getAllBanners() {
         const session = await requireAdmin()
         if (!session) return { success: false, error: 'Unauthorized' }
 
-        await ensureDefaultBanner()
         const banners = await prisma.banner.findMany({
             orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
         })

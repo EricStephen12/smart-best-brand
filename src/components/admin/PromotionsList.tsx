@@ -139,7 +139,7 @@ export default function PromotionsList({ initialPromotions }: PromotionsListProp
                                                     <div className="flex items-center gap-3">
                                                         <div className="flex items-center gap-2 text-[10px] text-slate-400 font-black uppercase tracking-widest">
                                                             <Calendar className="w-3 h-3" />
-                                                            {promo.endDate ? `Until ${new Date(promo.endDate).toLocaleDateString()}` : 'Perpetual'}
+                                                            {promo.endDate ? `Until ${new Date(promo.endDate).toLocaleDateString('en-US', { timeZone: 'UTC' })}` : 'Perpetual'}
                                                         </div>
                                                         <span className={`text-[10px] font-black uppercase tracking-tight px-2 py-0.5 rounded-xl ${promo.appliesTo === 'ALL' ? 'bg-sky-50 text-sky-600' : 'bg-amber-50 text-amber-600'}`}>
                                                             {promo.appliesTo === 'ALL' ? 'Site-wide' : 'Targeted'}

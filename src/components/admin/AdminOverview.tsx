@@ -88,7 +88,7 @@ export default function AdminOverview({ stats, recentOrders }: AdminOverviewProp
                                         <p className="text-xs text-stone-500 mt-0.5 truncate">
                                             {order.orderNumber}
                                             {order.createdAt
-                                                ? ` · ${new Date(order.createdAt).toLocaleDateString()}`
+                                                ? ` · ${new Date(order.createdAt).toLocaleDateString('en-US', { timeZone: 'UTC' })}`
                                                 : ''}
                                         </p>
                                     </div>

@@ -114,7 +114,7 @@ export default function OrderDetailsPage() {
                                 <StatusBadge status={order.status.toLowerCase()} />
                             </div>
                             <p className="text-slate-500 text-sm">
-                                Placed on {new Date(order.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                                Placed on {new Date(order.createdAt).toLocaleDateString('en-US', { dateStyle: 'long', timeZone: 'UTC' })}
                             </p>
                         </div>
                     </div>
@@ -357,7 +357,7 @@ export default function OrderDetailsPage() {
                                 #{order.orderNumber}
                             </p>
                             <p className="text-xs text-slate-500 mt-0.5">
-                                Date: {new Date(order.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                                Date: {new Date(order.createdAt).toLocaleDateString('en-US', { dateStyle: 'long', timeZone: 'UTC' })}
                             </p>
                         </div>
                     </div>

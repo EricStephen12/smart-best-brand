@@ -9,7 +9,7 @@ import { Heart, ShoppingBag, Trash2, ArrowRight } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 
 export default function WishlistPage() {
-  const { items, removeItem, clearWishlist } = useWishlist()
+  const { items, removeItem, clearWishlist, isLoaded } = useWishlist()
   const { addToCart } = useCart()
 
   const handleMoveToCart = (item: any) => {
@@ -56,7 +56,11 @@ export default function WishlistPage() {
       </div>
 
       {/* Content */}
-      {items.length === 0 ? (
+      {!isLoaded ? (
+        <div className="py-24 flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-blue-950/20 border-t-blue-950 rounded-full animate-spin" />
+        </div>
+      ) : items.length === 0 ? (
         <div className="bg-white rounded-3xl p-12 text-center border border-stone-200/80 shadow-sm max-w-md mx-auto my-8">
           <div className="w-16 h-16 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center mx-auto mb-4 text-rose-500">
             <Heart className="w-8 h-8" />

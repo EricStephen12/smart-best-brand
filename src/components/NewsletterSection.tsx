@@ -17,10 +17,12 @@ export default function NewsletterSection() {
     }
   } catch {}
 
-  const title = nlData?.title || 'Get exclusive deals & interior tips'
-  const subtitle = nlData?.subtitle || 'Join 2,000+ Nigerians who shop smarter. No spam, ever.'
+  const title = nlData?.title ?? ''
+  const subtitle = nlData?.subtitle ?? ''
   const placeholder = nlData?.placeholder || 'Enter your email address'
   const ctaLabel = nlData?.ctaLabel || 'Subscribe'
+
+  if (!title && !subtitle) return null
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

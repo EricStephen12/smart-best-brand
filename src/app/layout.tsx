@@ -180,6 +180,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
+        <style dangerouslySetInnerHTML={{ __html: themeCss }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(businessJsonLd) }}
@@ -193,7 +194,6 @@ export default async function RootLayout({
         suppressHydrationWarning
         className={`${cormorant.variable} ${jakarta.variable} ${montserrat.variable} font-sans antialiased`}
       >
-        <style dangerouslySetInnerHTML={{ __html: themeCss }} />
         <SiteSettingsProvider settings={siteSettings}>
           <CartProvider>
             <WishlistProvider>
