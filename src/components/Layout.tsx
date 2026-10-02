@@ -28,6 +28,7 @@ export default function Layout({ children }: LayoutProps) {
     pathname?.startsWith('/account/banners') ||
     pathname?.startsWith('/account/promotions') ||
     pathname?.startsWith('/account/reviews') ||
+    pathname?.startsWith('/account/blog') ||
     pathname?.startsWith('/account/delivery-locations') ||
     pathname?.startsWith('/account/customers') ||
     pathname?.startsWith('/account/contact-inquiries') ||

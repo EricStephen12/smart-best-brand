@@ -10,9 +10,15 @@ import { useAuth } from '@/hooks/use-auth'
 function getSafeRedirectUrl(param: string | null): string {
   if (!param) return '/account'
   try {
-    if (param.startsWith('/')) return param
-    const url = new URL(param)
-    return `${url.pathname}${url.search}` || '/account'
+    let clean = param
+    if (!clean.startsWith('/')) {
+      const url = new URL(param)
+      clean = `${url.pathname}${url.search}`
+    }
+    if (clean.startsWith('/login') || clean.startsWith('/register')) {
+      return '/account'
+    }
+    return clean || '/account'
   } catch {
     return '/account'
   }
@@ -33,13 +39,12 @@ function RegisterForm() {
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // If already logged in, redirect immediately without conflict
+  // If already logged in, redirect cleanly without conflict
   useEffect(() => {
     if (!authLoading && user && !isSubmitting) {
-      router.push(targetUrl)
-      router.refresh()
+      window.location.href = targetUrl
     }
-  }, [user, authLoading, targetUrl, isSubmitting, router])
+  }, [user, authLoading, targetUrl, isSubmitting])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,12 +70,8 @@ function RegisterForm() {
     try {
       const res = await register({ name, email: email.trim(), password, phone })
       if (res.success) {
-        if (typeof window !== 'undefined') {
-          window.location.assign(targetUrl)
-        } else {
-          router.push(targetUrl)
-          router.refresh()
-        }
+        window.location.href = targetUrl
+        return
       } else {
         setError(res.error || 'Failed to create account')
         setIsSubmitting(false)

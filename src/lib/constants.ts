@@ -38,6 +38,7 @@ export const ROUTES = {
   products: '/products',
   about: '/about',
   contact: '/contact',
+  blog: '/blog',
   faqs: '/faqs',
   ourStory: '/our-story',
   delivery: '/delivery',
@@ -55,6 +56,7 @@ export const ROUTES = {
 
 export const NAV_LEFT = [
   { label: 'Shop', href: ROUTES.products },
+  { label: 'Blog', href: ROUTES.blog },
   { label: 'About', href: ROUTES.about },
 ] as const
 
@@ -65,6 +67,7 @@ export const NAV_RIGHT = [
 
 export const NAV_MOBILE = [
   { label: 'Shop', href: ROUTES.products },
+  { label: 'Blog', href: ROUTES.blog },
   { label: 'Wishlist', href: ROUTES.wishlist },
   { label: 'About', href: ROUTES.about },
   { label: 'FAQs', href: ROUTES.faqs },
@@ -81,6 +84,7 @@ export const FOOTER_SHOP_LINKS = [
 
 export const FOOTER_COMPANY_LINKS = [
   { label: 'About', href: ROUTES.about },
+  { label: 'Blog & Guides', href: ROUTES.blog },
   { label: 'Contact', href: ROUTES.contact },
   { label: 'FAQs', href: ROUTES.faqs },
 ] as const

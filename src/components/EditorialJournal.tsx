@@ -8,7 +8,11 @@ import { motion } from 'framer-motion'
 import { EDITORIAL_JOURNAL } from '@/lib/constants'
 import { useSiteSettings } from '@/components/site-settings-context'
 
-export default function EditorialJournal() {
+interface EditorialJournalProps {
+  posts?: any[]
+}
+
+export default function EditorialJournal({ posts }: EditorialJournalProps = {}) {
   const settings = useSiteSettings()
   let customJournal: any = null
   try {
@@ -17,18 +21,30 @@ export default function EditorialJournal() {
     }
   } catch {}
 
-  const articles: any[] = Array.isArray(customJournal)
-    ? customJournal
-    : (Array.isArray(customJournal?.articles) ? customJournal.articles : [])
+  const hasDbPosts = Array.isArray(posts) && posts.length > 0
+
+  const articles: any[] = hasDbPosts
+    ? posts.map(p => ({
+        id: p.id,
+        title: p.title,
+        href: `/blog/${p.slug}`,
+        imageUrl: p.coverImage,
+        category: p.category,
+        readTime: p.readTime,
+        excerpt: p.excerpt,
+      }))
+    : (Array.isArray(customJournal)
+        ? customJournal
+        : (Array.isArray(customJournal?.articles) ? customJournal.articles : []))
 
   if (!articles || articles.length === 0) {
     return null
   }
 
-  const eyebrow = customJournal?.eyebrow || 'Guides'
-  const title = customJournal?.title || 'Buying guides'
+  const eyebrow = hasDbPosts ? 'Journal' : (customJournal?.eyebrow || 'Guides')
+  const title = hasDbPosts ? 'Sleep Guides & Editorial' : (customJournal?.title || 'Buying guides')
   const viewAllLabel = customJournal?.viewAllLabel || 'View all'
-  const viewAllHref = customJournal?.viewAllHref || '/faqs'
+  const viewAllHref = hasDbPosts ? '/blog' : (customJournal?.viewAllHref || '/blog')
 
   return (
     <section className="bg-white py-20 sm:py-24 lg:py-28 border-t border-neutral-100 scroll-mt-16">

@@ -44,11 +44,11 @@ export async function getAllBanners() {
 }
 
 export async function createBanner(data: {
-    title: string
-    subtitle?: string
-    imageUrl: string
-    ctaLabel?: string
-    ctaHref?: string
+    title?: string
+    subtitle?: string | null
+    imageUrl?: string
+    ctaLabel?: string | null
+    ctaHref?: string | null
     sortOrder?: number
     isActive?: boolean
 }) {
@@ -56,15 +56,14 @@ export async function createBanner(data: {
         const session = await requireAdmin()
         if (!session) return { success: false, error: 'Unauthorized' }
 
-        if (!data.title?.trim() || !data.imageUrl?.trim()) {
-            return { success: false, error: 'Title and image are required' }
-        }
+        const title = data.title?.trim() || 'Slide'
+        const imageUrl = data.imageUrl?.trim() || ''
 
         const banner = await prisma.banner.create({
             data: {
-                title: data.title.trim(),
+                title,
                 subtitle: data.subtitle?.trim() || null,
-                imageUrl: data.imageUrl.trim(),
+                imageUrl,
                 ctaLabel: data.ctaLabel?.trim() || null,
                 ctaHref: data.ctaHref?.trim() || null,
                 sortOrder: data.sortOrder ?? 0,
@@ -98,6 +97,19 @@ export async function updateBanner(
         const session = await requireAdmin()
         if (!session) return { success: false, error: 'Unauthorized' }
 
+        // If ID is a temporary client-generated ID or fallback ID, create new banner record
+        if (!id || id.startsWith('banner-temp-') || id === 'hero-primary') {
+            return await createBanner({
+                title: data.title || 'Slide',
+                subtitle: data.subtitle,
+                imageUrl: data.imageUrl || '',
+                ctaLabel: data.ctaLabel,
+                ctaHref: data.ctaHref,
+                sortOrder: data.sortOrder,
+                isActive: data.isActive,
+            })
+        }
+
         const banner = await prisma.banner.update({
             where: { id },
             data,
@@ -117,6 +129,10 @@ export async function deleteBanner(id: string) {
     try {
         const session = await requireAdmin()
         if (!session) return { success: false, error: 'Unauthorized' }
+
+        if (!id || id.startsWith('banner-temp-') || id === 'hero-primary') {
+            return { success: true }
+        }
 
         await prisma.banner.delete({ where: { id } })
         revalidatePath('/')

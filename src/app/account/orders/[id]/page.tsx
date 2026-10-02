@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getOrderById, updateOrderStatus } from '@/actions/orders';
+import { getOrderById, updateOrderStatus, deleteOrder } from '@/actions/orders';
 import { useAuth } from '@/hooks/use-auth';
 import {
     ChevronLeft,
@@ -16,6 +16,7 @@ import {
     Loader2,
     Printer,
     ShieldCheck,
+    Trash2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
@@ -29,6 +30,7 @@ export default function OrderDetailsPage() {
     const [adminStatus, setAdminStatus] = useState<string>('');
     const [trackingNote, setTrackingNote] = useState<string>('');
     const [isUpdatingStatus, setIsUpdatingStatus] = useState<boolean>(false);
+    const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
     useEffect(() => {
         const loadOrder = async () => {
@@ -75,6 +77,27 @@ export default function OrderDetailsPage() {
             toast.error('Unexpected error updating order');
         } finally {
             setIsUpdatingStatus(false);
+        }
+    };
+
+    const handleDeleteOrder = async () => {
+        if (!order) return;
+        if (!window.confirm(`Are you sure you want to permanently delete order #${order.orderNumber}? This will remove all associated items and cannot be undone.`)) {
+            return;
+        }
+        setIsDeleting(true);
+        try {
+            const result = await deleteOrder(order.id);
+            if (result.success) {
+                toast.success(`Order #${order.orderNumber} deleted successfully`);
+                router.push('/account/orders');
+            } else {
+                toast.error(result.error || 'Failed to delete order');
+                setIsDeleting(false);
+            }
+        } catch {
+            toast.error('Unexpected error deleting order');
+            setIsDeleting(false);
         }
     };
 
@@ -135,6 +158,21 @@ export default function OrderDetailsPage() {
                             <Printer className="w-4 h-4" />
                             <span>Print Invoice</span>
                         </button>
+                        {user?.role === 'ADMIN' && (
+                            <button
+                                type="button"
+                                onClick={handleDeleteOrder}
+                                disabled={isDeleting}
+                                className="inline-flex items-center gap-2 px-4 py-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-black uppercase tracking-wider hover:bg-rose-100 hover:text-rose-800 transition-colors disabled:opacity-50"
+                            >
+                                {isDeleting ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <Trash2 className="w-4 h-4" />
+                                )}
+                                <span>Delete Order</span>
+                            </button>
+                        )}
                     </div>
                 </div>
 

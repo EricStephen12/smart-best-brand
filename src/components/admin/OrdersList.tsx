@@ -4,9 +4,9 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import {
     Search, Eye, Truck, CheckCircle, XCircle,
-    Clock, Loader2, Package, ChevronLeft, ChevronRight,
+    Clock, Loader2, Package, ChevronLeft, ChevronRight, Trash2,
 } from 'lucide-react';
-import { updateOrderStatus } from '@/actions/orders';
+import { updateOrderStatus, deleteOrder } from '@/actions/orders';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -21,6 +21,7 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
     const [updatingId, setUpdatingId] = useState<string | null>(null);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
     const [page, setPage] = useState(1);
     const { user } = useAuth();
     const isAdmin = user?.role === 'ADMIN';
@@ -74,6 +75,26 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
             toast.error('Unexpected error');
         } finally {
             setUpdatingId(null);
+        }
+    };
+
+    const handleDeleteOrder = async (orderId: string, orderNumber: string) => {
+        if (!window.confirm(`Are you sure you want to permanently delete order #${orderNumber}? This will remove the order and its items permanently.`)) {
+            return;
+        }
+        setDeletingId(orderId);
+        try {
+            const result = await deleteOrder(orderId);
+            if (result.success) {
+                setOrders(prev => prev.filter(o => o.id !== orderId));
+                toast.success(`Order #${orderNumber} deleted successfully`);
+            } else {
+                toast.error(result.error || 'Failed to delete order');
+            }
+        } catch {
+            toast.error('Unexpected error deleting order');
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -193,6 +214,21 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
                                             >
                                                 <Eye className="w-4 h-4" />
                                             </Link>
+                                            {isAdmin && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDeleteOrder(order.id, order.orderNumber)}
+                                                    disabled={deletingId === order.id}
+                                                    className="p-2 hover:bg-rose-50 rounded-lg text-slate-400 hover:text-rose-600 transition-all disabled:opacity-40"
+                                                    title="Delete order"
+                                                >
+                                                    {deletingId === order.id ? (
+                                                        <Loader2 className="w-4 h-4 animate-spin text-rose-600" />
+                                                    ) : (
+                                                        <Trash2 className="w-4 h-4" />
+                                                    )}
+                                                </button>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

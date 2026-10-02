@@ -29,8 +29,12 @@ export default function CloudinaryUpload({
         : []
 
     const handleAddUrl = (newUrl: string, replace = false) => {
-        const clean = newUrl.trim()
+        let clean = newUrl.trim()
         if (!clean) return
+        // Auto-prefix https:// if protocol is missing and not relative or data URL
+        if (!clean.startsWith('http://') && !clean.startsWith('https://') && !clean.startsWith('/') && !clean.startsWith('data:')) {
+            clean = `https://${clean}`
+        }
         if (maxFiles === 1 || replace) {
             onChange([clean])
         } else {
@@ -152,7 +156,8 @@ export default function CloudinaryUpload({
                                 </label>
                                 <div className="flex items-center gap-2">
                                     <input
-                                        type="url"
+                                        type="text"
+                                        inputMode="url"
                                         value={manualUrl}
                                         onChange={(e) => setManualUrl(e.target.value)}
                                         placeholder="https://... or /images/..."
@@ -232,7 +237,8 @@ export default function CloudinaryUpload({
                         {showManualInput && (
                             <div className="flex items-center gap-2 p-2 bg-slate-50 border border-slate-200 rounded-xl">
                                 <input
-                                    type="url"
+                                    type="text"
+                                    inputMode="url"
                                     value={manualUrl}
                                     onChange={(e) => setManualUrl(e.target.value)}
                                     placeholder="https://... or /images/..."
@@ -278,7 +284,8 @@ export default function CloudinaryUpload({
                     {showManualInput && urlList.length < maxFiles && (
                         <div className="flex items-center gap-2 p-2 bg-slate-50 border border-slate-200 rounded-xl">
                             <input
-                                type="url"
+                                type="text"
+                                inputMode="url"
                                 value={manualUrl}
                                 onChange={(e) => setManualUrl(e.target.value)}
                                 placeholder="https://... or /images/..."

@@ -28,6 +28,7 @@ import {
   Users,
   MessageSquare,
   HelpCircle,
+  BookOpen,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -82,6 +83,7 @@ export default function AccountLayout({
     pathname.startsWith('/account/sizes') ||
     pathname.startsWith('/account/banners') ||
     pathname.startsWith('/account/reviews') ||
+    pathname.startsWith('/account/blog') ||
     pathname.startsWith('/account/contact-inquiries') ||
     pathname.startsWith('/account/site');
 
@@ -214,6 +216,7 @@ export default function AccountLayout({
         <NavItem href="/account/delivery-locations" icon={MapPin} active={pathname.startsWith('/account/delivery-locations')} onClick={closeSidebar}>Delivery Regions</NavItem>
         <NavItem href="/account/promotions" icon={Percent} active={pathname.startsWith('/account/promotions')} onClick={closeSidebar}>Promotions</NavItem>
         <NavItem href="/account/reviews" icon={Star} active={pathname.startsWith('/account/reviews')} onClick={closeSidebar}>Reviews</NavItem>
+        <NavItem href="/account/blog" icon={BookOpen} active={pathname.startsWith('/account/blog')} onClick={closeSidebar}>Blog &amp; Articles</NavItem>
         <NavItem href="/account/contact-inquiries" icon={MessageSquare} active={pathname.startsWith('/account/contact-inquiries')} onClick={closeSidebar}>Contact Inquiries</NavItem>
         <NavItem href="/account/site" icon={Palette} active={pathname === '/account/site'} onClick={closeSidebar}>Site Appearance</NavItem>
         <NavItem href="/account/site?section=faqs" icon={HelpCircle} active={false} onClick={closeSidebar}>FAQs &amp; Policies</NavItem>

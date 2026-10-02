@@ -13,6 +13,7 @@ interface SessionPayload {
 
 function getJwtSecret(): Uint8Array {
   const secret =
+    process.env.SESSION_SECRET ||
     process.env.AUTH_SECRET ||
     process.env.CLERK_SECRET_KEY ||
     'smart-best-brands-secret-key-production-change-this'
@@ -42,10 +43,17 @@ const ADMIN_MANAGEMENT_ROUTES = [
   '/account/customers',
   '/account/banners',
   '/account/reviews',
+  '/account/blog',
+  '/account/contact-inquiries',
   '/account/site',
 ]
 
 export default async function proxy(req: NextRequest) {
+  // Never intercept non-GET requests or server action calls with route redirects
+  if (req.method !== 'GET' || req.headers.has('next-action')) {
+    return NextResponse.next()
+  }
+
   const { pathname, search } = req.nextUrl
   const session = await getSession(req)
   const authenticated = Boolean(session?.sub)
@@ -69,7 +77,10 @@ export default async function proxy(req: NextRequest) {
   if (pathname === '/login' || pathname === '/register') {
     if (authenticated) {
       const redirectParam = req.nextUrl.searchParams.get('redirect_url')
-      const target = redirectParam && redirectParam.startsWith('/') ? redirectParam : '/account'
+      let target = redirectParam && redirectParam.startsWith('/') ? redirectParam : '/account'
+      if (target.startsWith('/login') || target.startsWith('/register')) {
+        target = '/account'
+      }
       return NextResponse.redirect(new URL(target, req.url))
     }
   }

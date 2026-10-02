@@ -12,6 +12,7 @@ export interface SessionUser {
 
 function getJwtSecret(): Uint8Array {
   const secret =
+    process.env.SESSION_SECRET ||
     process.env.AUTH_SECRET ||
     process.env.CLERK_SECRET_KEY ||
     'smart-best-brands-secret-key-production-change-this'

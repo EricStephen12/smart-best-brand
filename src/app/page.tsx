@@ -11,6 +11,7 @@ import { getAllProducts } from '@/actions/products'
 import { getAllBrands } from '@/actions/brands'
 import { getAllCategories } from '@/actions/categories'
 import { getActiveBanners } from '@/actions/banners'
+import { getPublishedBlogPosts } from '@/actions/blog'
 import { buildCollectionTiles } from '@/lib/collections'
 import { pickFeaturedProducts } from '@/lib/featured-products'
 import type { Metadata } from 'next'
@@ -50,17 +51,19 @@ export const metadata: Metadata = {
 }
 
 export default async function Home() {
-  const [productsResult, brandsResult, categoriesResult, bannersResult] = await Promise.all([
+  const [productsResult, brandsResult, categoriesResult, bannersResult, blogResult] = await Promise.all([
     getAllProducts(),
     getAllBrands(),
     getAllCategories(),
     getActiveBanners(),
+    getPublishedBlogPosts({ limit: 3 }),
   ])
 
   const initialProducts = [...((productsResult.success ? productsResult.data : []) || [])]
   const brands = brandsResult.success ? brandsResult.data : []
   const categories = categoriesResult.success ? categoriesResult.data : []
   const banners = bannersResult.success ? bannersResult.data : []
+  const blogPosts = (blogResult.success && blogResult.data) ? blogResult.data : []
   const featured = pickFeaturedProducts(initialProducts, 8)
   const collections = buildCollectionTiles(categories || [], initialProducts, 4)
 
@@ -88,7 +91,7 @@ export default async function Home() {
       <CollectionsSection collections={collections} />
       <PromoBanner />
       <FeaturedProducts products={featured} />
-      <EditorialJournal />
+      <EditorialJournal posts={blogPosts} />
       <NewsletterSection />
     </div>
   )

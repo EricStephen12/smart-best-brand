@@ -516,6 +516,58 @@ export async function updateOrderStatus(id: string, status: string, trackingNote
     }
 }
 
+// Delete order (Admin only)
+export async function deleteOrder(id: string) {
+    try {
+        const session = await getSession()
+        if (!session) {
+            return { success: false, error: 'Not authenticated' }
+        }
+
+        if (session.role !== 'ADMIN') {
+            return { success: false, error: 'Unauthorized: Admin access required' }
+        }
+
+        const existingOrder = await prisma.order.findUnique({
+            where: { id },
+            include: { items: true }
+        })
+
+        if (!existingOrder) {
+            return { success: false, error: 'Order not found' }
+        }
+
+        // If inventory was deducted, restore stock before deletion so inventory remains accurate
+        if (existingOrder.inventoryDeductedAt) {
+            for (const item of existingOrder.items) {
+                try {
+                    await prisma.productVariant.update({
+                        where: { id: item.variantId },
+                        data: {
+                            stock: { increment: item.quantity }
+                        }
+                    })
+                } catch (stockErr) {
+                    console.error('Failed to restock item during order delete:', stockErr)
+                }
+            }
+        }
+
+        // Delete order (OrderItem cascades automatically)
+        await prisma.order.delete({
+            where: { id }
+        })
+
+        revalidatePath('/account/orders')
+        revalidatePath('/account')
+
+        return { success: true }
+    } catch (error: any) {
+        console.error('Error deleting order:', error)
+        return { success: false, error: error?.message || 'Failed to delete order' }
+    }
+}
+
 /**
  * Confirm a Paystack payment by verifying the transaction with Paystack.
  * Marks the order PAID only after amount/currency/status checks pass.

@@ -25,6 +25,7 @@ import toast from 'react-hot-toast'
 import {
   Loader2,
   Save,
+  Check,
   CheckCircle2,
   Palette,
   Home,
@@ -172,6 +173,7 @@ export default function SiteSettingsPage() {
     ctaHref: '/products',
   })
   const [addingBanner, setAddingBanner] = useState(false)
+  const [creatingSlide, setCreatingSlide] = useState(false)
   const [activeHeroSlideIndex, setActiveHeroSlideIndex] = useState(0)
 
   // Shopify-style customizer state (Homepage, Pages & FAQs, Theme Styles)
@@ -274,20 +276,52 @@ export default function SiteSettingsPage() {
     }
   }
 
-  const handleSaveSlide = async (slide: BannerItem) => {
+  const handleAddSlide = async () => {
+    setCreatingSlide(true)
+    const nextNum = banners.length + 1
+    const res = await createBanner({
+      title: `Slide ${nextNum}`,
+      subtitle: '',
+      imageUrl: '',
+      ctaLabel: 'Shop products',
+      ctaHref: '/products',
+      sortOrder: banners.length,
+      isActive: true,
+    })
+    setCreatingSlide(false)
+    if (res.success && res.data) {
+      const updated = [...banners, res.data as BannerItem]
+      setBanners(updated)
+      setActiveHeroSlideIndex(updated.length - 1)
+      if (form) syncIframe(form, updated)
+      toast.success(`Slide ${nextNum} added!`)
+    } else {
+      toast.error(res.error || 'Failed to create slide')
+    }
+  }
+
+  const handleSaveSlide = async (slide: BannerItem, slideIdx: number) => {
     setSavingBannerId(slide.id)
+    const title = slideIdx === 0 ? (form?.heroTitle || slide.title || 'Slide 1') : (slide.title || `Slide ${slideIdx + 1}`)
+    const subtitle = slideIdx === 0 ? (form?.heroSubtitle ?? slide.subtitle) : slide.subtitle
+    const ctaLabel = slideIdx === 0 ? (form?.heroCtaLabel || slide.ctaLabel) : slide.ctaLabel
+    const ctaHref = slideIdx === 0 ? (form?.heroCtaHref || slide.ctaHref) : slide.ctaHref
+
     const res = await updateBanner(slide.id, {
-      title: slide.title,
-      subtitle: slide.subtitle,
-      imageUrl: slide.imageUrl,
-      ctaLabel: slide.ctaLabel,
-      ctaHref: slide.ctaHref,
-      isActive: slide.isActive,
-      sortOrder: slide.sortOrder,
+      title,
+      subtitle: subtitle || null,
+      imageUrl: slide.imageUrl || '',
+      ctaLabel: ctaLabel || null,
+      ctaHref: ctaHref || null,
+      isActive: slide.isActive ?? true,
+      sortOrder: slideIdx,
     })
     setSavingBannerId(null)
     if (res.success) {
-      toast.success('Slide saved!')
+      toast.success(`Slide ${slideIdx + 1} saved!`)
+      if (res.data) {
+        setBanners((prev) => prev.map((b) => (b.id === slide.id ? (res.data as BannerItem) : b)))
+      }
       if (form) syncIframe(form, banners)
     } else {
       toast.error(res.error || 'Failed to save slide')
@@ -332,10 +366,16 @@ export default function SiteSettingsPage() {
   }
 
   const handleDeleteBanner = async (id: string) => {
+    if (banners.length <= 1) {
+      toast.error('You must keep at least one slide in the carousel')
+      return
+    }
     if (!confirm('Are you sure you want to remove this slide from the carousel?')) return
 
+    const curIdx = banners.findIndex((b) => b.id === id)
     const updated = banners.filter((b) => b.id !== id)
     setBanners(updated)
+    setActiveHeroSlideIndex(Math.max(0, (curIdx >= 0 ? curIdx : 0) - 1))
     if (form) syncIframe(form, updated)
 
     const res = await deleteBanner(id)
@@ -467,7 +507,6 @@ export default function SiteSettingsPage() {
       }
 
       await loadBanners()
-      setInitialBanners(banners)
 
       if (res.data) {
         setForm(res.data)
@@ -1171,47 +1210,27 @@ export default function SiteSettingsPage() {
                                     ))}
                                     <button
                                       type="button"
-                                      onClick={() => {
-                                        const newSlide: BannerItem = {
-                                          id: `banner-temp-${Date.now()}`,
-                                          title: '',
-                                          subtitle: '',
-                                          imageUrl: '',
-                                          ctaLabel: 'Shop products',
-                                          ctaHref: '/products',
-                                          isActive: true,
-                                          sortOrder: banners.length,
-                                        }
-                                        const updated = [...banners, newSlide]
-                                        setBanners(updated)
-                                        setActiveHeroSlideIndex(updated.length - 1)
-                                        if (form) syncIframe(form, updated)
-                                      }}
-                                      className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100/70 border border-sky-200/60 rounded-lg transition-all shrink-0"
+                                      disabled={creatingSlide}
+                                      onClick={handleAddSlide}
+                                      className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100/70 border border-sky-200/60 rounded-lg transition-all shrink-0 disabled:opacity-50"
                                     >
-                                      <Plus className="w-3.5 h-3.5" />
-                                      <span>Add Slide</span>
+                                      {creatingSlide ? (
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                      ) : (
+                                        <Plus className="w-3.5 h-3.5" />
+                                      )}
+                                      <span>{creatingSlide ? 'Adding...' : 'Add Slide'}</span>
                                     </button>
                                   </div>
 
-                                  {banners.length > 1 && curSlideIdx > 0 && (
+                                  {banners.length > 1 && (
                                     <button
                                       type="button"
-                                      onClick={() => {
-                                        const bannerToDelete = banners[curSlideIdx]
-                                        if (bannerToDelete && !bannerToDelete.id.startsWith('banner-temp-')) {
-                                          void handleDeleteBanner(bannerToDelete.id)
-                                        } else {
-                                          const updated = banners.filter((_, idx) => idx !== curSlideIdx)
-                                          setBanners(updated)
-                                          setActiveHeroSlideIndex(Math.max(0, curSlideIdx - 1))
-                                          if (form) syncIframe(form, updated)
-                                        }
-                                      }}
+                                      onClick={() => handleDeleteBanner(currentSlide.id)}
                                       className="text-[11px] font-medium text-rose-600 hover:text-rose-700 flex items-center gap-1 hover:bg-rose-50 px-2 py-1 rounded-lg transition-colors"
                                     >
                                       <Trash2 className="w-3.5 h-3.5" />
-                                      <span>Delete Slide</span>
+                                      <span>Delete Slide {curSlideIdx + 1}</span>
                                     </button>
                                   )}
                                 </div>
@@ -1222,24 +1241,12 @@ export default function SiteSettingsPage() {
                                   hint="Full-screen photo for this slide"
                                 >
                                   <CloudinaryUpload
+                                    key={`slide-photo-${currentSlide?.id || curSlideIdx}`}
                                     value={currentSlide?.imageUrl ? [currentSlide.imageUrl] : []}
                                     onChange={(urls) => {
                                       const newUrl = urls[0] || ''
                                       if (banners.length > 0 && banners[curSlideIdx]) {
                                         handleBannerFieldChange(banners[curSlideIdx].id, 'imageUrl', newUrl)
-                                      } else {
-                                        setBanners([
-                                          {
-                                            id: 'hero-primary',
-                                            title: form.heroTitle,
-                                            subtitle: form.heroSubtitle,
-                                            imageUrl: newUrl,
-                                            ctaLabel: form.heroCtaLabel,
-                                            ctaHref: form.heroCtaHref,
-                                            isActive: true,
-                                            sortOrder: 0,
-                                          },
-                                        ])
                                       }
                                     }}
                                     maxFiles={1}
@@ -1319,6 +1326,31 @@ export default function SiteSettingsPage() {
                                       className={inputClass}
                                     />
                                   </Field>
+                                </div>
+
+                                {/* Slide Actions: Save Slide button */}
+                                <div className="flex items-center justify-between pt-3 border-t border-stone-200/70">
+                                  <p className="text-[11px] text-stone-500">
+                                    Slide {curSlideIdx + 1} of {banners.length}
+                                  </p>
+                                  <button
+                                    type="button"
+                                    disabled={savingBannerId === currentSlide.id}
+                                    onClick={() => handleSaveSlide(currentSlide, curSlideIdx)}
+                                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-950 hover:bg-sky-900 text-white text-xs font-bold rounded-xl transition-all shadow-sm active:scale-98 disabled:opacity-50"
+                                  >
+                                    {savingBannerId === currentSlide.id ? (
+                                      <>
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                        <span>Saving Slide...</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Check className="w-3.5 h-3.5" />
+                                        <span>Save Slide {curSlideIdx + 1}</span>
+                                      </>
+                                    )}
+                                  </button>
                                 </div>
                               </div>
                             )
