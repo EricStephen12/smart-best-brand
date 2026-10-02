@@ -7,6 +7,7 @@ import {
     Clock,
     ChevronRight,
     ArrowLeft,
+    ArrowRight,
     BookOpen,
     ShoppingBag,
     Sparkles,
@@ -236,28 +237,30 @@ export default async function BlogPostPage({ params }: PageProps) {
                 </div>
             </main>
 
-            {/* Call to action commercial banner */}
-            <section className="max-w-4xl mx-auto px-6 sm:px-8 mt-16">
-                <div className="bg-blue-950 text-white rounded-3xl p-8 sm:p-12 relative overflow-hidden shadow-xl border border-blue-900">
-                    <div className="absolute top-0 right-0 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
+            {/* Call to action editorial luxury banner */}
+            <section className="max-w-4xl mx-auto px-6 sm:px-8 mt-16 font-sans">
+                <div className="bg-[#0b162c] text-white rounded-3xl p-8 sm:p-12 relative overflow-hidden shadow-2xl border border-white/10">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
+                    <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
                     <div className="relative z-10 max-w-xl space-y-4">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full text-xs font-bold uppercase tracking-wider text-sky-300">
-                            <Sparkles className="w-3.5 h-3.5" />
-                            Original Nigerian Sleep Comfort
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/[0.08] backdrop-blur-md rounded-full text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-300 border border-white/10">
+                            <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+                            <span>The Restoration Promise</span>
                         </div>
-                        <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
-                            Ready for Truly Restorative Sleep?
+                        <h3 className="font-playfair text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">
+                            Invest in sleep that changes how you wake up.
                         </h3>
-                        <p className="text-sm text-blue-200/80 leading-relaxed font-normal">
-                            Explore authentic Mouka, Vitafoam, and Royal Foam mattresses with verified factory warranties. Fast door-to-door delivery across Abuja, Benin City, and surrounding states.
+                        <p className="text-sm sm:text-base text-stone-300/85 leading-relaxed font-normal">
+                            Factory-sealed Mouka, Vitafoam, and Royal Foam mattresses paired with bespoke luxury furniture. Genuine materials, verifiable manufacturer warranties, and white-glove doorstep delivery.
                         </p>
                         <div className="pt-2">
                             <Link
                                 href="/products"
-                                className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-white text-blue-950 rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-sky-50 transition-colors shadow-md"
+                                className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-white text-blue-950 hover:bg-sky-50 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg hover:shadow-xl active:scale-98"
                             >
-                                <ShoppingBag className="w-4 h-4" />
-                                <span>Shop Mattresses &amp; Furniture</span>
+                                <ShoppingBag className="w-4 h-4 text-sky-700" />
+                                <span>Explore The Collection</span>
+                                <ArrowRight className="w-3.5 h-3.5 text-blue-950 ml-1" />
                             </Link>
                         </div>
                     </div>
