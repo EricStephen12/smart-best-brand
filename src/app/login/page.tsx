@@ -36,12 +36,13 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // If already logged in, redirect cleanly without conflict
+  // If already authenticated on mount (e.g. user navigated back), redirect once.
+  // Do NOT trigger during form submission — handleSubmit owns navigation then.
   useEffect(() => {
     if (!authLoading && user && !isSubmitting) {
-      window.location.href = targetUrl
+      router.replace(targetUrl)
     }
-  }, [user, authLoading, targetUrl, isSubmitting])
+  }, [user, authLoading]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -58,7 +59,12 @@ function LoginForm() {
     try {
       const res = await login({ email: cleanEmail, password })
       if (res.success) {
-        window.location.href = targetUrl
+        // Use router.push + refresh so Next.js navigation stays clean and
+        // middleware cookie is re-evaluated. Never use window.location.href
+        // inside a server-action callback — it aborts the RSC fetch in-flight
+        // and triggers the Next.js error boundary.
+        router.push(targetUrl)
+        router.refresh()
         return
       } else {
         setError(res.error || 'Invalid email or password')

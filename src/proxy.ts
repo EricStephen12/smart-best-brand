@@ -49,8 +49,15 @@ const ADMIN_MANAGEMENT_ROUTES = [
 ]
 
 export default async function proxy(req: NextRequest) {
-  // Never intercept non-GET requests or server action calls with route redirects
-  if (req.method !== 'GET' || req.headers.has('next-action')) {
+  // Never intercept non-GET requests, server actions, or RSC flight requests.
+  // Redirecting an RSC flight request (text/x-component) causes the client router
+  // to receive HTML instead of RSC data, which crashes with a client-side exception.
+  const isRscFlight =
+    req.headers.has('rsc') ||
+    req.headers.get('accept')?.includes('text/x-component') ||
+    req.nextUrl.searchParams.has('_rsc')
+
+  if (req.method !== 'GET' || req.headers.has('next-action') || isRscFlight) {
     return NextResponse.next()
   }
 

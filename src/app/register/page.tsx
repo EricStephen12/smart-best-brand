@@ -39,12 +39,13 @@ function RegisterForm() {
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // If already logged in, redirect cleanly without conflict
+  // If already authenticated on mount (e.g. user navigated back), redirect once.
+  // Do NOT trigger during form submission — handleSubmit owns navigation then.
   useEffect(() => {
     if (!authLoading && user && !isSubmitting) {
-      window.location.href = targetUrl
+      router.replace(targetUrl)
     }
-  }, [user, authLoading, targetUrl, isSubmitting])
+  }, [user, authLoading]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -70,7 +71,10 @@ function RegisterForm() {
     try {
       const res = await register({ name, email: email.trim(), password, phone })
       if (res.success) {
-        window.location.href = targetUrl
+        // Use router.push + refresh — window.location.href aborts the RSC fetch
+        // mid-flight and triggers the Next.js client-side exception overlay.
+        router.push(targetUrl)
+        router.refresh()
         return
       } else {
         setError(res.error || 'Failed to create account')
