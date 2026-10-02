@@ -41,9 +41,9 @@ export default function EditorialJournal({ posts }: EditorialJournalProps = {}) 
     return null
   }
 
-  const eyebrow = hasDbPosts ? 'Journal' : (customJournal?.eyebrow || 'Guides')
-  const title = hasDbPosts ? 'Sleep Guides & Editorial' : (customJournal?.title || 'Buying guides')
-  const viewAllLabel = customJournal?.viewAllLabel || 'View all'
+  const eyebrow = customJournal?.eyebrow || 'Journal'
+  const title = customJournal?.title || 'Stories & Living'
+  const viewAllLabel = customJournal?.viewAllLabel || 'Explore all stories'
   const viewAllHref = hasDbPosts ? '/blog' : (customJournal?.viewAllHref || '/blog')
 
   return (
@@ -56,7 +56,7 @@ export default function EditorialJournal({ posts }: EditorialJournalProps = {}) 
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 mb-3">
               {eyebrow}
             </p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-neutral-900 uppercase font-sans">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-neutral-900 font-sans">
               {title}
             </h2>
           </div>
