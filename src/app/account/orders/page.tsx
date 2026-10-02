@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import OrdersList from '@/components/admin/OrdersList';
 import { getAllOrders } from '@/actions/orders';
 import { useAuth } from '@/hooks/use-auth';
-import { Loader2, Package } from 'lucide-react';
+import { Loader2, Package, Download } from 'lucide-react';
+import { exportOrdersToCSV } from '@/lib/export-orders';
 
 export default function OrdersPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -30,6 +31,10 @@ export default function OrdersPage() {
 
     loadOrders();
   }, [user, authLoading]);
+
+  const handleExport = () => {
+    exportOrdersToCSV(orders, 'smart-best-brands-all-orders');
+  };
 
   if (authLoading || loading) {
     return (
@@ -60,8 +65,14 @@ export default function OrdersPage() {
 
         {isAdmin && (
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-stone-200 font-semibold text-xs uppercase tracking-wider text-stone-600 hover:text-blue-950 hover:border-stone-300 transition-all">
-              Export Orders
+            <button
+              onClick={handleExport}
+              disabled={orders.length === 0}
+              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-stone-200 font-semibold text-xs uppercase tracking-wider text-blue-950 hover:bg-stone-50 hover:border-stone-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              title={orders.length === 0 ? 'No orders to export' : `Export ${orders.length} orders to CSV`}
+            >
+              <Download className="w-4 h-4 text-sky-700" />
+              <span>Export Orders (CSV)</span>
             </button>
           </div>
         )}

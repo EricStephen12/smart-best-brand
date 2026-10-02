@@ -34,6 +34,7 @@ async function getSession(req: NextRequest): Promise<SessionPayload | null> {
 }
 
 const ADMIN_MANAGEMENT_ROUTES = [
+  '/account/analytics',
   '/account/products',
   '/account/brands',
   '/account/categories',

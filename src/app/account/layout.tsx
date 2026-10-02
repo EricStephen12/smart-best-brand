@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   LayoutDashboard,
+  BarChart3,
   ShoppingBag,
   Tags,
   Package,
@@ -75,6 +76,7 @@ export default function AccountLayout({
 
   const isAdmin = user.role === 'ADMIN';
   const isManagementRoute =
+    pathname.startsWith('/account/analytics') ||
     pathname.startsWith('/account/products') ||
     pathname.startsWith('/account/brands') ||
     pathname.startsWith('/account/promotions') ||
@@ -207,6 +209,7 @@ export default function AccountLayout({
 
       <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
         <NavItem href="/account" icon={LayoutDashboard} active={pathname === '/account'} onClick={closeSidebar}>Dashboard</NavItem>
+        <NavItem href="/account/analytics" icon={BarChart3} active={pathname.startsWith('/account/analytics')} onClick={closeSidebar}>Analytics &amp; Reports</NavItem>
         <NavItem href="/account/orders" icon={Package} active={pathname.startsWith('/account/orders')} onClick={closeSidebar}>Orders</NavItem>
         <NavItem href="/account/products" icon={ShoppingBag} active={pathname.startsWith('/account/products')} onClick={closeSidebar}>Products</NavItem>
         <NavItem href="/account/brands" icon={Tags} active={pathname.startsWith('/account/brands')} onClick={closeSidebar}>Brands</NavItem>

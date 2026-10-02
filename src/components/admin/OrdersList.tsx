@@ -4,11 +4,12 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import {
     Search, Eye, Truck, CheckCircle, XCircle,
-    Clock, Loader2, Package, ChevronLeft, ChevronRight, Trash2,
+    Clock, Loader2, Package, ChevronLeft, ChevronRight, Trash2, Download,
 } from 'lucide-react';
 import { updateOrderStatus, deleteOrder } from '@/actions/orders';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '@/hooks/use-auth';
+import { exportOrdersToCSV } from '@/lib/export-orders';
 
 interface OrdersListProps {
     initialOrders: any[];
@@ -114,34 +115,53 @@ export default function OrdersList({ initialOrders }: OrdersListProps) {
                 </div>
             </div>
 
-            {/* Status tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                {(['ALL', 'PENDING', 'PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'] as const).map((st) => {
-                    const active = selectedStatus === st;
-                    const count = statusCounts[st];
-                    const isPending = st === 'PENDING' && count > 0;
-                    return (
-                        <button
-                            key={st}
-                            type="button"
-                            onClick={() => setSelectedStatus(st)}
-                            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                                active
-                                    ? 'bg-blue-950 text-white shadow-sm'
-                                    : 'bg-white text-slate-600 hover:bg-stone-100 border border-stone-200'
-                            }`}
-                        >
-                            {st === 'ALL' ? 'All' : st.charAt(0) + st.slice(1).toLowerCase()}
-                            <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                                active ? 'bg-white/20 text-white'
-                                : isPending ? 'bg-amber-100 text-amber-800'
-                                : 'bg-stone-100 text-slate-500'
-                            }`}>
-                                {count}
-                            </span>
-                        </button>
-                    );
-                })}
+            {/* Status tabs and quick export */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
+                    {(['ALL', 'PENDING', 'PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'] as const).map((st) => {
+                        const active = selectedStatus === st;
+                        const count = statusCounts[st];
+                        const isPending = st === 'PENDING' && count > 0;
+                        return (
+                            <button
+                                key={st}
+                                type="button"
+                                onClick={() => setSelectedStatus(st)}
+                                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                                    active
+                                        ? 'bg-blue-950 text-white shadow-sm'
+                                        : 'bg-white text-slate-600 hover:bg-stone-100 border border-stone-200'
+                                }`}
+                            >
+                                {st === 'ALL' ? 'All' : st.charAt(0) + st.slice(1).toLowerCase()}
+                                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                                    active ? 'bg-white/20 text-white'
+                                    : isPending ? 'bg-amber-100 text-amber-800'
+                                    : 'bg-stone-100 text-slate-500'
+                                }`}>
+                                    {count}
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {isAdmin && filteredOrders.length > 0 && (
+                    <button
+                        type="button"
+                        onClick={() =>
+                            exportOrdersToCSV(
+                                filteredOrders,
+                                selectedStatus === 'ALL' ? 'orders' : `orders-${selectedStatus.toLowerCase()}`
+                            )
+                        }
+                        className="inline-flex items-center gap-2 px-3.5 py-2 bg-stone-100 hover:bg-stone-200 border border-stone-200/80 rounded-xl text-xs font-semibold text-blue-950 transition-colors self-start sm:self-auto shrink-0"
+                        title={`Export ${filteredOrders.length} ${selectedStatus === 'ALL' ? '' : selectedStatus.toLowerCase() + ' '}orders to CSV`}
+                    >
+                        <Download className="w-3.5 h-3.5 text-sky-700" />
+                        <span>Export CSV ({filteredOrders.length})</span>
+                    </button>
+                )}
             </div>
 
             {/* Table */}

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Package, ShoppingBag, Tags, Banknote } from 'lucide-react';
+import { Package, ShoppingBag, Tags, Banknote, BarChart3, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 interface AdminOverviewProps {
@@ -37,7 +37,26 @@ function statusStyle(status: string) {
 
 export default function AdminOverview({ stats, recentOrders }: AdminOverviewProps) {
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 font-sans">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl sm:text-3xl font-black text-blue-950 tracking-tight">
+                        Store Dashboard
+                    </h1>
+                    <p className="text-slate-500 text-sm mt-0.5">
+                        High-level summary of store activity, sales revenue, and recent customer orders.
+                    </p>
+                </div>
+                <Link
+                    href="/account/analytics"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-950 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-sky-900 transition-all shadow-sm self-start sm:self-auto shrink-0"
+                >
+                    <BarChart3 className="w-4 h-4 text-sky-400" />
+                    <span>Detailed Analytics</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+            </div>
+
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 <Stat
                     label="Orders"
